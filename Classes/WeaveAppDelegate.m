@@ -7,7 +7,7 @@
 //
 
 #import "WeaveAppDelegate.h"
-#import "WeaveViewController.h"
+#import "WeaveLoginViewController.h"
 
 @implementation WeaveAppDelegate
 
@@ -16,7 +16,6 @@
 
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {    
-    
     // Override point for customization after app launch    
     [window addSubview:viewController.view];
     [window makeKeyAndVisible];
