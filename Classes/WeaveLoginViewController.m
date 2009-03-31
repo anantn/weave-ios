@@ -21,7 +21,7 @@
 	if (process == NO) {
 		process = YES;
 		submit.enabled = NO;
-		[logo removeFromSuperview]; 
+		[logo setAlpha:0.0]; 
 		[spinner setAlpha:1.0];
 		[spinner startAnimating];
 		
@@ -30,6 +30,19 @@
 		passphrase = pphField.text;
 		
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+		if ([app.service verifyWithUsername:username password:password andPassphrase:passphrase]) {
+			/* Change View */
+		} else {
+			UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+			
+			[spinner stopAnimating];
+			[spinner setAlpha:0.0];
+			[logo setAlpha:1.0];
+			submit.enabled = YES;
+			process = NO;
+		}
 	}
 }
 
