@@ -6,24 +6,25 @@
 //  Copyright Anant Narayanan 2009. All rights reserved.
 //
 
+#import "WeaveService.h"
 #import "WeaveAppDelegate.h"
 #import "WeaveLoginViewController.h"
 
 @implementation WeaveAppDelegate
 
-@synthesize window;
-@synthesize viewController;
+@synthesize window, service, loginController;
 
-
-- (void)applicationDidFinishLaunching:(UIApplication *)application {    
-    // Override point for customization after app launch    
-    [window addSubview:viewController.view];
+- (void)applicationDidFinishLaunching:(UIApplication *)application {
+	service = [[WeaveService alloc] initWithServer:@"https://services.mozilla.com/"];
+    // Override point for customization after app launch
+    [window addSubview:loginController.view];
     [window makeKeyAndVisible];
 }
 
 
 - (void)dealloc {
-    [viewController release];
+	[service release];
+    [loginController release];
     [window release];
     [super dealloc];
 }

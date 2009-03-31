@@ -6,6 +6,8 @@
 //  Copyright Anant Narayanan 2009. All rights reserved.
 //
 
+#import "WeaveService.h"
+#import "WeaveAppDelegate.h"
 #import "WeaveLoginViewController.h"
 
 @implementation WeaveLoginViewController
@@ -16,16 +18,18 @@
 @synthesize username, password, passphrase;
 
 - (IBAction)login:(id)sender {
-	if (self.process == NO) {
-		self.process = YES;
-		self.submit.enabled = NO;
-		[self.logo removeFromSuperview]; 
-		[self.spinner setAlpha:1.0];
-		[self.spinner startAnimating];
+	if (process == NO) {
+		process = YES;
+		submit.enabled = NO;
+		[logo removeFromSuperview]; 
+		[spinner setAlpha:1.0];
+		[spinner startAnimating];
 		
-		self.username = usrField.text;
-		self.password = pwdField.text;
-		self.passphrase = pphField.text;
+		username = usrField.text;
+		password = pwdField.text;
+		passphrase = pphField.text;
+		
+		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 	}
 }
 

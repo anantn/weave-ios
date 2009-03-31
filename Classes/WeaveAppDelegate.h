@@ -8,15 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+@class WeaveService;
 @class WeaveLoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;
-    WeaveLoginViewController *viewController;
+	WeaveService *service;
+    WeaveLoginViewController *loginController;
 }
 
+@property (retain) WeaveService *service;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet WeaveLoginViewController *viewController;
+@property (nonatomic, retain) IBOutlet WeaveLoginViewController *loginController;
 
 @end
-
