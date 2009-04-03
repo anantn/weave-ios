@@ -8,7 +8,7 @@
  */
 @protocol WeaveVerify
 
--(void) verified:(BOOL)answer;
+-(void) verified:(NSString *)answer;
 
 @end
 

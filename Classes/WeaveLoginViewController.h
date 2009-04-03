@@ -50,6 +50,7 @@
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
 -(IBAction) login:(id)sender;
+-(void) verified:(NSString *)answer;
 
 @end
 

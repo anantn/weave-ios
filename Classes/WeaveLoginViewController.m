@@ -34,9 +34,17 @@
 	}
 }
 
--(void) verified:(BOOL)answer {
-	if (answer) {
-		/* Change view */
+-(void) verified:(NSString *)answer {
+	if (1) {
+		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:answer delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+		
+		[spinner stopAnimating];
+		[spinner setAlpha:0.0];
+		[logo setAlpha:1.0];
+		submit.enabled = YES;
+		process = NO;
 	} else {
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];

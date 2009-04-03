@@ -15,10 +15,10 @@
 @synthesize window, service, loginController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[WeaveService alloc] initWithServer:@"https://services.mozilla.com/"];
-    // Override point for customization after app launch
-    [window addSubview:loginController.view];
-    [window makeKeyAndVisible];
+	service = [[WeaveService alloc] initWithServer:@"https://auth.services.mozilla.com/"];
+	// Override point for customization after app launch
+	[window addSubview:loginController.view];
+	[window makeKeyAndVisible];
 }
 
 

@@ -13,8 +13,10 @@
 
 @synthesize cb, responseData;
 
--(void) getResource:(NSURL *)url withCallback:(id <WeaveResponder>)callback {
+-(void) getResource:(NSURL *)url withCallback:(id <WeaveResponder>)callback andIndex:(int)i {
+	index = i;
 	cb = callback;
+	
 	responseData = [[NSMutableData data] retain];
 	
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -31,14 +33,14 @@
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	[responseData release];
-	[cb failureWithError:error];
+	[cb failureWithError:error andIndex:index];
 }
 
 -(void) connectionDidFinishLoading:(NSURLConnection *)connection {
 	NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
 	[responseData release];
 	
-	[cb successWithString:responseString];
+	[cb successWithString:responseString andIndex:index];
 }
 
 @end

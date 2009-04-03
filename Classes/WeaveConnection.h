@@ -11,12 +11,13 @@
 
 @interface WeaveConnection : NSObject {
 	id cb;
+	int index;
 	NSMutableData *responseData;
 }
 
 @property (nonatomic, retain) id cb;
 @property (nonatomic, retain) NSMutableData *responseData;
 
--(void) getResource:(NSURL *)path withCallback:(id <WeaveResponder>)callback;
+-(void) getResource:(NSURL *)path withCallback:(id <WeaveResponder>)callback andIndex:(int)i;
 
 @end

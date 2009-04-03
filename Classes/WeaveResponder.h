@@ -9,7 +9,7 @@
 
 @protocol WeaveResponder
 
--(void) successWithString:(NSString *)response;
--(void) failureWithError:(NSError *)error;
+-(void) successWithString:(NSString *)response andIndex:(int)i;
+-(void) failureWithError:(NSError *)error andIndex:(int)i;
 
 @end
