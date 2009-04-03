@@ -7,17 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class WeaveService;
+#import "WeaveResponder.h"
 
 @interface WeaveConnection : NSObject {
-	WeaveService *cb;
+	id cb;
 	NSMutableData *responseData;
 }
 
-@property (nonatomic, retain) WeaveService *cb;
+@property (nonatomic, retain) id cb;
 @property (nonatomic, retain) NSMutableData *responseData;
 
--(void) getResource:(NSURL *)path withCallback:(WeaveService *)callback;
+-(void) getResource:(NSURL *)path withCallback:(id <WeaveResponder>)callback;
 
 @end

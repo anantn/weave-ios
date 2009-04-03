@@ -7,13 +7,13 @@
 //
 
 #import "WeaveConnection.h"
-
+#import "WeaveResponder.h"
 
 @implementation WeaveConnection
 
 @synthesize cb, responseData;
 
--(void) getResource:(NSURL *)url withCallback:(WeaveService *)callback {
+-(void) getResource:(NSURL *)url withCallback:(id <WeaveResponder>)callback {
 	cb = callback;
 	responseData = [[NSMutableData data] retain];
 	
@@ -31,7 +31,7 @@
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	[responseData release];
-	[cb failedWithError:error];
+	[cb failureWithError:error];
 }
 
 -(void) connectionDidFinishLoading:(NSURLConnection *)connection {
