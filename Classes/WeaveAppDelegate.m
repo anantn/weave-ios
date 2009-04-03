@@ -14,7 +14,7 @@
 
 @synthesize window, service, loginController;
 
-- (void)applicationDidFinishLaunching:(UIApplication *)application {
+-(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[WeaveService alloc] initWithServer:@"https://services.mozilla.com/"];
     // Override point for customization after app launch
     [window addSubview:loginController.view];
@@ -22,7 +22,7 @@
 }
 
 
-- (void)dealloc {
+-(void) dealloc {
 	[service release];
     [loginController release];
     [window release];

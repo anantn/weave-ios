@@ -18,6 +18,6 @@
 @property (nonatomic, retain) WeaveService *cb;
 @property (nonatomic, retain) NSMutableData *responseData;
 
-- (void)getResource:(NSURL *)path withCallback:(WeaveService *)callback;
+-(void) getResource:(NSURL *)path withCallback:(WeaveService *)callback;
 
 @end

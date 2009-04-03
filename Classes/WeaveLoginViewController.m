@@ -17,7 +17,7 @@
 @synthesize logo, spinner, submit, process;
 @synthesize username, password, passphrase;
 
-- (IBAction)login:(id)sender {
+-(IBAction) login:(id)sender {
 	if (process == NO) {
 		process = YES;
 		submit.enabled = NO;
@@ -34,7 +34,7 @@
 	}
 }
 
-- (void)verified:(BOOL)answer {
+-(void) verified:(BOOL)answer {
 	if (answer) {
 		/* Change view */
 	} else {
@@ -50,24 +50,24 @@
 	}
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)field {
+-(BOOL) textFieldShouldReturn:(UITextField *)field {
 	[field resignFirstResponder];
 	return YES;
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+-(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
 
-- (void)didReceiveMemoryWarning {
+-(void) didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
     // Release anything that's not essential, such as cached data
 }
 
 
-- (void)dealloc {
+-(void) dealloc {
 	[logo release];
 	[submit release];
 	

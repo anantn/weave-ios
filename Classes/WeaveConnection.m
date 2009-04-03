@@ -13,7 +13,7 @@
 
 @synthesize cb, responseData;
 
-- (void)getResource:(NSURL *)url withCallback:(WeaveService *)callback {
+-(void) getResource:(NSURL *)url withCallback:(WeaveService *)callback {
 	cb = callback;
 	responseData = [[NSMutableData data] retain];
 	
@@ -21,20 +21,20 @@
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+-(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	[responseData setLength:0];
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+-(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
 	[responseData appendData:data];
 }
 
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+-(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	[responseData release];
 	[cb failedWithError:error];
 }
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+-(void) connectionDidFinishLoading:(NSURLConnection *)connection {
 	NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
 	[responseData release];
 	

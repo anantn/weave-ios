@@ -48,7 +48,7 @@
 
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
-- (IBAction)login:(id)sender;
+-(IBAction) login:(id)sender;
 
 @end
 
