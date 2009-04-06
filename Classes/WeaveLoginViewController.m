@@ -35,6 +35,12 @@
 }
 
 -(void) verified:(BOOL)answer {
+	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+	NSLog([NSString stringWithFormat:@"Got pubkey: %@", app.service.public_key]);
+	NSLog([NSString stringWithFormat:@"Got privkey: %@", app.service.private_key]);
+	NSLog([NSString stringWithFormat:@"Got iv: %@", app.service.iv]);
+	NSLog([NSString stringWithFormat:@"Got salt: %@", app.service.salt]);
+	
 	if (answer) {
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Success!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];

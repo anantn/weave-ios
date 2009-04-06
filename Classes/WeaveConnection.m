@@ -18,7 +18,7 @@
 	cb = callback;
 	
 	responseData = [[NSMutableData data] retain];
-	NSLog([NSString stringWithFormat:@"Request for %@!", [url absoluteString]]);
+	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
