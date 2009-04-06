@@ -34,9 +34,9 @@
 	}
 }
 
--(void) verified:(NSString *)answer {
-	if (1) {
-		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:answer delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+-(void) verified:(BOOL)answer {
+	if (answer) {
+		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Success!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
 		

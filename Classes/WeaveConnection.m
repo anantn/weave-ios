@@ -18,13 +18,22 @@
 	cb = callback;
 	
 	responseData = [[NSMutableData data] retain];
-	
+	NSLog([NSString stringWithFormat:@"Request for %@!", [url absoluteString]]);
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-	[responseData setLength:0];
+	int code = [(NSHTTPURLResponse *)response statusCode];
+	NSLog([NSString stringWithFormat:@"Got response code %d", code]);
+	
+	if (code != 200) {
+		[connection cancel];
+		[responseData release];
+		[cb failureWithError:[NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil] andIndex:index];
+	} else {
+		[responseData setLength:0];
+	}
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
