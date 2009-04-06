@@ -59,8 +59,19 @@
 }
 
 -(BOOL) textFieldShouldReturn:(UITextField *)field {
-	[field resignFirstResponder];
-	return YES;
+	if (field == usrField) {
+		[field resignFirstResponder];
+		[pwdField becomeFirstResponder];
+		return NO;
+	} else if (field == pwdField) {
+		[field resignFirstResponder];
+		[pphField becomeFirstResponder];
+		return NO;
+	} else {
+		[pphField resignFirstResponder];
+		[self login:pphField];
+		return YES;
+	}
 }
 
 -(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
