@@ -35,13 +35,8 @@
 }
 
 -(void) verified:(BOOL)answer {
-	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	NSLog([NSString stringWithFormat:@"Got pubkey: %@", app.service.public_key]);
-	NSLog([NSString stringWithFormat:@"Got privkey: %@", app.service.private_key]);
-	NSLog([NSString stringWithFormat:@"Got iv: %@", app.service.iv]);
-	NSLog([NSString stringWithFormat:@"Got salt: %@", app.service.salt]);
-	
 	if (answer) {
+		/* We should switch view here */
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Success!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
@@ -52,6 +47,7 @@
 		submit.enabled = YES;
 		process = NO;
 	} else {
+		/* Invalid credentials, try again */
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];

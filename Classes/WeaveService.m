@@ -11,7 +11,7 @@
 
 @implementation WeaveService
 
-@synthesize cb, conn, protocol, server, baseURI;
+@synthesize cb, conn, crypto, protocol, server, baseURI;
 @synthesize username, password, passphrase;
 @synthesize iv, salt, public_key, private_key;
 
@@ -21,6 +21,8 @@
 	if (self) {
 		self.server = address;
 		self.protocol = @"https://";
+		self.crypto = [WeaveCrypto alloc];
+		self.conn = [WeaveConnection alloc];
 	}
 	
 	return self;
@@ -30,7 +32,6 @@
 	NSString *cl = [NSString stringWithFormat:@"%@%@/0.3/api/register/chknode/%@", protocol, server, username];
 	NSURL *clurl = [NSURL URLWithString:cl];
 	
-	conn = [WeaveConnection alloc];
 	[conn getResource:clurl withCallback:self andIndex:0];
 }
 
@@ -70,6 +71,8 @@
 			iv = [[NSString alloc] initWithString:[key valueForKey:@"iv"]];
 			salt = [[NSString alloc] initWithString:[key valueForKey:@"salt"]];
 			private_key = [[NSString alloc] initWithString:[key valueForKey:@"key_data"]];
+			
+			NSLog([crypto keyFromPassphrase:passphrase withSalt:salt]);
 			
 			[cb verified:YES];
 			break;

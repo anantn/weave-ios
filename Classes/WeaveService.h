@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <JSON/JSON.h>
-#import "WeaveConnection.h"
+
 #import "WeaveVerify.h"
+#import "WeaveCrypto.h"
+#import "WeaveConnection.h"
 
 @interface WeaveService : NSObject <WeaveResponder> {
 	id cb;
@@ -26,6 +28,7 @@
 	NSString *public_key;
 	NSString *private_key;
 	
+	WeaveCrypto *crypto;
 	WeaveConnection *conn;
 }
 
@@ -43,6 +46,7 @@
 @property (nonatomic, copy) NSString *public_key;
 @property (nonatomic, copy) NSString *private_key;
 
+@property (nonatomic, retain) WeaveCrypto *crypto;
 @property (nonatomic, retain) WeaveConnection *conn;
 
 -(WeaveService *) initWithServer:(NSString *)server;
