@@ -15,6 +15,6 @@
 
 }
 
--(NSString *) keyFromPassphrase:(NSString *)phrase withSalt:(NSString *)salt;
+-(NSData *) keyFromPassphrase:(NSString *)phrase withSalt:(NSData *)salt;
 
 @end

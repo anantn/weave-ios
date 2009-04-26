@@ -23,10 +23,10 @@
 	NSString *password;
 	NSString *passphrase;
 	
-	NSString *iv;
-	NSString *salt;
-	NSString *public_key;
-	NSString *private_key;
+	NSData *iv;
+	NSData *salt;
+	NSData *public_key;
+	NSData *private_key;
 	
 	WeaveCrypto *crypto;
 	WeaveConnection *conn;
@@ -37,14 +37,14 @@
 @property (nonatomic, copy) NSString *baseURI;
 @property (nonatomic, copy) NSString *protocol;
 
+@property (nonatomic, copy) NSData *iv;
+@property (nonatomic, copy) NSData *salt;
+@property (nonatomic, copy) NSData *public_key;
+@property (nonatomic, copy) NSData *private_key;
+
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *passphrase;
-
-@property (nonatomic, copy) NSString *iv;
-@property (nonatomic, copy) NSString *salt;
-@property (nonatomic, copy) NSString *public_key;
-@property (nonatomic, copy) NSString *private_key;
 
 @property (nonatomic, retain) WeaveCrypto *crypto;
 @property (nonatomic, retain) WeaveConnection *conn;

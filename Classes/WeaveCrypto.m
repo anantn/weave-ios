@@ -11,7 +11,7 @@
 
 @implementation WeaveCrypto
 
--(NSString *) keyFromPassphrase:(NSString *)phrase withSalt:(NSString *)salt {
+-(NSData *) keyFromPassphrase:(NSString *)phrase withSalt:(NSData *)salt {
 	int iter = 4096;
 	int keylen = 32;
 
@@ -36,7 +36,7 @@
 		itmp[3] = (unsigned char)(i & 0xff);
 		
 		CCHmacInit(&hctx, kCCHmacAlgSHA1, [phrase cStringUsingEncoding:NSASCIIStringEncoding], [phrase length]);
-		CCHmacUpdate(&hctx, [salt cStringUsingEncoding:NSASCIIStringEncoding], [salt length]);
+		CCHmacUpdate(&hctx, [salt bytes], [salt length]);
 		CCHmacUpdate(&hctx, itmp, 4);
 		CCHmacFinal(&hctx, digtmp);
 		
@@ -53,7 +53,7 @@
 		keylen-= cplen;
 	}
 	
-	return [NSString stringWithCString:(const char *)key encoding:NSASCIIStringEncoding];
+	return [NSData dataWithBytes:key length:keylen];
 }
 
 @end
