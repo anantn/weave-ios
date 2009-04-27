@@ -8,7 +8,6 @@
 
 #import "WeaveCrypto.h"
 
-
 @implementation WeaveCrypto
 
 -(NSData *) keyFromPassphrase:(NSString *)phrase withSalt:(NSData *)salt {
@@ -50,10 +49,10 @@
 		
 		i++;
 		p += cplen;
-		keylen-= cplen;
+		keylen -= cplen;
 	}
 	
-	return [NSData dataWithBytes:key length:keylen];
+	return [NSData dataWithBytes:p length:32];
 }
 
 @end

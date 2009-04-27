@@ -61,22 +61,18 @@
 		case 2:
 			/* We got public key */
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
-			public_key = [[NSData alloc] initWithData:
-						  [[NSString stringWithString:[key valueForKey:@"key_data"]]
-						   dataUsingEncoding:NSASCIIStringEncoding]];
+			public_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"key_data"]];
 			
-			[conn getResource:[NSURL URLWithString:[key valueForKey:@"private_key"]] withCallback:self andIndex:3];
+			[conn getResource:[NSURL URLWithString:[key valueForKey:@"privateKeyUri"]] withCallback:self andIndex:3];
 			break;
 		case 3:
 			/* We got private key */
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
-			iv = [[NSData alloc] initWithData:
-				  [[NSString stringWithString:[key valueForKey:@"iv"]] dataUsingEncoding:NSASCIIStringEncoding]];
-			salt = [[NSData alloc] initWithData:
-					[[NSString stringWithString:[key valueForKey:@"salt"]] dataUsingEncoding:NSASCIIStringEncoding]];
-			private_key = [[NSData alloc] initWithData:
-						   [[NSString stringWithString:[key valueForKey:@"key_data"]]
-							dataUsingEncoding:NSASCIIStringEncoding]];
+			iv = [NSData dataWithBase64EncodedString:[key valueForKey:@"iv"]];
+			salt = [NSData dataWithBase64EncodedString:[key valueForKey:@"salt"]];
+			private_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"key_data"]];
+			
+			NSData *pp_key = [crypto keyFromPassphrase:passphrase withSalt:salt];
 			
 			[cb verified:YES];
 			break;

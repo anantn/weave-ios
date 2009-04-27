@@ -7,7 +7,6 @@
 //
 
 #import "WeaveConnection.h"
-#import "WeaveResponder.h"
 
 @implementation WeaveConnection
 
