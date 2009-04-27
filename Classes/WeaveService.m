@@ -7,7 +7,7 @@
 //
 
 #import "WeaveService.h"
-
+#import "WeaveUtility.h"
 
 @implementation WeaveService
 
@@ -61,7 +61,7 @@
 		case 2:
 			/* We got public key */
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
-			public_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"key_data"]];
+			public_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"keyData"]];
 			
 			[conn getResource:[NSURL URLWithString:[key valueForKey:@"privateKeyUri"]] withCallback:self andIndex:3];
 			break;
@@ -70,9 +70,16 @@
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
 			iv = [NSData dataWithBase64EncodedString:[key valueForKey:@"iv"]];
 			salt = [NSData dataWithBase64EncodedString:[key valueForKey:@"salt"]];
-			private_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"key_data"]];
+			private_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"keyData"]];
 			
-			NSData *pp_key = [crypto keyFromPassphrase:passphrase withSalt:salt];
+			NSData *aesKey = [crypto keyFromPassphrase:passphrase withSalt:salt];
+			NSData *rsaKey = [private_key AESdecryptWithKey:aesKey andIV:iv];
+
+			if (rsaKey == nil) {
+				NSLog(@"AES decryption failed, could not get RSA key!");
+				[cb verified:NO];
+				break;
+			}
 			
 			[cb verified:YES];
 			break;

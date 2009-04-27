@@ -12,7 +12,6 @@
 #import "WeaveVerify.h"
 #import "WeaveCrypto.h"
 #import "WeaveConnection.h"
-#import "NSDataAdditions.h"
 
 @interface WeaveService : NSObject <WeaveResponder> {
 	id cb;

@@ -7,6 +7,7 @@
 //
 
 #import "WeaveCrypto.h"
+#import "WeaveUtility.h"
 
 @implementation WeaveCrypto
 
@@ -53,6 +54,55 @@
 	}
 	
 	return [NSData dataWithBytes:p length:32];
+}
+
+@end
+
+// NSMutableData (AES) Additions adapted from:
+// Copyright (c) 2002 Jim Dovey. All rights reserved.
+
+@implementation NSData (AES)
+
+-(NSData *) AESencryptWithKey:(NSData *)key andIV:(NSData *)iv {	
+	NSUInteger dataLength = [self length];
+	size_t bufferSize = dataLength + kCCBlockSizeAES128;
+	void *buffer = calloc(bufferSize, sizeof(uint8_t));
+	
+	size_t numBytesEncrypted = 0;
+	CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt, kCCAlgorithmAES128, 0,
+										  [key bytes], kCCKeySizeAES256,
+										  [iv bytes],
+										  [self bytes], dataLength,
+										  buffer, bufferSize,
+										  &numBytesEncrypted);
+	if (cryptStatus == kCCSuccess) {
+		return [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
+	}
+	
+	free(buffer);
+	return nil;
+}
+
+
+-(NSData *) AESdecryptWithKey:(NSData *)key andIV:(NSData *)iv {	
+	NSUInteger dataLength = [self length];
+	size_t bufferSize = dataLength + kCCBlockSizeAES128;
+	void *buffer = calloc(bufferSize, sizeof(uint8_t));
+	
+	size_t numBytesDecrypted = 0;
+	CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, 0,
+										  [key bytes], kCCKeySizeAES256,
+										  [iv bytes],
+										  [self bytes], dataLength,
+										  buffer, bufferSize,
+										  &numBytesDecrypted);
+	
+	if (cryptStatus == kCCSuccess) {
+		return [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
+	}
+	
+	free(buffer);
+	return nil;
 }
 
 @end
