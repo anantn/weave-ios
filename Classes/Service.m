@@ -21,7 +21,7 @@
 	if (self) {
 		self.server = address;
 		self.protocol = @"https://";
-		self.crypto = [Crypto alloc];
+		//self.crypto = [Crypto alloc];
 		self.conn = [Connection alloc];
 	}
 	
@@ -82,6 +82,7 @@
 			NSData *bmkKey = [NSData dataWithBase64EncodedString:
 							  [key valueForKey:[NSString stringWithFormat:@"%@/keys/pubkey", baseURI]]];
 			
+			/*
 			NSData *aesKey = [crypto keyFromPassphrase:passphrase withSalt:salt];
 			NSData *rsaKey = [private_key AESdecryptWithKey:aesKey andIV:iv];
 			
@@ -95,6 +96,7 @@
 			NSData *finalPkey = [crypto unwrapSymmetricKey:bmkKey withRef:pkey];
 			
 			NSLog([NSString stringWithFormat:@"Unwrapped symmetric key: %@", [finalPkey base64Encoding]]);
+			*/
 			[cb verified:YES];
 			break;
 		default:

@@ -8,6 +8,7 @@
 
 #import "Crypto.h"
 #import "Utility.h"
+#import <Security/Security.h>
 
 @implementation Crypto
 

@@ -10,7 +10,6 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import	<CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
-#import <Security/Security.h>
 
 @interface Crypto : NSObject {
 
