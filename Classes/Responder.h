@@ -1,5 +1,5 @@
 /*
- *  WeaveResponder.h
+ *  Responder.h
  *  Weave
  *
  *  Created by Anant Narayanan on 03/04/09.
@@ -7,7 +7,7 @@
  *
  */
 
-@protocol WeaveResponder
+@protocol Responder
 
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;

@@ -1,5 +1,5 @@
 //
-//  WeaveCrypto.h
+//  Crypto.h
 //  Weave
 //
 //  Created by Anant Narayanan on 10/04/09.
@@ -12,7 +12,7 @@
 #import <CommonCrypto/CommonCryptor.h>
 #import <Security/Security.h>
 
-@interface WeaveCrypto : NSObject {
+@interface Crypto : NSObject {
 
 }
 

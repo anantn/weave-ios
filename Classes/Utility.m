@@ -3,7 +3,7 @@
 // Formatted by Timothy Hatcher on Sun Jul 4 2004.
 // Original development by Dave Winer.
 
-#import "WeaveUtility.h"
+#import "Utility.h"
 
 static char encodingTable[64] = {
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',

@@ -6,13 +6,13 @@
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
-#import "WeaveConnection.h"
+#import "Connection.h"
 
-@implementation WeaveConnection
+@implementation Connection
 
 @synthesize cb, responseData;
 
--(void) getResource:(NSURL *)url withCallback:(id <WeaveResponder>)callback andIndex:(int)i {
+-(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i {
 	index = i;
 	cb = callback;
 	

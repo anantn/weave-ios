@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "WeaveVerify.h"
+#import "Verifier.h"
 
-@interface WeaveLoginViewController : UIViewController <UITextFieldDelegate, WeaveVerify> {
+@interface WeaveLoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
 	BOOL process;
 	
 	UIButton *submit;

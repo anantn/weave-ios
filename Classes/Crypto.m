@@ -1,15 +1,15 @@
 //
-//  WeaveCrypto.m
+//  Crypto.m
 //  Weave
 //
 //  Created by Anant Narayanan on 10/04/09.
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
-#import "WeaveCrypto.h"
-#import "WeaveUtility.h"
+#import "Crypto.h"
+#import "Utility.h"
 
-@implementation WeaveCrypto
+@implementation Crypto
 
 -(NSData *) keyFromPassphrase:(NSString *)phrase withSalt:(NSData *)salt {
 	int iter = 4096;

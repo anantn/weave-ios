@@ -1,5 +1,5 @@
 //
-//  WeaveConnection.h
+//  Connection.h
 //  Weave
 //
 //  Created by Anant Narayanan on 03/04/09.
@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "WeaveResponder.h"
+#import "Responder.h"
 
-@interface WeaveConnection : NSObject {
+@interface Connection : NSObject {
 	id cb;
 	int index;
 	NSMutableData *responseData;
@@ -18,6 +18,6 @@
 @property (nonatomic, retain) id cb;
 @property (nonatomic, retain) NSMutableData *responseData;
 
--(void) getResource:(NSURL *)path withCallback:(id <WeaveResponder>)callback andIndex:(int)i;
+-(void) getResource:(NSURL *)path withCallback:(id <Responder>)callback andIndex:(int)i;
 
 @end

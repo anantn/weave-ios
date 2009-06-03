@@ -6,7 +6,7 @@
 //  Copyright Anant Narayanan 2009. All rights reserved.
 //
 
-#import "WeaveService.h"
+#import "Service.h"
 #import "WeaveAppDelegate.h"
 #import "WeaveLoginViewController.h"
 

@@ -1,28 +1,28 @@
 //
-//  WeaveService.m
+//  Service.m
 //  Weave
 //
 //  Created by Anant Narayanan on 31/03/09.
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
-#import "WeaveService.h"
-#import "WeaveUtility.h"
+#import "Service.h"
+#import "Utility.h"
 
-@implementation WeaveService
+@implementation Service
 
 @synthesize cb, conn, crypto, protocol, server, baseURI;
 @synthesize username, password, passphrase;
 @synthesize iv, salt, public_key, private_key;
 
--(WeaveService *) initWithServer:(NSString *)address {
+-(Service *) initWithServer:(NSString *)address {
 	self = [super init];
 	
 	if (self) {
 		self.server = address;
 		self.protocol = @"https://";
-		self.crypto = [WeaveCrypto alloc];
-		self.conn = [WeaveConnection alloc];
+		self.crypto = [Crypto alloc];
+		self.conn = [Connection alloc];
 	}
 	
 	return self;
@@ -35,7 +35,7 @@
 	[conn getResource:clurl withCallback:self andIndex:0];
 }
 
--(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <WeaveVerify>)callback{
+-(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)callback{
 	cb = callback;
 	password = pwd;
 	username = user;
