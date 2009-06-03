@@ -56,14 +56,16 @@
 			break;
 		case 1:
 			/* We checked username/password, now get public key */
-			[conn getResource:[NSURL URLWithString:[NSString stringWithFormat:@"%@/keys/pubkey", baseURI]] withCallback:self andIndex:2];
+			[conn getResource:[NSURL URLWithString:[NSString stringWithFormat:@"%@/keys/pubkey", baseURI]] 
+				 withCallback:self andIndex:2];
 			break;
 		case 2:
 			/* We got public key */
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
 			public_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"keyData"]];
 			
-			[conn getResource:[NSURL URLWithString:[key valueForKey:@"privateKeyUri"]] withCallback:self andIndex:3];
+			[conn getResource:[NSURL URLWithString:[key valueForKey:@"privateKeyUri"]]
+				 withCallback:self andIndex:3];
 			break;
 		case 3:
 			/* We got private key */
@@ -72,15 +74,27 @@
 			salt = [NSData dataWithBase64EncodedString:[key valueForKey:@"salt"]];
 			private_key = [NSData dataWithBase64EncodedString:[key valueForKey:@"keyData"]];
 			
+			[conn getResource:[NSURL URLWithString:[NSString stringWithFormat:@"%@/crypto/bookmarks", baseURI]]
+				 withCallback:self andIndex:4];
+		case 4:
+			/* Got bookmarks key */
+			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
+			NSData *bmkKey = [NSData dataWithBase64EncodedString:
+							  [key valueForKey:[NSString stringWithFormat:@"%@/keys/pubkey", baseURI]]];
+			
 			NSData *aesKey = [crypto keyFromPassphrase:passphrase withSalt:salt];
 			NSData *rsaKey = [private_key AESdecryptWithKey:aesKey andIV:iv];
-
+			
 			if (rsaKey == nil) {
 				NSLog(@"AES decryption failed, could not get RSA key!");
 				[cb verified:NO];
 				break;
 			}
 			
+			SecKeyRef pkey = [crypto addPrivateKey:private_key];
+			NSData *finalPkey = [crypto unwrapSymmetricKey:bmkKey withRef:pkey];
+			
+			NSLog([NSString stringWithFormat:@"Unwrapped symmetric key: %@", [finalPkey base64Encoding]]);
 			[cb verified:YES];
 			break;
 		default:

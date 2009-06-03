@@ -56,6 +56,79 @@
 	return [NSData dataWithBytes:p length:32];
 }
 
+-(NSData *) unwrapSymmetricKey:(NSData *)symKey withRef:(SecKeyRef)pkey {
+	OSStatus sanity = noErr;
+	size_t cipherBufferSize = 0;
+	size_t keyBufferSize = 0;
+	
+	NSData *key = nil;
+	uint8_t *keyBuffer = NULL;
+	
+	cipherBufferSize = SecKeyGetBlockSize(pkey);
+	keyBufferSize = [symKey length];
+	
+	keyBuffer = calloc(keyBufferSize, sizeof(uint8_t));
+	
+	sanity = SecKeyDecrypt(pkey, kSecPaddingPKCS1, (const uint8_t *)[symKey bytes],
+						   cipherBufferSize, keyBuffer, keyBufferSize);
+	
+	
+	if (sanity != noErr) {
+		NSLog(@"Could not unwrap symmetric key!");
+	}
+	
+	key = [NSData dataWithBytes:(const void *)keyBuffer length:(NSUInteger)keyBufferSize];
+	free(keyBuffer);
+	
+	return key;
+}
+
+-(SecKeyRef) addPrivateKey:(NSData *)key {
+	OSStatus sanity = noErr;
+	SecKeyRef keyRef = NULL;
+	CFTypeRef persist = NULL;
+	
+	NSString *name = [NSString stringWithString:@"WeavePrivate"];
+	NSData *keyTag = [[NSData alloc] initWithBytes:[name cStringUsingEncoding:NSASCIIStringEncoding] length:[name length]];
+	NSMutableDictionary *privateKeyAttr = [[NSMutableDictionary alloc] init];
+	
+	[privateKeyAttr setObject:(id)kSecClassKey forKey:(id)kSecClass];
+	[privateKeyAttr setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
+	[privateKeyAttr	setObject:(id)keyTag forKey:(id)kSecAttrApplicationTag];
+	[privateKeyAttr setObject:(id)key forKey:(id)kSecValueData];
+	[privateKeyAttr setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecReturnPersistentRef];
+	
+	sanity = SecItemAdd((CFDictionaryRef) privateKeyAttr, (CFTypeRef *)&persist);
+	
+	if (sanity != noErr && sanity != errSecDuplicateItem) {
+		NSLog(@"Could not add key to chain!");
+	}
+	
+	keyRef = [self getKeyRefWithPersistentKeyRef:persist];
+	[keyTag release];
+	[privateKeyAttr release];
+	CFRelease(persist);
+	
+	return keyRef;
+}
+
+-(SecKeyRef) getKeyRefWithPersistentKeyRef:(CFTypeRef)persistentRef {
+	OSStatus sanityCheck = noErr;
+	SecKeyRef keyRef = NULL;
+	
+	NSMutableDictionary * queryKey = [[NSMutableDictionary alloc] init];
+	
+	// Set the SecKeyRef query dictionary.
+	[queryKey setObject:(id)persistentRef forKey:(id)kSecValuePersistentRef];
+	[queryKey setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecReturnRef];
+	
+	// Get the persistent key reference.
+	sanityCheck = SecItemCopyMatching((CFDictionaryRef)queryKey, (CFTypeRef *)&keyRef);
+	[queryKey release];
+	
+	return keyRef;
+}
+	
 @end
 
 // NSMutableData (AES) Additions adapted from:
