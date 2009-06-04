@@ -9,40 +9,28 @@
 #import "Service.h"
 #import "WeaveAppDelegate.h"
 #import "LoginViewController.h"
+#import "TabViewController.h"
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, tabBarController;
+@synthesize window, service, tabController, loginController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
-	
 	if ([service isFirstRun]) {
-		
+		[window addSubview:loginController.view];
+	} else {
+		[window addSubview:tabController.view];
 	}
-
-	// Override point for customization after app launch
-	[window addSubview:tabBarController.view];
-	//[window makeKeyAndVisible];
+	[window makeKeyAndVisible];
 }
-
-/*
- // Optional UITabBarControllerDelegate method
- - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
- }
- */
-
-/*
- // Optional UITabBarControllerDelegate method
- - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed {
- }
- */
 
 -(void) dealloc {
 	[service release];
     [window release];
+	[tabController release];
+	[loginController release];
     [super dealloc];
 }
-
 
 @end
