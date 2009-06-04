@@ -12,15 +12,30 @@
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service;
+@synthesize window, service, tabBarController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
+	UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Welcome to Weave!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+	[alert show];
+	[alert release];
+	
 	// Override point for customization after app launch
-	//[window addSubview:loginController.view];
-	[window makeKeyAndVisible];
+	[window addSubview:tabBarController.view];
+	//[window makeKeyAndVisible];
 }
 
+/*
+ // Optional UITabBarControllerDelegate method
+ - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+ }
+ */
+
+/*
+ // Optional UITabBarControllerDelegate method
+ - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed {
+ }
+ */
 
 -(void) dealloc {
 	[service release];

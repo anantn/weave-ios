@@ -9,13 +9,16 @@
 #import <UIKit/UIKit.h>
 
 @class Service;
+@class LoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
+	UIWindow *window;
 	Service *service;
+	UITabBarController *tabBarController;
 }
 
 @property (retain) Service *service;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, retain) IBOutlet UITabBarController *tabBarController;
 
 @end
