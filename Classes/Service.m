@@ -85,6 +85,7 @@
 			
 			[conn getResource:[NSURL URLWithString:[NSString stringWithFormat:@"%@/crypto/bookmarks", baseURI]]
 				 withCallback:self andIndex:4];
+			break;
 		case 4:
 			/* Got bookmarks key */
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];

@@ -25,6 +25,15 @@
 	[window makeKeyAndVisible];
 }
 
+-(void) flip {
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:2.0];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:window cache:YES];
+	[loginController.view removeFromSuperview];
+	[self.window addSubview:[tabController view]];
+	[UIView commitAnimations];
+}
+
 -(void) dealloc {
 	[service release];
     [window release];

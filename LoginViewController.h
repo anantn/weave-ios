@@ -23,7 +23,6 @@
 	UITextField *pwdField;
 	UITextField *pphField;
 	
-	
 	UIActivityIndicatorView *spinner;
 }
 

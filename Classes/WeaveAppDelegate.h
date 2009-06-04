@@ -24,4 +24,6 @@
 @property (nonatomic, retain) IBOutlet TabViewController *tabController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
+-(void) flip;
+
 @end
