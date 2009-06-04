@@ -8,9 +8,9 @@
 
 #import "Service.h"
 #import "WeaveAppDelegate.h"
-#import "WeaveLoginViewController.h"
+#import "LoginViewController.h"
 
-@implementation WeaveLoginViewController
+@implementation LoginViewController
 
 @synthesize usrLabel, pwdLabel, pphLabel;
 @synthesize usrField, pwdField, pphField;

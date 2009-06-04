@@ -8,23 +8,22 @@
 
 #import "Service.h"
 #import "WeaveAppDelegate.h"
-#import "WeaveLoginViewController.h"
+#import "LoginViewController.h"
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, loginController;
+@synthesize window, service;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
 	// Override point for customization after app launch
-	[window addSubview:loginController.view];
+	//[window addSubview:loginController.view];
 	[window makeKeyAndVisible];
 }
 
 
 -(void) dealloc {
 	[service release];
-    [loginController release];
     [window release];
     [super dealloc];
 }

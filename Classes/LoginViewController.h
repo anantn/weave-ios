@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "Verifier.h"
 
-@interface WeaveLoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
+@interface LoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
 	BOOL process;
 	
 	UIButton *submit;
