@@ -16,10 +16,11 @@
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
-	UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Welcome to Weave!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-	[alert show];
-	[alert release];
 	
+	if ([service isFirstRun]) {
+		
+	}
+
 	// Override point for customization after app launch
 	[window addSubview:tabBarController.view];
 	//[window makeKeyAndVisible];

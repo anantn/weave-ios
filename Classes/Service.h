@@ -9,8 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <JSON/JSON.h>
 
-#import "Verifier.h"
+#import "Store.h"
 #import "Crypto.h"
+#import "Verifier.h"
 #import "Connection.h"
 
 @interface Service : NSObject <Responder> {
@@ -28,6 +29,7 @@
 	NSData *public_key;
 	NSData *private_key;
 	
+	Store *store;
 	Crypto *crypto;
 	Connection *conn;
 }
@@ -46,10 +48,12 @@
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *passphrase;
 
+@property (nonatomic, retain) Store *store;
 @property (nonatomic, retain) Crypto *crypto;
 @property (nonatomic, retain) Connection *conn;
 
 -(Service *) initWithServer:(NSString *)server;
+-(BOOL) isFirstRun;
 
 -(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)cb;
 -(void) successWithString:(NSString *)response andIndex:(int)i;

@@ -11,9 +11,9 @@
 
 @implementation Service
 
-@synthesize cb, conn, crypto, protocol, server, baseURI;
 @synthesize username, password, passphrase;
 @synthesize iv, salt, public_key, private_key;
+@synthesize cb, conn, crypto, store, protocol, server, baseURI;
 
 -(Service *) initWithServer:(NSString *)address {
 	self = [super init];
@@ -23,9 +23,18 @@
 		self.protocol = @"https://";
 		//self.crypto = [Crypto alloc];
 		self.conn = [Connection alloc];
+		self.store = [[Store alloc] initWithDB:@"store.sq3"];
 	}
 	
 	return self;
+}
+
+-(BOOL) isFirstRun {
+	int users = [store getUsers];
+	if (users == 0)
+		return YES;
+	else
+		return NO;
 }
 
 -(void) setCluster {
