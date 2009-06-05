@@ -35,17 +35,12 @@
 
 -(void) verified:(BOOL)answer {
 	if (answer) {
-		/* We should switch view here */
-		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Success!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-		[alert show];
-		[alert release];
-		
-		[spinner stopAnimating];
 		[spinner setAlpha:0.0];
 		[logo setAlpha:1.0];
 		submit.enabled = YES;
 		process = NO;
 		
+		/* Flip to main view */
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 		[app flip];
 	} else {

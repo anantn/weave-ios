@@ -37,6 +37,10 @@
 		return NO;
 }
 
+-(BOOL) loadFromStore {
+	return [store loadUserToService:self];
+}
+
 -(void) setCluster {
 	NSString *cl = [NSString stringWithFormat:@"%@%@/0.3/api/register/chknode/%@", protocol, server, username];
 	NSURL *clurl = [NSURL URLWithString:cl];
@@ -44,7 +48,7 @@
 	[conn getResource:clurl withCallback:self andIndex:0];
 }
 
--(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)callback{
+-(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)callback {
 	cb = callback;
 	password = pwd;
 	username = user;
@@ -87,10 +91,11 @@
 				 withCallback:self andIndex:4];
 			break;
 		case 4:
-			/* Got bookmarks key */
+			/* Got bookmarks key 
 			key = [[[response JSONValue] valueForKey:@"payload"] JSONValue];
 			NSData *bmkKey = [NSData dataWithBase64EncodedString:
 							  [key valueForKey:[NSString stringWithFormat:@"%@/keys/pubkey", baseURI]]];
+			 */
 			
 			/*
 			NSData *aesKey = [crypto keyFromPassphrase:passphrase withSalt:salt];
@@ -107,7 +112,12 @@
 			
 			NSLog([NSString stringWithFormat:@"Unwrapped symmetric key: %@", [finalPkey base64Encoding]]);
 			*/
-			[cb verified:YES];
+			
+			/* We're done! */
+			if ([store addUserWithService:self])
+				[cb verified:YES];
+			else
+				[cb verified:NO];
 			break;
 		default:
 			NSLog(@"This should never happen!");

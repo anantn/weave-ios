@@ -54,6 +54,7 @@
 
 -(Service *) initWithServer:(NSString *)server;
 -(BOOL) isFirstRun;
+-(BOOL) loadFromStore;
 
 -(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)cb;
 -(void) successWithString:(NSString *)response andIndex:(int)i;
