@@ -10,9 +10,10 @@
 #import <JSON/JSON.h>
 
 #import "Store.h"
-#import "Crypto.h"
 #import "Verifier.h"
 #import "Connection.h"
+
+@class Crypto;
 
 @interface Service : NSObject <Responder> {
 	id cb;

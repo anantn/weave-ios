@@ -27,22 +27,30 @@
 		/* DB already exists */
 		success = [fm fileExistsAtPath:writablePath];
 		if (success) {
-			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK)
+			NSLog(@"Existing DB found, using");
+			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
 				return self;
-			else
+			} else {
 				NSLog(@"Could not open database!");
+				return NULL;
+			}
 		}
 		
 		/* DB doesn't exist, copy from resource bundle */
 		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:db];
+		NSLog(defaultDB);
+		NSLog(writablePath);
+		
 		success = [fm copyItemAtPath:defaultDB toPath:writablePath error:&error];
 		if (success) {
-			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK)
+			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
 				return self;
-			else
+			} else {
 				NSLog(@"Could not open database!");
+			}
 		} else {
 			NSLog(@"Could not create database!");
+			NSLog([error localizedDescription]);
 		}
 	}
 	
@@ -64,9 +72,12 @@
 		
 		if (sqlite3_step(stmnt) != SQLITE_DONE) {
 			NSLog(@"Could not save user to DB!");
+			sqlite3_finalize(stmnt);
 			return NO;
+		} else {
+			NSLog([NSString stringWithFormat:@"%@ %d", @"Number of users now: ", [self getUsers]]);
+			sqlite3_finalize(stmnt);
 		}
-		sqlite3_reset(stmnt);
 	}
 	
 	return YES;
@@ -94,6 +105,7 @@
 			[svc setBaseURI:base];
 		} else {
 			NSLog(@"Could not execute SQL to LOAD!");
+			sqlite3_finalize(stmnt);
 			return NO;
 		}
 	} else {
@@ -101,6 +113,7 @@
 		return NO;
 	}
 	
+	sqlite3_finalize(stmnt);
 	return YES;
 }
 
@@ -115,7 +128,13 @@
 		}
 	}
 	
+	sqlite3_finalize(stmnt);
 	return cnt;
+}
+
+-(void) dealloc {
+	sqlite3_close(dataBase);
+	[super dealloc];
 }
 
 @end

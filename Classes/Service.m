@@ -23,7 +23,7 @@
 		self.protocol = @"https://";
 		//self.crypto = [Crypto alloc];
 		self.conn = [Connection alloc];
-		self.store = [[Store alloc] initWithDB:@"store.sq3"];
+		self.store = [[Store alloc] initWithDB:@"/store.sq3"];
 	}
 	
 	return self;
@@ -31,6 +31,8 @@
 
 -(BOOL) isFirstRun {
 	int users = [store getUsers];
+	NSLog([NSString stringWithFormat:@"%@ %d", @"Number of users now: ", users]);
+	
 	if (users == 0)
 		return YES;
 	else
@@ -131,6 +133,7 @@
 
 -(void) dealloc {
 	[conn release];
+	[store release];
     [super dealloc];
 }
 
