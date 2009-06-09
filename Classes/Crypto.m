@@ -8,7 +8,6 @@
 
 #import "Crypto.h"
 #import "Utility.h"
-#import <Security/Security.h>
 
 @implementation Crypto
 
@@ -71,7 +70,7 @@
 	keyBuffer = calloc(keyBufferSize, sizeof(uint8_t));
 	
 	sanity = SecKeyDecrypt(pkey, kSecPaddingPKCS1, (const uint8_t *)[symKey bytes],
-						   cipherBufferSize, keyBuffer, keyBufferSize);
+						   cipherBufferSize, keyBuffer, &keyBufferSize);
 	
 	
 	if (sanity != noErr) {

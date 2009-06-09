@@ -12,9 +12,6 @@ static char encodingTable[64] = {
 		'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/' };
 
 @implementation NSData (Base64)
-+(NSData *) dataWithBase64EncodedString:(NSString *)string {
-	return [[[NSData allocWithZone:nil] initWithBase64EncodedString:string] autorelease];
-}
 
 -(id) initWithBase64EncodedString:(NSString *)string {
 	NSMutableData *mutableData = nil;

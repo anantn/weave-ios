@@ -6,10 +6,11 @@
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <CommonCrypto/CommonHMAC.h>
+#import	<Foundation/Foundation.h>
+#import	<CommonCrypto/CommonHMAC.h>
 #import	<CommonCrypto/CommonDigest.h>
-#import <CommonCrypto/CommonCryptor.h>
+#import	<CommonCrypto/CommonCryptor.h>
+#import <Security/Security.h>
 
 @interface Crypto : NSObject {
 

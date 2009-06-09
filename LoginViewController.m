@@ -29,7 +29,7 @@
 		passphrase = pphField.text;
 		
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-		[app.service verifyWithUsername:username password:password passphrase:passphrase andCallback:self];
+		[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
 	}
 }
 

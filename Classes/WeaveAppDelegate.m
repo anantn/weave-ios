@@ -17,7 +17,7 @@
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
-	if ([service isFirstRun]) {
+	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
 		[window addSubview:tabController.view];

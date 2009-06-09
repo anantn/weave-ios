@@ -54,13 +54,13 @@
 @property (nonatomic, retain) Connection *conn;
 
 -(Service *) initWithServer:(NSString *)server;
--(BOOL) isFirstRun;
--(BOOL) loadFromStore;
 
--(void) verifyWithUsername:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id <Verifier>)cb;
+/* Synchronous */
+-(BOOL) loadFromStore;
+/* Asynchronous */
+-(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id)callback;
+
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
-
--(void) setCluster;
 
 @end

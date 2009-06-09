@@ -12,6 +12,7 @@
 
 @synthesize cb, responseData;
 
+/* Asynchronous communication */
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i {
 	index = i;
 	cb = callback;

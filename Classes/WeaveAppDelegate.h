@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+@class Store;
 @class Service;
 @class TabViewController;
 @class LoginViewController;
