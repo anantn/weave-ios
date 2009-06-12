@@ -105,10 +105,11 @@
 	letUserSelectRow = NO;
 	self.tableView.scrollEnabled = NO;
 	
-	// Add the done button.
+	/*
 	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] 
 											   initWithBarButtonSystemItem:UIBarButtonSystemItemDone 
 											   target:self action:@selector(doneSearching_Clicked:)] autorelease];
+	*/
 }
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText {
