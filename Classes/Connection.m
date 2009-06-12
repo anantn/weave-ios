@@ -10,7 +10,13 @@
 
 @implementation Connection
 
-@synthesize cb, responseData;
+@synthesize cb, success, responseData, user, pass, phrase;
+
+-(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph {
+	user = u;
+	pass = p;
+	phrase = ph;
+}
 
 /* Asynchronous communication */
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i {
@@ -19,7 +25,10 @@
 	
 	responseData = [[NSMutableData data] retain];
 	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
-	NSURLRequest *request = [NSURLRequest requestWithURL:url];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+	[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
+	[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
+	[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
@@ -28,12 +37,11 @@
 	NSLog([NSString stringWithFormat:@"Got response code %d", code]);
 	
 	if (code != 200) {
-		[connection cancel];
-		[responseData release];
-		[cb failureWithError:[NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil] andIndex:index];
+		success = NO;
 	} else {
-		[responseData setLength:0];
+		success = YES;
 	}
+	[responseData setLength:0];
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
@@ -49,7 +57,12 @@
 	NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
 	[responseData release];
 	
-	[cb successWithString:responseString andIndex:index];
+	if (success) {
+		[cb successWithString:responseString andIndex:index];
+	} else {
+		NSLog([NSString stringWithFormat:@"Failed with response: %@", responseString]);
+		[cb failureWithError:[NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil] andIndex:index];
+	}
 }
 
 @end

@@ -6,18 +6,16 @@
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
-#import	<Foundation/Foundation.h>
-#import	<CommonCrypto/CommonHMAC.h>
-#import	<CommonCrypto/CommonDigest.h>
-#import	<CommonCrypto/CommonCryptor.h>
-#import <Security/Security.h>
-
 @interface Crypto : NSObject {
 
 }
 
 -(NSData *) keyFromPassphrase:(NSString *)phrase withSalt:(NSData *)salt;
+-(NSData *) unwrapSymmetricKey:(NSData *)symKey withRef:(SecKeyRef)pkey;
+-(SecKeyRef) getPrivateKey;
 -(SecKeyRef) addPrivateKey:(NSData *)key;
+-(SecKeyRef) addPublicKeyALT:(NSData *)data;
+-(SecKeyRef) addPrivateKeyALT:(NSData *)data;
 -(SecKeyRef) getKeyRefWithPersistentKeyRef:(CFTypeRef)persistentRef;
 
 @end

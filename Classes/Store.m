@@ -38,8 +38,6 @@
 		
 		/* DB doesn't exist, copy from resource bundle */
 		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:db];
-		NSLog(defaultDB);
-		NSLog(writablePath);
 		
 		success = [fm copyItemAtPath:defaultDB toPath:writablePath error:&error];
 		if (success) {
@@ -130,6 +128,10 @@
 	
 	sqlite3_finalize(stmnt);
 	return cnt;
+}
+
+-(BOOL) addBookmarks:(NSString *)json {
+	return YES;
 }
 
 -(void) dealloc {

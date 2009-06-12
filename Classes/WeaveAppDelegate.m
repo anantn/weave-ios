@@ -16,7 +16,7 @@
 @synthesize window, service, tabController, loginController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[Service alloc] initWithServer:@"auth.services.mozilla.com"];
+	service = [[Service alloc] initWithServer:@"services.mozilla.com"];
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {

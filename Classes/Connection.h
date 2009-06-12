@@ -12,12 +12,25 @@
 @interface Connection : NSObject {
 	id cb;
 	int index;
+	BOOL success;
+	NSString *user;
+	NSString *pass;
+	NSString *phrase;
 	NSMutableData *responseData;
 }
 
+@property (nonatomic) BOOL success;
 @property (nonatomic, retain) id cb;
+
+@property (nonatomic, copy) NSString *user;
+@property (nonatomic, copy) NSString *pass;
+@property (nonatomic, copy) NSString *phrase;
+
 @property (nonatomic, retain) NSMutableData *responseData;
 
--(void) getResource:(NSURL *)path withCallback:(id <Responder>)callback andIndex:(int)i;
+
+
+-(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph;
+-(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i;
 
 @end
