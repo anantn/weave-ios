@@ -13,7 +13,7 @@
 
 @implementation Store
 
-@synthesize dataBase, listOfBmks;
+@synthesize dataBase, bmkUris, bmkTitles, histUris, histTitles;
 
 -(Store *) initWithDB:(NSString *)db {
 	self = [super init];
@@ -134,7 +134,9 @@
 }
 
 -(BOOL) addBookmarks:(NSString *)json {
-	listOfBmks = [[NSMutableArray alloc] init];
+	bmkUris = [[NSMutableArray alloc] init];
+	bmkTitles = [[NSMutableArray alloc] init];
+	
 	NSArray *items = [json JSONValue];
 	NSEnumerator *iter = [items objectEnumerator];
 	
@@ -152,14 +154,15 @@
 				
 				NSRange r = NSMakeRange(0, 6);
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-					[listOfBmks addObject:title];
+					[bmkUris addObject:uri];
+					[bmkTitles addObject:title];
 				}
 			}
 		} @catch (id theException) {
-			NSLog(@"%@ threw %@", payload, theException);
+			//NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
-	
+
 	return YES;
 }
 

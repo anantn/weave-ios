@@ -10,6 +10,7 @@
 #import "WeaveAppDelegate.h"
 #import "LoginViewController.h"
 #import "TabViewController.h"
+#import "Store.h"
 
 @implementation WeaveAppDelegate
 

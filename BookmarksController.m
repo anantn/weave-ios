@@ -60,7 +60,7 @@
 	if (searching)
 		return [list count];
 	else
-		return [[[app service] getBookmarks] count];
+		return [[[app service] getBookmarkTitles] count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -82,7 +82,7 @@
 	if (searching) {
 		cell.text = [list objectAtIndex:indexPath.row];
 	} else {
-		cell.text = [[[app service] getBookmarks] objectAtIndex:indexPath.row];
+		cell.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
 	}
 	
 	return cell;
@@ -145,7 +145,12 @@
 
 - (void)searchTableView {
 	NSString *searchText = searchBar.text;
-	for (NSString *sTemp in [[app service] getBookmarks]) {
+	for (NSString *sTemp in [[app service] getBookmarkTitles]) {
+		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		if (titleResultsRange.length > 0)
+			[list addObject:sTemp];
+	}
+	for (NSString *sTemp in [[app service] getBookmarkURIs]) {
 		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		if (titleResultsRange.length > 0)
 			[list addObject:sTemp];

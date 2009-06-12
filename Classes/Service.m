@@ -53,8 +53,13 @@
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
 }
 
--(NSMutableArray *) getBookmarks {
-	return [store listOfBmks];
+-(NSMutableArray *) getBookmarkURIs {
+	return [store bmkUris];
+}
+
+-(NSMutableArray *)getBookmarkTitles {
+	NSLog(@"%@", [store bmkTitles]);
+	return [store bmkTitles];
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{

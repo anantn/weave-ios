@@ -60,6 +60,7 @@
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
 
--(NSMutableArray *) getBookmarks;
+-(NSMutableArray *) getBookmarkURIs;
+-(NSMutableArray *) getBookmarkTitles;
 
 @end
