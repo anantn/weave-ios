@@ -72,21 +72,52 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	static NSString *CellIdentifier = @"Cell";
+	const NSInteger TITLE_TAG = 1001;
+	const NSInteger URI_TAG = 1002;
+
+	UILabel *title;
+	UILabel *uri;
 	
+	static NSString *CellIdentifier = @"Cell";
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+		title = [[[UILabel alloc] initWithFrame:CGRectMake(
+						cell.indentationWidth,
+						tableView.rowHeight - 40,
+						tableView.bounds.size.width - cell.indentationWidth,
+						20)] autorelease];
+		[cell.contentView addSubview:title];
+		title.tag = TITLE_TAG;
+		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
+		
+		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
+						cell.indentationWidth,
+						tableView.rowHeight - 20,
+						tableView.bounds.size.width - cell.indentationWidth,
+						15)] autorelease];
+		[cell.contentView addSubview:uri];
+		uri.tag = URI_TAG;
+		uri.font = [UIFont systemFontOfSize:[UIFont labelFontSize] - 3];
+		uri.textColor = [UIColor colorWithRed:0.34 green:0.50 blue:0.77 alpha:1.0];
+	} else {
+		title = (UILabel *)[cell viewWithTag:TITLE_TAG];
+		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
 	// Set up the cell...
 	if (searching) {
-		if (indexPath.row >= [bmkList count])
-			cell.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
-		else
-			cell.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
+		if (indexPath.row >= [bmkList count]) {
+			title.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
+			uri.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:1];
+		} else {
+			title.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
+			uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
+		}
 	} else {
-		cell.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
+		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
+		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
 	}
 	
 	return cell;
@@ -169,6 +200,7 @@
 			[bmkList addObject:[NSArray arrayWithObjects:title, uri, nil]];
 	}
 	
+	/* History search */
 	for (i = 0; i < [hiT count]; i++) {
 		NSString *uri = [hiU objectAtIndex:i];
 		NSString *title = [hiT objectAtIndex:i];
