@@ -101,6 +101,7 @@
 
 /* Search bar */
 - (void) searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
+	NSLog(@"Search begun");
 	searching = YES;
 	letUserSelectRow = NO;
 	self.tableView.scrollEnabled = NO;
@@ -130,21 +131,7 @@
 	[self.tableView reloadData];
 }
 
-- (void) searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
-	[self searchTableView];
-}
-
-- (void) searchTableView {	
-	NSString *searchText = searchBar.text;
-	for (NSString *sTemp in [[app service] getBookmarks]) {
-		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
-		if (titleResultsRange.length > 0)
-			[list addObject:sTemp];
-	}
-}
-
-- (void) doneSearching_Clicked:(id)sender {
-	NSLog(@"Clicked");
+- (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
 	searchBar.text = @"";
 	[searchBar resignFirstResponder];
 	
@@ -154,6 +141,15 @@
 	self.tableView.scrollEnabled = YES;
 	
 	[self.tableView reloadData];
+}
+
+- (void)searchTableView {
+	NSString *searchText = searchBar.text;
+	for (NSString *sTemp in [[app service] getBookmarks]) {
+		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		if (titleResultsRange.length > 0)
+			[list addObject:sTemp];
+	}
 }
 
 /* Other */

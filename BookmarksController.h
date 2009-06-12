@@ -18,7 +18,6 @@
 	WeaveAppDelegate *app;
 }
 
--(void) searchTableView;
--(void) doneSearching_Clicked:(id)sender;
+- (void)searchTableView;
 
 @end
