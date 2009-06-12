@@ -9,6 +9,9 @@
 #import "Service.h"
 #import "Utility.h"
 #import "Crypto.h"
+#import "Store.h"
+#import "Connection.h"
+#import "Verifier.h"
 
 @implementation Service
 
@@ -50,11 +53,15 @@
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
 }
 
+-(NSMutableArray *) getBookmarks {
+	return [store listOfBmks];
+}
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
 	switch (i) {
 		case 0:
 			/* We got bookmarks */
+			[store addBookmarks:response];
 			[cb verified:YES];
 			break;
 		default:

@@ -28,8 +28,6 @@
 
 @property (nonatomic, retain) NSMutableData *responseData;
 
-
-
 -(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph;
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i;
 

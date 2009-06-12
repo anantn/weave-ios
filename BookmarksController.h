@@ -8,8 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+@class WeaveAppDelegate;
+
 @interface BookmarksController : UITableViewController {
-	NSMutableArray *listOfItems;
+	NSMutableArray *list;
+	IBOutlet UISearchBar *searchBar;
+	BOOL searching;
+	BOOL letUserSelectRow;
+	WeaveAppDelegate *app;
 }
+
+-(void) searchTableView;
+-(void) doneSearching_Clicked:(id)sender;
 
 @end

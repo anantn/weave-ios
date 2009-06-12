@@ -8,12 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <JSON/JSON.h>
+#import "Responder.h"
 
-#import "Store.h"
-#import "Verifier.h"
-#import "Connection.h"
-
-@class Crypto;
+@class Store, Crypto, Connection;
 
 @interface Service : NSObject <Responder> {
 	id cb;
@@ -62,5 +59,7 @@
 
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
+
+-(NSMutableArray *) getBookmarks;
 
 @end

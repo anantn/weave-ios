@@ -6,11 +6,14 @@
 //  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
+#import "Store.h"
+#import "Utility.h"
 #import "Service.h"
+#import <JSON/JSON.h>
 
 @implementation Store
 
-@synthesize dataBase;
+@synthesize dataBase, listOfBmks;
 
 -(Store *) initWithDB:(NSString *)db {
 	self = [super init];
@@ -131,6 +134,32 @@
 }
 
 -(BOOL) addBookmarks:(NSString *)json {
+	listOfBmks = [[NSMutableArray alloc] init];
+	NSArray *items = [json JSONValue];
+	NSEnumerator *iter = [items objectEnumerator];
+	
+	NSDictionary *obj;
+	while (obj = [iter nextObject]) {
+		NSDictionary *payload = [obj valueForKey:@"payload"];
+		@try {
+			NSString *cipher = [payload valueForKey:@"ciphertext"];
+			NSArray *item = [cipher JSONValue];
+			NSDictionary *bmk = [item objectAtIndex:0];
+			
+			if ([[bmk valueForKey:@"type"] isEqualToString:@"bookmark"]) {
+				NSString *uri = [bmk valueForKey:@"bmkUri"];
+				NSString *title = [bmk valueForKey:@"title"];
+				
+				NSRange r = NSMakeRange(0, 6);
+				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
+					[listOfBmks addObject:title];
+				}
+			}
+		} @catch (id theException) {
+			NSLog(@"%@ threw %@", payload, theException);
+		}
+	}
+	
 	return YES;
 }
 

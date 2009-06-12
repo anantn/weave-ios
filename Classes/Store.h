@@ -13,9 +13,11 @@
 
 @interface Store : NSObject {
 	sqlite3 *dataBase;
+	NSMutableArray *listOfBmks;
 }
 
 @property (nonatomic) sqlite3 *dataBase;
+@property (nonatomic, retain) NSMutableArray *listOfBmks;
 
 -(Store *) initWithDB:(NSString *)db;
 
