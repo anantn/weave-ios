@@ -166,6 +166,36 @@
 	return YES;
 }
 
+-(BOOL) addHistory:(NSString *)json {
+	histUris = [[NSMutableArray alloc] init];
+	histTitles = [[NSMutableArray alloc] init];
+	
+	NSArray *items = [json JSONValue];
+	NSEnumerator *iter = [items objectEnumerator];
+	
+	NSDictionary *obj;
+	while (obj = [iter nextObject]) {
+		NSDictionary *payload = [obj valueForKey:@"payload"];
+		@try {
+			NSString *cipher = [payload valueForKey:@"ciphertext"];
+			NSArray *item = [cipher JSONValue];
+			NSDictionary *hist = [item objectAtIndex:0];
+			
+			NSString *uri = [hist valueForKey:@"histUri"];
+			NSString *title = [hist valueForKey:@"title"];
+			
+			if (title && uri) {
+				[histUris addObject:uri];
+				[histTitles addObject:title];
+			}
+		} @catch (id theException) {
+			//NSLog(@"%@ threw %@", payload, theException);
+		}
+	}
+	
+	return YES;
+}
+
 -(void) dealloc {
 	sqlite3_close(dataBase);
 	[super dealloc];

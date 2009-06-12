@@ -155,6 +155,16 @@
 		if (titleResultsRange.length > 0)
 			[list addObject:sTemp];
 	}
+	for (NSString *sTemp in [[app service] getHistoryURIs]) {
+		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		if (titleResultsRange.length > 0)
+			[list addObject:sTemp];
+	}
+	for (NSString *sTemp in [[app service] getHistoryTitles]) {
+		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		if (titleResultsRange.length > 0)
+			[list addObject:sTemp];
+	}
 }
 
 /* Other */

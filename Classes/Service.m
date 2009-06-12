@@ -12,6 +12,7 @@
 #import "Store.h"
 #import "Connection.h"
 #import "Verifier.h"
+#import "LoginViewController.h"
 
 @implementation Service
 
@@ -44,12 +45,15 @@
 	passphrase = ph;
 	
 	/* We're using the crypto proxy */
-	baseURI = [NSString stringWithFormat:@"%@%@:%@@%@/proxy/?path=",
-			   protocol, username, password, server];
+	baseURI = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%@%@:%@@%@/proxy/?path=",
+			   protocol, username, password, server]];
 	[conn setUser:user password:pwd andPassphrase:ph];
 	
-	/* Get bookmarks */
-	NSString *cl = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
+	/* Check username password */
+	[[cb status] setText:@"Checking your credentials..."];
+	[[cb status] setAlpha:1.0];
+	 
+	NSString *cl = [NSString stringWithFormat:@"%@/clients", baseURI];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
 }
 
@@ -58,17 +62,40 @@
 }
 
 -(NSMutableArray *)getBookmarkTitles {
-	NSLog(@"%@", [store bmkTitles]);
 	return [store bmkTitles];
 }
 
+-(NSMutableArray *)getHistoryURIs {
+	return [store histUris];
+}
+
+-(NSMutableArray *)getHistoryTitles {
+	return [store histTitles];
+}
+
 -(void) successWithString:(NSString *)response andIndex:(int)i{
+	NSString *url;
+	
 	switch (i) {
 		case 0:
-			/* We got bookmarks */
-			[store addBookmarks:response];
-			[cb verified:YES];
+			/* Verified, get history */
+			[[cb status] setText:@"Downloading your bookmarks..."];
+			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
+			
+			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:1];
 			break;
+		case 1:
+			/* We got bookmarks, now get History */
+			[store addBookmarks:response];
+			[[cb status] setText:@"Downloading your history..."];
+			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:2];
+			break;
+		case 2:
+			/* Got history, done! 
+			[store addHistory:response];
+			*/
+			[cb verified:YES];
 		default:
 			NSLog(@"This should never happen!");
 			break;
@@ -76,6 +103,8 @@
 }
 
 -(void) failureWithError:(NSError *)error andIndex:(int)i{
+	[[cb status] setText:@""];
+	[[cb status] setAlpha:0.0];
 	[cb verified:NO];
 }
 

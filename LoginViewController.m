@@ -12,7 +12,7 @@
 
 @implementation LoginViewController
 
-@synthesize usrField, pwdField, pphField;
+@synthesize status, usrField, pwdField, pphField;
 @synthesize logo, spinner, submit, process;
 @synthesize username, password, passphrase;
 

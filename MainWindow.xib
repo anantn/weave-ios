@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="125"/>
+			<integer value="130"/>
 			<integer value="191"/>
 			<integer value="186"/>
 		</object>
@@ -197,6 +197,25 @@
 							<bool key="IBUIUserInteractionEnabled">NO</bool>
 							<bool key="IBUIHidesWhenStopped">NO</bool>
 							<int key="IBUIStyle">2</int>
+						</object>
+						<object class="IBUILabel" id="23313138">
+							<reference key="NSNextResponder" ref="463466576"/>
+							<int key="NSvFlags">292</int>
+							<string key="NSFrame">{{20, 217}, {280, 21}}</string>
+							<reference key="NSSuperview" ref="463466576"/>
+							<bool key="IBUIOpaque">NO</bool>
+							<bool key="IBUIClipsSubviews">YES</bool>
+							<float key="IBUIAlpha">0.000000e+00</float>
+							<bool key="IBUIUserInteractionEnabled">NO</bool>
+							<string key="IBUIText">status</string>
+							<object class="NSColor" key="IBUITextColor">
+								<int key="NSColorSpace">1</int>
+								<bytes key="NSRGB">MCAwIDAAA</bytes>
+							</object>
+							<nil key="IBUIHighlightedColor"/>
+							<int key="IBUIBaselineAdjustment">1</int>
+							<float key="IBUIMinimumFontSize">1.000000e+01</float>
+							<int key="IBUITextAlignment">1</int>
 						</object>
 					</object>
 					<string key="NSFrameSize">{320, 460}</string>
@@ -446,6 +465,14 @@
 					</object>
 					<int key="connectionID">199</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">status</string>
+						<reference key="source" ref="198903909"/>
+						<reference key="destination" ref="23313138"/>
+					</object>
+					<int key="connectionID">201</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -504,6 +531,7 @@
 							<reference ref="693824961"/>
 							<reference ref="390993277"/>
 							<reference ref="1021277934"/>
+							<reference ref="23313138"/>
 						</object>
 						<reference key="parent" ref="198903909"/>
 					</object>
@@ -611,6 +639,11 @@
 						<reference key="object" ref="138235794"/>
 						<reference key="parent" ref="957960031"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">200</int>
+						<reference key="object" ref="23313138"/>
+						<reference key="parent" ref="463466576"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -647,6 +680,7 @@
 					<string>2.IBAttributePlaceholdersKey</string>
 					<string>2.IBEditorWindowLastContentRect</string>
 					<string>2.IBPluginDependency</string>
+					<string>200.IBPluginDependency</string>
 					<string>3.CustomClassName</string>
 					<string>3.IBPluginDependency</string>
 				</object>
@@ -655,7 +689,7 @@
 					<string>UIApplication</string>
 					<string>UIResponder</string>
 					<string>LoginViewController</string>
-					<string>{{315, 610}, {320, 480}}</string>
+					<string>{{290, 359}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -690,6 +724,7 @@
 					</object>
 					<string>{{229, 373}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>WeaveAppDelegate</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				</object>
@@ -714,7 +749,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">199</int>
+			<int key="maxID">201</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -746,6 +781,7 @@
 							<string>pphField</string>
 							<string>pwdField</string>
 							<string>spinner</string>
+							<string>status</string>
 							<string>submit</string>
 							<string>usrField</string>
 						</object>
@@ -755,6 +791,7 @@
 							<string>UITextField</string>
 							<string>UITextField</string>
 							<string>UIActivityIndicatorView</string>
+							<string>UILabel</string>
 							<string>UIButton</string>
 							<string>UITextField</string>
 						</object>

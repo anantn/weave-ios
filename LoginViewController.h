@@ -12,6 +12,7 @@
 @interface LoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
 	BOOL process;
 	
+	UILabel *status;
 	UIButton *submit;
 	UIImageView *logo;
 	
@@ -32,6 +33,7 @@
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *passphrase;
 
+@property (nonatomic, retain) IBOutlet UILabel *status;
 @property (nonatomic, retain) IBOutlet UIButton *submit;
 @property (nonatomic, retain) IBOutlet UIImageView *logo;
 
