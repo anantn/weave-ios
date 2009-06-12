@@ -34,7 +34,8 @@
     [super viewDidLoad];
 
 	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	list = [[NSMutableArray alloc] init];
+	bmkList = [[NSMutableArray alloc] init];
+	histList = [[NSMutableArray alloc] init];
 	
 	self.tableView.tableHeaderView = searchBar;
 	searchBar.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -58,7 +59,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if (searching)
-		return [list count];
+		return [bmkList count] + [histList count];
 	else
 		return [[[app service] getBookmarkTitles] count];
 }
@@ -80,7 +81,10 @@
 	
 	// Set up the cell...
 	if (searching) {
-		cell.text = [list objectAtIndex:indexPath.row];
+		if (indexPath.row >= [bmkList count])
+			cell.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
+		else
+			cell.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
 	} else {
 		cell.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
 	}
@@ -115,7 +119,8 @@
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText {
 	// Remove all objects first.
-	[list removeAllObjects];
+	[bmkList removeAllObjects];
+	[histList removeAllObjects];
 	
 	if ([searchText length] > 0) {
 		searching = YES;
@@ -144,26 +149,35 @@
 }
 
 - (void)searchTableView {
+	int i;
 	NSString *searchText = searchBar.text;
-	for (NSString *sTemp in [[app service] getBookmarkTitles]) {
-		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
-		if (titleResultsRange.length > 0)
-			[list addObject:sTemp];
+
+	NSArray *bmT = [[app service] getBookmarkTitles];
+	NSArray *bmU = [[app service] getBookmarkURIs];
+	NSArray *hiT = [[app service] getHistoryTitles];
+	NSArray *hiU = [[app service] getHistoryURIs];
+	
+	/* Bookmark search */
+	for (i = 0; i < [bmT count]; i++) {
+		NSString *uri = [bmU objectAtIndex:i];
+		NSString *title = [bmT objectAtIndex:i];
+		
+		NSRange ru = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		NSRange rt = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		
+		if (ru.length > 0 || rt.length > 0)
+			[bmkList addObject:[NSArray arrayWithObjects:title, uri, nil]];
 	}
-	for (NSString *sTemp in [[app service] getBookmarkURIs]) {
-		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
-		if (titleResultsRange.length > 0)
-			[list addObject:sTemp];
-	}
-	for (NSString *sTemp in [[app service] getHistoryURIs]) {
-		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
-		if (titleResultsRange.length > 0)
-			[list addObject:sTemp];
-	}
-	for (NSString *sTemp in [[app service] getHistoryTitles]) {
-		NSRange titleResultsRange = [sTemp rangeOfString:searchText options:NSCaseInsensitiveSearch];
-		if (titleResultsRange.length > 0)
-			[list addObject:sTemp];
+	
+	for (i = 0; i < [hiT count]; i++) {
+		NSString *uri = [hiU objectAtIndex:i];
+		NSString *title = [hiT objectAtIndex:i];
+		
+		NSRange hu = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		NSRange ht = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
+		
+		if (hu.length > 0 || ht.length > 0)
+			[histList addObject:[NSArray arrayWithObjects:title, uri, nil]];
 	}
 }
 
@@ -181,6 +195,8 @@
 }
 
 - (void)dealloc {
+	[bmkList release];
+	[histList release];
     [super dealloc];
 }
 

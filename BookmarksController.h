@@ -11,7 +11,8 @@
 @class WeaveAppDelegate;
 
 @interface BookmarksController : UITableViewController {
-	NSMutableArray *list;
+	NSMutableArray *bmkList;
+	NSMutableArray *histList;
 	IBOutlet UISearchBar *searchBar;
 	BOOL searching;
 	BOOL letUserSelectRow;
