@@ -40,7 +40,6 @@
 	self.tableView.tableHeaderView = searchBar;
 	searchBar.autocorrectionType = UITextAutocorrectionTypeNo;
 	searching = NO;
-	letUserSelectRow = YES;
 	//Set the title
 	self.navigationItem.title = @"Bookmarks";
 }
@@ -77,6 +76,7 @@
 
 	UILabel *title;
 	UILabel *uri;
+	UIImage *star = [UIImage imageNamed:@"Star.png"];
 	
 	static NSString *CellIdentifier = @"Cell";
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -86,7 +86,7 @@
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
 						cell.indentationWidth,
 						tableView.rowHeight - 40,
-						tableView.bounds.size.width - cell.indentationWidth,
+						tableView.bounds.size.width - cell.indentationWidth - star.size.width - 10,
 						20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
@@ -95,7 +95,7 @@
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
 						cell.indentationWidth,
 						tableView.rowHeight - 20,
-						tableView.bounds.size.width - cell.indentationWidth,
+						tableView.bounds.size.width - cell.indentationWidth - star.size.width - 10,
 						15)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
@@ -106,28 +106,27 @@
 		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
+	cell.accessoryView = nil;
 	// Set up the cell...
-	if (searching) {
-		if (indexPath.row >= [bmkList count]) {
-			title.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
-			uri.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:1];
+	@try {
+		if (searching) {
+			if (indexPath.row >= [bmkList count]) {
+				title.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
+				uri.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:1];
+			} else {
+				title.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
+				uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
+				cell.accessoryView = [[[UIImageView alloc] initWithImage:star] autorelease];
+			}
 		} else {
-			title.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
-			uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
+			title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
+			uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
 		}
-	} else {
-		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
-		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
+	} @catch (id theException) {
+		NSLog(@"%@ threw %@", indexPath.row, theException);
 	}
 	
 	return cell;
-}
-
-- (NSIndexPath *)tableView :(UITableView *)theTableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (letUserSelectRow)
-		return indexPath;
-	else
-		return nil;
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath {	
@@ -136,16 +135,7 @@
 
 /* Search bar */
 - (void) searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
-	NSLog(@"Search begun");
 	searching = YES;
-	letUserSelectRow = NO;
-	self.tableView.scrollEnabled = NO;
-	
-	/*
-	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] 
-											   initWithBarButtonSystemItem:UIBarButtonSystemItemDone 
-											   target:self action:@selector(doneSearching_Clicked:)] autorelease];
-	*/
 }
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText {
@@ -155,13 +145,9 @@
 	
 	if ([searchText length] > 0) {
 		searching = YES;
-		letUserSelectRow = YES;
-		self.tableView.scrollEnabled = YES;
 		[self searchTableView];
 	} else {
 		searching = NO;
-		letUserSelectRow = NO;
-		self.tableView.scrollEnabled = NO;
 	}
 	
 	[self.tableView reloadData];
@@ -169,19 +155,16 @@
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
 	searchBar.text = @"";
-	[searchBar resignFirstResponder];
-	
-	letUserSelectRow = YES;
 	searching = NO;
-	self.navigationItem.rightBarButtonItem = nil;
-	self.tableView.scrollEnabled = YES;
-	
+	[searchBar resignFirstResponder];
 	[self.tableView reloadData];
 }
 
 - (void)searchTableView {
 	int i;
 	NSString *searchText = searchBar.text;
+	[bmkList removeAllObjects];
+	[histList removeAllObjects];
 
 	NSArray *bmT = [[app service] getBookmarkTitles];
 	NSArray *bmU = [[app service] getBookmarkURIs];
@@ -208,8 +191,9 @@
 		NSRange hu = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange ht = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		
-		if (hu.length > 0 || ht.length > 0)
+		if (hu.length > 0 || ht.length > 0) {
 			[histList addObject:[NSArray arrayWithObjects:title, uri, nil]];
+		}
 	}
 }
 

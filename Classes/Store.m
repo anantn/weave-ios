@@ -159,7 +159,7 @@
 				}
 			}
 		} @catch (id theException) {
-			//NSLog(@"%@ threw %@", payload, theException);
+			NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
 
@@ -189,10 +189,10 @@
 				[histTitles addObject:title];
 			}
 		} @catch (id theException) {
-			//NSLog(@"%@ threw %@", payload, theException);
+			NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
-	
+
 	return YES;
 }
 

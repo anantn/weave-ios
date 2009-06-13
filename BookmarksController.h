@@ -15,7 +15,6 @@
 	NSMutableArray *histList;
 	IBOutlet UISearchBar *searchBar;
 	BOOL searching;
-	BOOL letUserSelectRow;
 	WeaveAppDelegate *app;
 }
 

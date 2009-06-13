@@ -92,10 +92,10 @@
 			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:2];
 			break;
 		case 2:
-			/* Got history, done! 
+			/* Got history, done! */
 			[store addHistory:response];
-			*/
 			[cb verified:YES];
+			break;
 		default:
 			NSLog(@"This should never happen!");
 			break;
