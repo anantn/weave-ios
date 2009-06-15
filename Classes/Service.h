@@ -21,11 +21,6 @@
 	NSString *password;
 	NSString *passphrase;
 	
-	NSData *iv;
-	NSData *salt;
-	NSData *public_key;
-	NSData *private_key;
-	
 	Store *store;
 	Connection *conn;
 	LoginViewController *cb;
@@ -34,11 +29,6 @@
 @property (nonatomic, copy) NSString *server;
 @property (nonatomic, copy) NSString *baseURI;
 @property (nonatomic, copy) NSString *protocol;
-
-@property (nonatomic, copy) NSData *iv;
-@property (nonatomic, copy) NSData *salt;
-@property (nonatomic, copy) NSData *public_key;
-@property (nonatomic, copy) NSData *private_key;
 
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;

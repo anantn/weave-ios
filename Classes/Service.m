@@ -15,7 +15,6 @@
 @implementation Service
 
 @synthesize username, password, passphrase;
-@synthesize iv, salt, public_key, private_key;
 @synthesize cb, store, conn, protocol, server, baseURI;
 
 -(Service *) initWithServer:(NSString *)address {
@@ -79,6 +78,7 @@
 	switch (i) {
 		case 0:
 			/* Verified, get history */
+			[[cb getProgressView] setAlpha:1.0];
 			[[cb getStatusLabel] setText:@"Downloading your bookmarks..."];
 			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
 			
@@ -87,13 +87,9 @@
 		case 1:
 			/* We got bookmarks, now get History */
 			[store addBookmarks:response];
-			[[cb getProgressView] setAlpha:1.0];
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
-			/*
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
-			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:2];
-			*/
-			[cb verified:YES];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:3 andIndex:2];
 			break;
 		case 2:
 			/* Got history, done! */
@@ -101,7 +97,7 @@
 			[cb verified:YES];
 			break;
 		case 3:
-			/* Bookmarks progress */
+			/* progress */
 			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
 			
 			if (rp) {

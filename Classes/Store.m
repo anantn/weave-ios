@@ -137,9 +137,6 @@
 	bmkUris = [[NSMutableArray alloc] init];
 	bmkTitles = [[NSMutableArray alloc] init];
 
-	NSLog(@"%@", [json JSONValue]);
-	
-/*
 	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
 	NSEnumerator *iter = [items objectEnumerator];
 	
@@ -165,7 +162,6 @@
 			NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
-*/
 	return YES;
 }
 
@@ -173,7 +169,7 @@
 	histUris = [[NSMutableArray alloc] init];
 	histTitles = [[NSMutableArray alloc] init];
 	
-	NSArray *items = [json JSONValue];
+	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
 	NSEnumerator *iter = [items objectEnumerator];
 	
 	NSDictionary *obj;
