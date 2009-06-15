@@ -1,16 +1,16 @@
 //
-//  BookmarksController.m
+//  SearchController.m
 //  Weave
 //
 //  Created by Anant Narayanan on 6/11/09.
 //  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
-#import "BookmarksController.h"
+#import "SearchController.h"
 #import "WeaveAppDelegate.h"
 #import "Service.h"
 
-@implementation BookmarksController
+@implementation SearchController
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.

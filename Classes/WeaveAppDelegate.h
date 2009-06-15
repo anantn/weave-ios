@@ -19,8 +19,8 @@
 	UIWindow *window;
 	Service *service;
 	TabViewController *tabController;
-	LoginViewController *loginController;
 	WebViewController *webController;
+	LoginViewController *loginController;
 }
 
 @property (retain) Service *service;

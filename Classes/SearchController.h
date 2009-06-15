@@ -1,5 +1,5 @@
 //
-//  BookmarksController.h
+//  SearchController.h
 //  Weave
 //
 //  Created by Anant Narayanan on 6/11/09.
@@ -10,7 +10,7 @@
 
 @class WeaveAppDelegate;
 
-@interface BookmarksController : UITableViewController {
+@interface SearchController : UITableViewController {
 	NSMutableArray *bmkList;
 	NSMutableArray *histList;
 	IBOutlet UISearchBar *searchBar;
