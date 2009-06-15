@@ -7,6 +7,7 @@
 //
 
 #import "Connection.h"
+#import <JSON/JSON.h>
 
 @implementation Connection
 
@@ -25,11 +26,18 @@
 	
 	responseData = [[NSMutableData data] retain];
 	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
-	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+												timeoutInterval:10];
 	[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
 	[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
 	[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
+}
+
+-(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i {
+	pg = j;
+	[self getResource:url withCallback:callback andIndex:i];
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -46,6 +54,10 @@
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
 	[responseData appendData:data];
+	if (pg) {
+		[cb successWithString:[[[NSString alloc] initWithData:responseData 
+								encoding:NSUTF8StringEncoding] autorelease] andIndex:pg];
+	}
 }
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {

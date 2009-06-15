@@ -14,6 +14,7 @@
 
 @interface Service : NSObject <Responder> {
 	id cb;
+	
 	NSString *server;
 	NSString *baseURI;
 	NSString *protocol;

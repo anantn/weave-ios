@@ -12,17 +12,14 @@
 
 @implementation LoginViewController
 
+@synthesize logo, process;
 @synthesize status, usrField, pwdField, pphField;
-@synthesize logo, spinner, submit, process;
-@synthesize username, password, passphrase;
+@synthesize username, password, passphrase, pgBar;
 
 -(IBAction) login:(id)sender {
 	if (process == NO) {
 		process = YES;
-		submit.enabled = NO;
 		[logo setAlpha:0.0]; 
-		[spinner setAlpha:1.0];
-		[spinner startAnimating];
 		
 		username = usrField.text;
 		password = pwdField.text;
@@ -35,9 +32,7 @@
 
 -(void) verified:(BOOL)answer {
 	if (answer) {
-		[spinner setAlpha:0.0];
 		[logo setAlpha:1.0];
-		submit.enabled = YES;
 		process = NO;
 		
 		/* Flip to main view */
@@ -48,11 +43,7 @@
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-		
-		[spinner stopAnimating];
-		[spinner setAlpha:0.0];
 		[logo setAlpha:1.0];
-		submit.enabled = YES;
 		process = NO;
 	}
 }
@@ -87,7 +78,6 @@
 
 -(void) dealloc {
 	[logo release];
-	[submit release];
 
 	[usrField release];
 	[pwdField release];

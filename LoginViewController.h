@@ -13,7 +13,6 @@
 	BOOL process;
 	
 	UILabel *status;
-	UIButton *submit;
 	UIImageView *logo;
 	
 	NSString *username;
@@ -24,7 +23,7 @@
 	UITextField *pwdField;
 	UITextField *pphField;
 	
-	UIActivityIndicatorView *spinner;
+	UIProgressView *pgBar;
 }
 
 @property (nonatomic) BOOL process;
@@ -34,16 +33,16 @@
 @property (nonatomic, copy) NSString *passphrase;
 
 @property (nonatomic, retain) IBOutlet UILabel *status;
-@property (nonatomic, retain) IBOutlet UIButton *submit;
 @property (nonatomic, retain) IBOutlet UIImageView *logo;
 
 @property (nonatomic, retain) IBOutlet UITextField *usrField;
 @property (nonatomic, retain) IBOutlet UITextField *pwdField;
 @property (nonatomic, retain) IBOutlet UITextField *pphField;
 
-@property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
+@property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
 
 -(IBAction) login:(id)sender;
 -(void) verified:(BOOL)answer;
+-(void) setProgess:(float)prg;
 
 @end

@@ -11,6 +11,7 @@
 
 @interface Connection : NSObject {
 	id cb;
+	int pg;
 	int index;
 	BOOL success;
 	NSString *user;
@@ -30,5 +31,6 @@
 
 -(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph;
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i;
+-(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i;
 
 @end

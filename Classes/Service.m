@@ -74,7 +74,11 @@
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
+	NSArray *pg;
+	float cProg;
+	int tot, sof;
 	NSString *url;
+	NSDictionary *rp;
 	
 	switch (i) {
 		case 0:
@@ -82,19 +86,36 @@
 			[[cb status] setText:@"Downloading your bookmarks..."];
 			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
 			
-			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:1];
+			[[cb pgBar] setAlpha:1.0];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:3 andIndex:1];
 			break;
 		case 1:
 			/* We got bookmarks, now get History */
 			[store addBookmarks:response];
 			[[cb status] setText:@"Downloading your history..."];
+			/*
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
 			[conn getResource:[NSURL URLWithString:url] withCallback:self andIndex:2];
+			*/
+			[cb verified:YES];
 			break;
 		case 2:
 			/* Got history, done! */
 			[store addHistory:response];
 			[cb verified:YES];
+			break;
+		case 3:
+			/* Bookmarks progress */
+			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
+			
+			if (rp) {
+				pg = [rp valueForKey:@"progress"];
+				tot = [[rp valueForKey:@"total"] intValue];
+				sof = [[pg lastObject] intValue];
+				cProg = (float)sof/(float)tot;
+				NSLog(@"Current progress %f", cProg);
+				[[cb pgBar] setProgress:cProg];
+			}
 			break;
 		default:
 			NSLog(@"This should never happen!");
