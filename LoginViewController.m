@@ -12,7 +12,7 @@
 
 @implementation LoginViewController
 
-@synthesize logo, process;
+@synthesize logo, process, pgLbl;
 @synthesize stLbl, usrField, pwdField, pphField;
 @synthesize username, password, passphrase, pgBar;
 
@@ -68,6 +68,10 @@
 
 -(UILabel *) getStatusLabel {
 	return stLbl;
+}
+
+-(UILabel *) getProgressLabel {
+	return pgLbl;
 }
 
 -(UIProgressView *) getProgressView {

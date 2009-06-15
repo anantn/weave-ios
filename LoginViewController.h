@@ -12,6 +12,7 @@
 	BOOL process;
 	
 	UILabel *stLbl;
+	UILabel *pgLbl;
 	UIImageView *logo;
 	
 	NSString *username;
@@ -37,6 +38,7 @@
 @property (nonatomic, retain) IBOutlet UITextField *pphField;
 
 @property (nonatomic, retain) IBOutlet UILabel *stLbl;
+@property (nonatomic, retain) IBOutlet UILabel *pgLbl;
 @property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
 
 -(IBAction) login:(id)sender;

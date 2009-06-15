@@ -77,7 +77,7 @@
 	
 	switch (i) {
 		case 0:
-			/* Verified, get history */
+			/* Verified, get Bookmarks */
 			[[cb getProgressView] setAlpha:1.0];
 			[[cb getStatusLabel] setText:@"Downloading your bookmarks..."];
 			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
@@ -86,6 +86,7 @@
 			break;
 		case 1:
 			/* We got bookmarks, now get History */
+			[[cb getProgressLabel] setAlpha:0.0];
 			[store addBookmarks:response];
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
@@ -105,6 +106,8 @@
 				tot = [[rp valueForKey:@"total"] intValue];
 				sof = [[pg lastObject] intValue];
 				[[cb getProgressView] setProgress:(float)sof/(float)tot];
+				[[cb getProgressLabel] setText:[NSString stringWithFormat:@"%d / %d", sof, tot]];
+				[[cb getProgressLabel] setAlpha:1.0];
 			}
 			break;
 		default:
