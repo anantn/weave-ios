@@ -133,6 +133,20 @@
 	[self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	if (searching) {
+		if (indexPath.row >= [bmkList count]) {
+			[app setUri:[[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:1]];
+		} else {
+			[app setUri:[[bmkList objectAtIndex:indexPath.row] objectAtIndex:1]];
+		}
+	} else {
+		[app setUri:[[[app service] getBookmarkURIs] objectAtIndex:indexPath.row]];
+	}
+	
+	[app flipToWebFrom:self.view];
+}
+
 /* Search bar */
 - (void) searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
 	searching = YES;

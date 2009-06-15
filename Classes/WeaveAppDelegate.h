@@ -11,20 +11,26 @@
 @class Store;
 @class Service;
 @class TabViewController;
+@class WebViewController;
 @class LoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
+	NSString *uri;
 	UIWindow *window;
 	Service *service;
 	TabViewController *tabController;
 	LoginViewController *loginController;
+	WebViewController *webController;
 }
 
 @property (retain) Service *service;
+@property (nonatomic, copy) NSString *uri;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet TabViewController *tabController;
+@property (nonatomic, retain) IBOutlet WebViewController *webController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
--(void) flip;
+-(void) flipToWebFrom:(UIView *)view;
+-(void) flipToListFrom:(UIView *)view;
 
 @end

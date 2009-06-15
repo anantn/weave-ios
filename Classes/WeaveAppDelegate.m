@@ -10,11 +10,13 @@
 #import "WeaveAppDelegate.h"
 #import "LoginViewController.h"
 #import "TabViewController.h"
+#import "WebViewController.h"
 #import "Store.h"
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, tabController, loginController;
+@synthesize window, service, uri;
+@synthesize tabController, loginController, webController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"services.mozilla.com"];
@@ -26,11 +28,22 @@
 	[window makeKeyAndVisible];
 }
 
--(void) flip {
+-(void) flipToWebFrom:(UIView *)view {
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:1.0];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:window cache:NO];
+	[view removeFromSuperview];
+	[self.window addSubview:[webController view]];
+	[UIView commitAnimations];
+	
+	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
+}
+
+-(void) flipToListFrom:(UIView *)view {
 	[UIView beginAnimations:nil context:NULL];
 	[UIView setAnimationDuration:2.0];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:window cache:NO];
-	[loginController.view removeFromSuperview];
+	[view removeFromSuperview];
 	[self.window addSubview:[tabController view]];
 	[UIView commitAnimations];
 }
