@@ -7,12 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Verifier.h"
 
-@interface LoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
+@interface LoginViewController : UIViewController <UITextFieldDelegate> {
 	BOOL process;
 	
-	UILabel *status;
+	UILabel *stLbl;
 	UIImageView *logo;
 	
 	NSString *username;
@@ -32,17 +31,18 @@
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *passphrase;
 
-@property (nonatomic, retain) IBOutlet UILabel *status;
 @property (nonatomic, retain) IBOutlet UIImageView *logo;
-
 @property (nonatomic, retain) IBOutlet UITextField *usrField;
 @property (nonatomic, retain) IBOutlet UITextField *pwdField;
 @property (nonatomic, retain) IBOutlet UITextField *pphField;
 
+@property (nonatomic, retain) IBOutlet UILabel *stLbl;
 @property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
 
 -(IBAction) login:(id)sender;
 -(void) verified:(BOOL)answer;
--(void) setProgess:(float)prg;
+
+-(UILabel *) getStatusLabel;
+-(UIProgressView *) getProgressView;
 
 @end

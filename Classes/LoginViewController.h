@@ -1,5 +1,5 @@
 //
-//  WeaveLoginViewController.h
+//  LoginViewController.h
 //  Weave
 //
 //  Created by Anant Narayanan on 29/03/09.
@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Verifier.h"
 
-@interface LoginViewController : UIViewController <UITextFieldDelegate, Verifier> {
+@interface LoginViewController : UIViewController <UITextFieldDelegate> {
 	BOOL process;
 	
 	UIButton *submit;

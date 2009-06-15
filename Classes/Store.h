@@ -30,6 +30,7 @@
 -(BOOL) loadUserToService:(Service *)svc;
 -(BOOL) addUserWithService:(Service *)svc;
 -(BOOL) addBookmarks:(NSString *)json;
+-(BOOL) addHistory:(NSString *)json;
 
 -(int) getUsers;
 

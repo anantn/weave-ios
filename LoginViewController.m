@@ -13,7 +13,7 @@
 @implementation LoginViewController
 
 @synthesize logo, process;
-@synthesize status, usrField, pwdField, pphField;
+@synthesize stLbl, usrField, pwdField, pphField;
 @synthesize username, password, passphrase, pgBar;
 
 -(IBAction) login:(id)sender {
@@ -31,6 +31,7 @@
 }
 
 -(void) verified:(BOOL)answer {
+	[pgBar setAlpha:0.0];
 	if (answer) {
 		[logo setAlpha:1.0];
 		process = NO;
@@ -43,6 +44,7 @@
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
+		
 		[logo setAlpha:1.0];
 		process = NO;
 	}
@@ -62,6 +64,14 @@
 		[self login:pphField];
 		return YES;
 	}
+}
+
+-(UILabel *) getStatusLabel {
+	return stLbl;
+}
+
+-(UIProgressView *) getProgressView {
+	return pgBar;
 }
 
 -(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

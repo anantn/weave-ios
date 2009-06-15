@@ -136,8 +136,11 @@
 -(BOOL) addBookmarks:(NSString *)json {
 	bmkUris = [[NSMutableArray alloc] init];
 	bmkTitles = [[NSMutableArray alloc] init];
+
+	NSLog(@"%@", [json JSONValue]);
 	
-	NSArray *items = [json JSONValue];
+/*
+	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
 	NSEnumerator *iter = [items objectEnumerator];
 	
 	NSDictionary *obj;
@@ -162,7 +165,7 @@
 			NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
-
+*/
 	return YES;
 }
 

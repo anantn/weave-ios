@@ -10,11 +10,9 @@
 #import <JSON/JSON.h>
 #import "Responder.h"
 
-@class Store, Crypto, Connection;
+@class Store, Crypto, Connection, LoginViewController;
 
 @interface Service : NSObject <Responder> {
-	id cb;
-	
 	NSString *server;
 	NSString *baseURI;
 	NSString *protocol;
@@ -29,11 +27,10 @@
 	NSData *private_key;
 	
 	Store *store;
-	Crypto *crypto;
 	Connection *conn;
+	LoginViewController *cb;
 }
 
-@property (nonatomic, copy) id cb;
 @property (nonatomic, copy) NSString *server;
 @property (nonatomic, copy) NSString *baseURI;
 @property (nonatomic, copy) NSString *protocol;
@@ -48,8 +45,8 @@
 @property (nonatomic, copy) NSString *passphrase;
 
 @property (nonatomic, retain) Store *store;
-@property (nonatomic, retain) Crypto *crypto;
 @property (nonatomic, retain) Connection *conn;
+@property (nonatomic, retain) LoginViewController *cb;
 
 -(Service *) initWithServer:(NSString *)server;
 
