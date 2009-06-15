@@ -1,61 +1,51 @@
 //
-//  WeaveLoginViewController.m
+//  LoginViewController.m
 //  Weave
 //
-//  Created by Anant Narayanan on 29/03/09.
-//  Copyright Anant Narayanan 2009. All rights reserved.
+//  Created by Anant Narayanan on 6/4/09.
+//  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
-#import "Service.h"
-#import "WeaveAppDelegate.h"
 #import "LoginViewController.h"
+#import "WeaveAppDelegate.h"
+#import "Service.h"
 
 @implementation LoginViewController
 
-@synthesize usrLabel, pwdLabel, pphLabel;
-@synthesize usrField, pwdField, pphField;
-@synthesize logo, spinner, submit, process;
-@synthesize username, password, passphrase;
+@synthesize logo, process, pgLbl;
+@synthesize stLbl, usrField, pwdField, pphField;
+@synthesize username, password, passphrase, pgBar;
 
 -(IBAction) login:(id)sender {
 	if (process == NO) {
 		process = YES;
-		submit.enabled = NO;
 		[logo setAlpha:0.0]; 
-		[spinner setAlpha:1.0];
-		[spinner startAnimating];
 		
 		username = usrField.text;
 		password = pwdField.text;
 		passphrase = pphField.text;
 		
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-		[app.service verifyWithUsername:username password:password passphrase:passphrase andCallback:self];
+		[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
 	}
 }
 
 -(void) verified:(BOOL)answer {
+	[pgBar setAlpha:0.0];
 	if (answer) {
-		/* We should switch view here */
-		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Alert" message:@"Success!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-		[alert show];
-		[alert release];
-		
-		[spinner stopAnimating];
-		[spinner setAlpha:0.0];
 		[logo setAlpha:1.0];
-		submit.enabled = YES;
 		process = NO;
+		
+		/* Flip to main view */
+		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+		[app flipToListFrom:self.view];
 	} else {
 		/* Invalid credentials, try again */
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
 		
-		[spinner stopAnimating];
-		[spinner setAlpha:0.0];
 		[logo setAlpha:1.0];
-		submit.enabled = YES;
 		process = NO;
 	}
 }
@@ -76,6 +66,18 @@
 	}
 }
 
+-(UILabel *) getStatusLabel {
+	return stLbl;
+}
+
+-(UILabel *) getProgressLabel {
+	return pgLbl;
+}
+
+-(UIProgressView *) getProgressView {
+	return pgBar;
+}
+
 -(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
@@ -90,11 +92,7 @@
 
 -(void) dealloc {
 	[logo release];
-	[submit release];
-	
-	[usrLabel release];
-	[pwdLabel release];
-	[pphLabel release];
+
 	[usrField release];
 	[pwdField release];
 	[pphField release];
