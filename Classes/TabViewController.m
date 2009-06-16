@@ -11,6 +11,7 @@
 
 @implementation TabViewController
 
+@synthesize searchView;
 
 /*
 // The designated initializer. Override to perform setup that is required before the view is loaded.

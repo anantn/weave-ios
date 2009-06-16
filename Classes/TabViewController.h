@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface TabViewController : UITabBarController {
-
+	UITableView *searchView;
 }
+
+@property (nonatomic, retain) IBOutlet UITableView *searchView;
 
 @end

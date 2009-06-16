@@ -40,6 +40,7 @@
 	self.tableView.tableHeaderView = searchBar;
 	searchBar.autocorrectionType = UITextAutocorrectionTypeNo;
 	searching = NO;
+	
 	//Set the title
 	self.navigationItem.title = @"Bookmarks";
 }

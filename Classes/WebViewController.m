@@ -11,7 +11,7 @@
 
 @implementation WebViewController
 
-@synthesize webView, toolBar, backButton;
+@synthesize webView, toolBar, backButton, spinner;
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
@@ -47,6 +47,15 @@
 - (IBAction) backButton_clicked:(id)sender {
 	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 	[app flipToListFrom:self.view];
+}
+
+/* Web view delegate */
+- (void)webViewDidStartLoad:(UIWebView *)webView {
+	[spinner startAnimating];
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+	[spinner stopAnimating];
 }
 
 - (void)didReceiveMemoryWarning {

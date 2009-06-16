@@ -36,6 +36,7 @@
 	[self.window addSubview:[webController view]];
 	[UIView commitAnimations];
 	
+	[webController.webView setScalesPageToFit:YES];
 	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
 }
 
@@ -46,6 +47,11 @@
 	[view removeFromSuperview];
 	[self.window addSubview:[tabController view]];
 	[UIView commitAnimations];
+
+	/* WTF? But seems to be needed to get a non-blank view when switching back from webview */
+	[tabController setSelectedIndex:1];
+	[tabController.searchView reloadData];
+	[tabController setSelectedIndex:0];
 }
 
 -(void) dealloc {

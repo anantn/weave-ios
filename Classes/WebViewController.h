@@ -9,16 +9,20 @@
 #import <UIKit/UIKit.h>
 
 
-@interface WebViewController : UIViewController {
+@interface WebViewController : UIViewController <UIWebViewDelegate> {
 	UIWebView *webView;
 	UIToolbar *toolBar;
 	UIBarItem *backButton;
+	UIActivityIndicatorView *spinner;
 }
 
 @property (nonatomic, retain) IBOutlet UIWebView *webView;
 @property (nonatomic, retain) IBOutlet UIToolbar *toolBar;
 @property (nonatomic, retain) IBOutlet UIBarItem *backButton;
+@property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
 - (IBAction) backButton_clicked:(id)sender;
+- (void)webViewDidStartLoad:(UIWebView *)webView;
+- (void)webViewDidFinishLoad:(UIWebView *)webView;
 
 @end
