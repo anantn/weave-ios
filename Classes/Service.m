@@ -70,6 +70,15 @@
 	return [store histTitles];
 }
 
+-(NSMutableArray *)getTabURIs {
+	return [store tabUris];
+}
+
+-(NSMutableArray *)getTabTitles {
+	return [store tabTitles];
+}
+
+
 -(void) successWithString:(NSString *)response andIndex:(int)i{
 	NSArray *pg;
 	int tot, sof;
@@ -83,7 +92,7 @@
 			[[cb getStatusLabel] setText:@"Downloading your bookmarks..."];
 			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
 			
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:3 andIndex:1];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:1];
 			break;
 		case 1:
 			/* We got bookmarks, now get History */
@@ -94,21 +103,31 @@
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
 			[[cb getProgressView] setAlpha:1.0];
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:3 andIndex:2];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:2];
 			break;
 		case 2:
-			/* Got history, add user to DB! */
+			/* Got history, now get Tabs */
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
 			[store addHistory:response];
 
+			[[cb getStatusLabel] setText:@"Downloading your tabs..."];
+			[[cb getProgressView] setAlpha:1.0];
+			url = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
+			break;
+		case 3:
+			/* Got tabs, now add user to Store */
+			[[cb getProgressView] setAlpha:0.0];
+			[[cb getProgressLabel] setAlpha:0.0];
+			[store addTabs:response];
+			
 			if ([store addUserWithService:self]) {
 				[cb verified:YES];
 			} else {
 				[cb verified:NO];
 			}
-			break;
-		case 3:
+		case 4:
 			/* progress */
 			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
 			

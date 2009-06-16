@@ -17,6 +17,8 @@
 	NSMutableArray *bmkTitles;
 	NSMutableArray *histUris;
 	NSMutableArray *histTitles;
+	NSMutableArray *tabUris;
+	NSMutableArray *tabTitles;
 }
 
 @property (nonatomic) sqlite3 *dataBase;
@@ -24,6 +26,8 @@
 @property (nonatomic, retain) NSMutableArray *bmkTitles;
 @property (nonatomic, retain) NSMutableArray *histUris;
 @property (nonatomic, retain) NSMutableArray *histTitles;
+@property (nonatomic, retain) NSMutableArray *tabUris;
+@property (nonatomic, retain) NSMutableArray *tabTitles;
 
 -(Store *) initWithDB:(NSString *)db;
 
@@ -31,6 +35,7 @@
 -(BOOL) addUserWithService:(Service *)svc;
 -(BOOL) addBookmarks:(NSString *)json;
 -(BOOL) addHistory:(NSString *)json;
+-(BOOL) addTabs:(NSString *)json;
 
 -(int) getUsers;
 

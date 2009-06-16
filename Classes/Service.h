@@ -52,5 +52,7 @@
 -(NSMutableArray *) getBookmarkTitles;
 -(NSMutableArray *) getHistoryURIs;
 -(NSMutableArray *) getHistoryTitles;
+-(NSMutableArray *) getTabURIs;
+-(NSMutableArray *) getTabTitles;
 
 @end

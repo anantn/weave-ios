@@ -13,7 +13,7 @@
 
 @implementation Store
 
-@synthesize dataBase, bmkUris, bmkTitles, histUris, histTitles;
+@synthesize dataBase, bmkUris, bmkTitles, histUris, histTitles, tabUris, tabTitles;
 
 -(Store *) initWithDB:(NSString *)db {
 	self = [super init];
@@ -102,6 +102,7 @@
 	const char *sql = "SELECT * FROM users LIMIT 1";
 	const char *hSql = "SELECT * FROM moz_places WHERE type = 'history'";
 	const char *bSql = "SELECT * FROM moz_places WHERE type = 'bookmark'";
+	const char *tSql = "SELECT * FROM moz_places WHERE type = 'tab'";
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) == SQLITE_OK) {
 		if (sqlite3_step(stmnt) == SQLITE_ROW) {
@@ -129,8 +130,10 @@
 	histTitles = [[NSMutableArray alloc] init];
 	bmkUris = [[NSMutableArray alloc] init];
 	bmkTitles = [[NSMutableArray alloc] init];
+	tabUris = [[NSMutableArray alloc] init];
+	tabTitles = [[NSMutableArray alloc] init];
 	
-	/* Load existing bookmarks & history */
+	/* Load existing bookmarks, history and tabs */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
 			[bmkUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
@@ -153,7 +156,18 @@
 	}
 	sqlite3_finalize(stmnt);
 	
-	NSLog(@"Store loaded %d history items and %d bookmarks", [histUris count], [bmkUris count]);
+	if (sqlite3_prepare_v2(dataBase, tSql, -1, &stmnt, NULL) == SQLITE_OK) {
+		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			[tabUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
+			[tabTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+		}
+	} else {
+		NSLog(@"Could not prepare SQL to load tabs!");
+		return NO;
+	}
+	sqlite3_finalize(stmnt);
+	
+	NSLog(@"Store loaded %d history items, %d bookmarks, and %d tabs", [histUris count], [bmkUris count], [tabUris count]);
 	return YES;
 }
 
@@ -178,8 +192,10 @@
 	
 	if ([type isEqualToString:@"bookmark"])
 		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('bookmark', ?, ?)";
-	else
+	else if ([type isEqualToString:@"history"])
 		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('history', ?, ?)";
+	else
+		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('tab', ?, ?)";
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
@@ -253,6 +269,36 @@
 	return YES;
 }
 
+-(BOOL) addTabs:(NSString *)json {
+	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
+	NSEnumerator *iter = [items objectEnumerator];
+	
+	NSDictionary *obj;
+	NSDictionary *tab;
+	
+	while (obj = [iter nextObject]) {
+		NSDictionary *payload = [obj valueForKey:@"payload"];
+		@try {
+			NSString *cipher = [payload valueForKey:@"ciphertext"];
+			NSArray *tabs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
+			NSEnumerator *tEnum = [tabs objectEnumerator];
+			
+			while (tab = [tEnum nextObject]) {
+				NSString *uri = [[tab valueForKey:@"urlHistory"] objectAtIndex:0];
+				NSString *title = [tab valueForKey:@"title"];
+				
+				if (title && uri) {
+					[self addPlace:@"tab" withURI:uri andTitle:title];
+				}
+			}
+		} @catch (id theException) {
+			NSLog(@"%@ threw %@", payload, theException);
+		}
+	}
+	
+	return YES;
+}
+	
 -(void) dealloc {
 	sqlite3_close(dataBase);
 	[super dealloc];
