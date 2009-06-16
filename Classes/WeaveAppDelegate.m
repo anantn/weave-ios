@@ -11,6 +11,7 @@
 #import "LoginViewController.h"
 #import "TabViewController.h"
 #import "WebViewController.h"
+#import "MainViewController.h"
 #import "Store.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -18,7 +19,7 @@
 @implementation WeaveAppDelegate
 
 @synthesize window, service, uri;
-@synthesize tabController, loginController, webController;
+@synthesize tabController, loginController, webController, mainController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"services.mozilla.com"];
@@ -65,7 +66,7 @@
 }
 
 -(void) switchLoginToMain {
-	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
+	[self switchToView:mainController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 
 -(void) dealloc {

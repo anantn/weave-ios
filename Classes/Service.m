@@ -48,8 +48,10 @@
 	
 	/* Check username password */
 	[[cb getStatusLabel] setAlpha:1.0];
-	[[cb getStatusLabel] setText:@"Checking your credentials..."];
-	 
+	[[cb getStatusLabel] setText:@"Please wait while we log you in"];
+	[[cb spinner] setAlpha:1.0];
+	[[cb spinner] startAnimating];
+	
 	NSString *cl = [NSString stringWithFormat:@"%@/clients", baseURI];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
 }
@@ -88,21 +90,23 @@
 	switch (i) {
 		case 0:
 			/* Verified, get Bookmarks */
-			[[cb getProgressView] setAlpha:1.0];
+			[cb verified:YES];
+			/*
 			[[cb getStatusLabel] setText:@"Downloading your bookmarks..."];
 			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
 			
 			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:1];
+			*/
 			break;
 		case 1:
-			/* We got bookmarks, now get History */
+			/* We got bookmarks, now get History 
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
 			[store addBookmarks:response];
 			
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
 			[[cb getProgressView] setAlpha:1.0];
-			
+			*/
 			/*
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
 			 */
@@ -110,7 +114,7 @@
 			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
 			break;
 		case 2:
-			/* Got history, now get Tabs */
+			/* Got history, now get Tabs 
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
 			[store addHistory:response];
@@ -119,9 +123,10 @@
 			[[cb getProgressView] setAlpha:1.0];
 			url = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
 			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
+			 */
 			break;
 		case 3:
-			/* Got tabs, now add user to Store */
+			/* Got tabs, now add user to Store
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
 			[store addTabs:response];
@@ -131,8 +136,10 @@
 			} else {
 				[cb verified:NO];
 			}
+			*/
+			break;
 		case 4:
-			/* progress */
+			/* progress 
 			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
 			
 			if (rp) {
@@ -146,6 +153,7 @@
 				if (tot - sof < 4)
 					[[cb getStatusLabel] setText:@"Processing data..."];
 			}
+			 */
 			break;
 		default:
 			NSLog(@"This should never happen!");

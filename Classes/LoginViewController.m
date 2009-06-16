@@ -12,11 +12,11 @@
 
 @implementation LoginViewController
 
-@synthesize logo, process, pgLbl;
+@synthesize logo, process, spinner;
 @synthesize stLbl, usrField, pwdField, pphField;
-@synthesize username, password, passphrase, pgBar;
+@synthesize username, password, passphrase;
 
--(IBAction) login:(id)sender {
+-(void) login:(id)sender {
 	if (process == NO) {
 		process = YES;
 		[logo setAlpha:0.0]; 
@@ -31,7 +31,6 @@
 }
 
 -(void) verified:(BOOL)answer {
-	[pgBar setAlpha:0.0];
 	if (answer) {
 		[logo setAlpha:1.0];
 		process = NO;
@@ -46,7 +45,6 @@
 		[alert release];
 		
 		[stLbl setAlpha:0.0];
-		[pgLbl setAlpha:0.0];
 		[logo setAlpha:1.0];
 		process = NO;
 	}
@@ -70,14 +68,6 @@
 
 -(UILabel *) getStatusLabel {
 	return stLbl;
-}
-
--(UILabel *) getProgressLabel {
-	return pgLbl;
-}
-
--(UIProgressView *) getProgressView {
-	return pgBar;
 }
 
 -(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

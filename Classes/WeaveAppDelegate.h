@@ -12,6 +12,7 @@
 @class Service;
 @class TabViewController;
 @class WebViewController;
+@class MainViewController;
 @class LoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
@@ -21,6 +22,7 @@
 	Service *service;
 	TabViewController *tabController;
 	WebViewController *webController;
+	MainViewController *mainController;
 	LoginViewController *loginController;
 }
 
@@ -29,6 +31,7 @@
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet TabViewController *tabController;
 @property (nonatomic, retain) IBOutlet WebViewController *webController;
+@property (nonatomic, retain) IBOutlet MainViewController *mainController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
 -(void) switchMainToWeb;

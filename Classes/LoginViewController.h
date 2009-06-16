@@ -12,7 +12,6 @@
 	BOOL process;
 	
 	UILabel *stLbl;
-	UILabel *pgLbl;
 	UIImageView *logo;
 	
 	NSString *username;
@@ -23,7 +22,7 @@
 	UITextField *pwdField;
 	UITextField *pphField;
 	
-	UIProgressView *pgBar;
+	UIActivityIndicatorView *spinner;
 }
 
 @property (nonatomic) BOOL process;
@@ -38,14 +37,11 @@
 @property (nonatomic, retain) IBOutlet UITextField *pphField;
 
 @property (nonatomic, retain) IBOutlet UILabel *stLbl;
-@property (nonatomic, retain) IBOutlet UILabel *pgLbl;
-@property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
+@property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
--(IBAction) login:(id)sender;
+-(void) login:(id)sender;
 -(void) verified:(BOOL)answer;
 
 -(UILabel *) getStatusLabel;
--(UILabel *) getProgressLabel;
--(UIProgressView *) getProgressView;
 
 @end
