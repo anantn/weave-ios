@@ -46,7 +46,7 @@
 
 - (IBAction) backButton_clicked:(id)sender {
 	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	[app flipToListFrom:self.view];
+	[app switchWebToMain];
 }
 
 /* Web view delegate */

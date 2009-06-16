@@ -145,7 +145,7 @@
 		[app setUri:[[[app service] getBookmarkURIs] objectAtIndex:indexPath.row]];
 	}
 	
-	[app flipToWebFrom:self.view];
+	[app switchMainToWeb];
 }
 
 /* Search bar */

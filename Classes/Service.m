@@ -102,8 +102,12 @@
 			
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
 			[[cb getProgressView] setAlpha:1.0];
+			
+			/*
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:2];
+			 */
+			url = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
+			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
 			break;
 		case 2:
 			/* Got history, now get Tabs */

@@ -13,6 +13,8 @@
 #import "WebViewController.h"
 #import "Store.h"
 
+#import <QuartzCore/QuartzCore.h>
+
 @implementation WeaveAppDelegate
 
 @synthesize window, service, uri;
@@ -28,30 +30,42 @@
 	[window makeKeyAndVisible];
 }
 
--(void) flipToWebFrom:(UIView *)view {
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:1.0];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:window cache:NO];
-	[view removeFromSuperview];
-	[self.window addSubview:[webController view]];
-	[UIView commitAnimations];
+-(void) switchToView:(UIView *)dst From:(UIView *)src withDirection:(NSString *)direction {
+	CATransition *tr = [CATransition animation];
+	tr.duration = 0.75;
+	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 	
-	[webController.webView setScalesPageToFit:YES];
-	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
+	tr.type = kCATransitionPush;
+	tr.subtype = direction;
+	
+	dst.hidden = YES;
+	[self.window addSubview:dst];
+	[self.window.layer addAnimation:tr forKey:nil];
+	
+	src.hidden = YES;
+	dst.hidden = NO;
+	[src removeFromSuperview];	
 }
 
--(void) flipToListFrom:(UIView *)view {
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:2.0];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:window cache:NO];
-	[view removeFromSuperview];
-	[self.window addSubview:[tabController view]];
-	[UIView commitAnimations];
-
+-(void) switchWebToMain {
+	[self switchToView:tabController.view From:webController.view withDirection:kCATransitionFromLeft];
+	
 	/* WTF? But seems to be needed to get a non-blank view when switching back from webview */
 	[tabController setSelectedIndex:1];
 	[tabController.searchView reloadData];
 	[tabController setSelectedIndex:0];
+}
+
+-(void) switchMainToWeb {
+	[self switchToView:webController.view From:tabController.view withDirection:kCATransitionFromRight];
+	
+	/* Load URI */
+	[webController.webView setScalesPageToFit:YES];
+	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
+}
+
+-(void) switchLoginToMain {
+	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 
 -(void) dealloc {

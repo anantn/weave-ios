@@ -38,7 +38,7 @@
 		
 		/* Flip to main view */
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-		[app flipToListFrom:self.view];
+		[app switchLoginToMain];
 	} else {
 		/* Invalid credentials, try again */
 		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];

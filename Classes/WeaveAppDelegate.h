@@ -31,7 +31,8 @@
 @property (nonatomic, retain) IBOutlet WebViewController *webController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
--(void) flipToWebFrom:(UIView *)view;
--(void) flipToListFrom:(UIView *)view;
+-(void) switchMainToWeb;
+-(void) switchWebToMain;
+-(void) switchLoginToMain;
 
 @end
