@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+@class WeaveAppDelegate;
+
 @interface TabViewController : UITabBarController {
+	WeaveAppDelegate *app;
 	UITableView *searchView;
 }
 

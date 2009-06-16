@@ -32,6 +32,10 @@
 		if (success) {
 			NSLog(@"Existing DB found, using");
 			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
+				histUris = [[NSMutableArray alloc] init];
+				histTitles = [[NSMutableArray alloc] init];
+				bmkUris = [[NSMutableArray alloc] init];
+				bmkTitles = [[NSMutableArray alloc] init];
 				return self;
 			} else {
 				NSLog(@"Could not open database!");
@@ -60,7 +64,7 @@
 
 -(BOOL) addUserWithService:(Service *)svc {
 	sqlite3_stmt *stmnt;
-	const char *sql = "INSERT INTO users ('uid', 'password', 'passphrase', 'cluster') VALUES (?, ?, ?, ?)";
+	const char *sql = "INSERT INTO users ('uid', 'password', 'passphrase', 'baseURI') VALUES (?, ?, ?, ?)";
 
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
@@ -76,7 +80,6 @@
 			sqlite3_finalize(stmnt);
 			return NO;
 		} else {
-			NSLog([NSString stringWithFormat:@"%@ %d", @"Number of users now: ", [self getUsers]]);
 			sqlite3_finalize(stmnt);
 		}
 	}
@@ -92,6 +95,8 @@
 	
 	sqlite3_stmt *stmnt;
 	const char *sql = "SELECT * FROM users LIMIT 1";
+	const char *hSql = "SELECT * FROM moz_places WHERE type = 'history'";
+	const char *bSql = "SELECT * FROM moz_places WHERE type = 'bookmark'";
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) == SQLITE_OK) {
 		if (sqlite3_step(stmnt) == SQLITE_ROW) {
@@ -113,8 +118,31 @@
 		NSLog(@"Could not prepare SQL to LOAD!");
 		return NO;
 	}
-	
 	sqlite3_finalize(stmnt);
+	
+	/* Load existing bookmarks & history */
+	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
+		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			[bmkUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
+			[bmkTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+		}
+	} else {
+		NSLog(@"Could not prepare SQL to load bookmark!");
+		return NO;
+	}
+	sqlite3_finalize(stmnt);
+	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
+		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			[histUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
+			[histTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+		}
+	} else {
+		NSLog(@"Could not prepare SQL to load history!");
+		return NO;
+	}
+	sqlite3_finalize(stmnt);
+	
+	NSLog(@"Store loaded %d history items and %d bookmarks", [histUris count], [bmkUris count]);
 	return YES;
 }
 
@@ -133,10 +161,35 @@
 	return cnt;
 }
 
--(BOOL) addBookmarks:(NSString *)json {
-	bmkUris = [[NSMutableArray alloc] init];
-	bmkTitles = [[NSMutableArray alloc] init];
+-(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri andTitle:(NSString *)title {
+	const char *sql;
+	sqlite3_stmt *stmnt;
+	
+	if ([type isEqualToString:@"bookmark"])
+		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('bookmark', ?, ?)";
+	else
+		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('history', ?, ?)";
+	
+	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+		NSLog(@"Could not prepare statement!");
+		return NO;
+	} else {
+		sqlite3_bind_text(stmnt, 1, [uri UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 2, [title UTF8String], -1, SQLITE_TRANSIENT);
+		
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"Could not save place to DB!");
+			sqlite3_finalize(stmnt);
+			return NO;
+		} else {
+			sqlite3_finalize(stmnt);
+		}
+	}
+	
+	return YES;
+}
 
+-(BOOL) addBookmarks:(NSString *)json {
 	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
 	NSEnumerator *iter = [items objectEnumerator];
 	
@@ -156,19 +209,18 @@
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
 					[bmkUris addObject:uri];
 					[bmkTitles addObject:title];
+					[self addPlace:@"bookmark" withURI:uri andTitle:title];
 				}
 			}
 		} @catch (id theException) {
 			NSLog(@"%@ threw %@", payload, theException);
 		}
 	}
+	
 	return YES;
 }
 
 -(BOOL) addHistory:(NSString *)json {
-	histUris = [[NSMutableArray alloc] init];
-	histTitles = [[NSMutableArray alloc] init];
-	
 	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
 	NSEnumerator *iter = [items objectEnumerator];
 	
@@ -186,6 +238,7 @@
 			if (title && uri) {
 				[histUris addObject:uri];
 				[histTitles addObject:title];
+				[self addPlace:@"history" withURI:uri andTitle:title];
 			}
 		} @catch (id theException) {
 			NSLog(@"%@ threw %@", payload, theException);

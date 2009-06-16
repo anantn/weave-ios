@@ -86,16 +86,29 @@
 			break;
 		case 1:
 			/* We got bookmarks, now get History */
+			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
+			[[cb getStatusLabel] setText:@"Processing bookmarks..."];
 			[store addBookmarks:response];
+			
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
+			[[cb getProgressView] setAlpha:1.0];
 			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
 			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:3 andIndex:2];
 			break;
 		case 2:
-			/* Got history, done! */
+			/* Got history, add user to DB! */
+			[[cb getProgressView] setAlpha:0.0];
+			[[cb getProgressLabel] setAlpha:0.0];
+			[[cb getStatusLabel] setText:@"Processing history..."];
 			[store addHistory:response];
-			[cb verified:YES];
+			
+			[[cb getStatusLabel] setText:@"Storing data..."];
+			if ([store addUserWithService:self]) {
+				[cb verified:YES];
+			} else {
+				[cb verified:NO];
+			}
 			break;
 		case 3:
 			/* progress */

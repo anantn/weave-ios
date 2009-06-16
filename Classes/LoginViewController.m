@@ -45,6 +45,8 @@
 		[alert show];
 		[alert release];
 		
+		[stLbl setAlpha:0.0];
+		[pgLbl setAlpha:0.0];
 		[logo setAlpha:1.0];
 		process = NO;
 	}

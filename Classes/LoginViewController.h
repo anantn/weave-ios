@@ -45,6 +45,7 @@
 -(void) verified:(BOOL)answer;
 
 -(UILabel *) getStatusLabel;
+-(UILabel *) getProgressLabel;
 -(UIProgressView *) getProgressView;
 
 @end
