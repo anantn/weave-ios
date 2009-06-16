@@ -6,8 +6,9 @@
 //  Copyright Mozilla Corporation 2009. All rights reserved.
 //
 
+#import "Service.h"
 #import "TabViewController.h"
-
+#import "WeaveAppDelegate.h"
 
 @implementation TabViewController
 
@@ -33,7 +34,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	
 	[[app service] loadFromStore];
 }
 

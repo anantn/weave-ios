@@ -17,6 +17,7 @@
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
 	NSString *uri;
 	UIWindow *window;
+	
 	Service *service;
 	TabViewController *tabController;
 	WebViewController *webController;

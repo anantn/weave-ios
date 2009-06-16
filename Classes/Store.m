@@ -32,10 +32,6 @@
 		if (success) {
 			NSLog(@"Existing DB found, using");
 			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
-				histUris = [[NSMutableArray alloc] init];
-				histTitles = [[NSMutableArray alloc] init];
-				bmkUris = [[NSMutableArray alloc] init];
-				bmkTitles = [[NSMutableArray alloc] init];
 				return self;
 			} else {
 				NSLog(@"Could not open database!");
@@ -79,11 +75,10 @@
 			NSLog(@"Could not save user to DB!");
 			sqlite3_finalize(stmnt);
 			return NO;
-		} else {
-			sqlite3_finalize(stmnt);
 		}
 	}
 	
+	sqlite3_finalize(stmnt);
 	return YES;
 }
 
@@ -92,6 +87,16 @@
 	NSString *pwd;
 	NSString *pph;
 	NSString *base;
+	
+	/* WTF: Close & open DB to get results? */
+	sqlite3_close(dataBase);
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDir = [paths objectAtIndex:0];
+	NSString *writablePath = [documentsDir stringByAppendingString:@"/store.sq3"];
+	if (!sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
+		NSLog(@"Could not open database!");
+		return NO;
+	}
 	
 	sqlite3_stmt *stmnt;
 	const char *sql = "SELECT * FROM users LIMIT 1";
@@ -120,6 +125,11 @@
 	}
 	sqlite3_finalize(stmnt);
 	
+	histUris = [[NSMutableArray alloc] init];
+	histTitles = [[NSMutableArray alloc] init];
+	bmkUris = [[NSMutableArray alloc] init];
+	bmkTitles = [[NSMutableArray alloc] init];
+	
 	/* Load existing bookmarks & history */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
@@ -131,6 +141,7 @@
 		return NO;
 	}
 	sqlite3_finalize(stmnt);
+	
 	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
 			[histUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
@@ -181,11 +192,9 @@
 			NSLog(@"Could not save place to DB!");
 			sqlite3_finalize(stmnt);
 			return NO;
-		} else {
-			sqlite3_finalize(stmnt);
 		}
 	}
-	
+	sqlite3_finalize(stmnt);
 	return YES;
 }
 
@@ -207,8 +216,6 @@
 				
 				NSRange r = NSMakeRange(0, 6);
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-					[bmkUris addObject:uri];
-					[bmkTitles addObject:title];
 					[self addPlace:@"bookmark" withURI:uri andTitle:title];
 				}
 			}
@@ -236,8 +243,6 @@
 			NSString *title = [hist valueForKey:@"title"];
 			
 			if (title && uri) {
-				[histUris addObject:uri];
-				[histTitles addObject:title];
 				[self addPlace:@"history" withURI:uri andTitle:title];
 			}
 		} @catch (id theException) {

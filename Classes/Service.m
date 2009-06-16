@@ -31,6 +31,7 @@
 }
 
 -(BOOL) loadFromStore {
+	NSLog(@"Loading service from store...");
 	return [store loadUserToService:self];
 }
 
