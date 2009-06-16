@@ -89,7 +89,6 @@
 			/* We got bookmarks, now get History */
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
-			[[cb getStatusLabel] setText:@"Processing bookmarks..."];
 			[store addBookmarks:response];
 			
 			[[cb getStatusLabel] setText:@"Downloading your history..."];
@@ -101,10 +100,8 @@
 			/* Got history, add user to DB! */
 			[[cb getProgressView] setAlpha:0.0];
 			[[cb getProgressLabel] setAlpha:0.0];
-			[[cb getStatusLabel] setText:@"Processing history..."];
 			[store addHistory:response];
-			
-			[[cb getStatusLabel] setText:@"Storing data..."];
+
 			if ([store addUserWithService:self]) {
 				[cb verified:YES];
 			} else {
@@ -122,6 +119,9 @@
 				[[cb getProgressView] setProgress:(float)sof/(float)tot];
 				[[cb getProgressLabel] setText:[NSString stringWithFormat:@"%d / %d", sof, tot]];
 				[[cb getProgressLabel] setAlpha:1.0];
+				
+				if (tot - sof < 4)
+					[[cb getStatusLabel] setText:@"Processing data..."];
 			}
 			break;
 		default:
