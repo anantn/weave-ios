@@ -27,4 +27,7 @@
 @property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
+- (IBAction)getOrUpdate:(id)sender;
+- (void)bookmarksDownloaded:(BOOL)success;
+
 @end

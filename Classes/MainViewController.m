@@ -7,7 +7,8 @@
 //
 
 #import "MainViewController.h"
-
+#import "WeaveAppDelegate.h"
+#import "Service.h"
 
 @implementation MainViewController
 
@@ -38,6 +39,20 @@
 	spinner.hidden = YES;
 }
 
+- (void)getOrUpdate:(id)sender {
+	NSLog(@"Calling service");
+	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+	[[app service] loadBookmarksWithCallback:self];
+	NSLog(@"Called!");
+}
+
+- (void)bookmarksDownloaded:(BOOL)success {
+	pgTitle.hidden = YES;
+	if (success)
+		NSLog(@"DONE!");
+	else
+		NSLog(@"NOT DONE!");
+}
 /*
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

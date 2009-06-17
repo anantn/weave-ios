@@ -11,6 +11,7 @@
 #import "Store.h"
 #import "Connection.h"
 #import "LoginViewController.h"
+#import "MainViewController.h"
 
 @implementation Service
 
@@ -35,6 +36,7 @@
 	return [store loadUserToService:self];
 }
 
+/* For first time users. We verify username/passwords and check passphrase by storing open tabs */
 -(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(LoginViewController *)callback {
 	cb = callback;
 	password = pwd;
@@ -46,14 +48,25 @@
 			   protocol, username, password, server]];
 	[conn setUser:user password:pwd andPassphrase:ph];
 	
-	/* Check username password */
 	[[cb getStatusLabel] setAlpha:1.0];
 	[[cb getStatusLabel] setText:@"Please wait while we log you in"];
 	[[cb spinner] setAlpha:1.0];
 	[[cb spinner] startAnimating];
 	
-	NSString *cl = [NSString stringWithFormat:@"%@/clients", baseURI];
+	NSString *cl = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
+}
+
+/* Background loading of bookmarks */
+-(void) loadBookmarksWithCallback:(MainViewController *)callback {
+	cb = callback;
+	NSLog(@"Got request to download bmks, using %@", baseURI);
+	NSString *cl = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
+	
+	[[cb pgTitle] setText:@"Downloading Bookmarks"];
+	[cb pgTitle].hidden = NO;
+	
+	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
 }
 
 -(NSMutableArray *) getBookmarkURIs {
@@ -82,53 +95,13 @@
 
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
+	int tot, c;
 	NSArray *pg;
-	int tot, sof;
-	NSString *url;
 	NSDictionary *rp;
-	
+
 	switch (i) {
 		case 0:
-			/* Verified, get Bookmarks */
-			[cb verified:YES];
-			/*
-			[[cb getStatusLabel] setText:@"Downloading your bookmarks..."];
-			url = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
-			
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:1];
-			*/
-			break;
-		case 1:
-			/* We got bookmarks, now get History 
-			[[cb getProgressView] setAlpha:0.0];
-			[[cb getProgressLabel] setAlpha:0.0];
-			[store addBookmarks:response];
-			
-			[[cb getStatusLabel] setText:@"Downloading your history..."];
-			[[cb getProgressView] setAlpha:1.0];
-			*/
-			/*
-			url = [NSString stringWithFormat:@"%@/history/?full=1", baseURI];
-			 */
-			url = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
-			break;
-		case 2:
-			/* Got history, now get Tabs 
-			[[cb getProgressView] setAlpha:0.0];
-			[[cb getProgressLabel] setAlpha:0.0];
-			[store addHistory:response];
-
-			[[cb getStatusLabel] setText:@"Downloading your tabs..."];
-			[[cb getProgressView] setAlpha:1.0];
-			url = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
-			[conn getResource:[NSURL URLWithString:url] withCallback:self pgIndex:4 andIndex:3];
-			 */
-			break;
-		case 3:
-			/* Got tabs, now add user to Store
-			[[cb getProgressView] setAlpha:0.0];
-			[[cb getProgressLabel] setAlpha:0.0];
+			/* Got tabs, now add user to Store */
 			[store addTabs:response];
 			
 			if ([store addUserWithService:self]) {
@@ -136,24 +109,34 @@
 			} else {
 				[cb verified:NO];
 			}
-			*/
 			break;
-		case 4:
-			/* progress 
+		case 1:
+			[cb pgBar].hidden = YES;
+			[[cb pgTitle] setText:@"Storing Bookmarks"];
+			
+			[store addBookmarks:response];
+			[cb bookmarksDownloaded:YES];
+			break;
+		case 3:
 			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
 			
 			if (rp) {
 				pg = [rp valueForKey:@"progress"];
-				tot = [[rp valueForKey:@"total"] intValue];
-				sof = [[pg lastObject] intValue];
-				[[cb getProgressView] setProgress:(float)sof/(float)tot];
-				[[cb getProgressLabel] setText:[NSString stringWithFormat:@"%d / %d", sof, tot]];
-				[[cb getProgressLabel] setAlpha:1.0];
 				
-				if (tot - sof < 4)
-					[[cb getStatusLabel] setText:@"Processing data..."];
+				c = [[pg lastObject] intValue];
+				tot = [[rp valueForKey:@"total"] intValue];
+				
+				[[cb pgBar] setProgress:(float)c/(float)tot];
+				[[cb pgTitle] setText:[NSString stringWithFormat:@"Downloading Bookmarks: %d/%d", c, tot]];
+				
+				if (tot - c < 4) {
+					[cb pgBar].hidden = YES;
+					[[cb pgTitle] setText:@"Processing Bookmarks"];
+				} else {
+					if ([cb pgBar].hidden)
+						[cb pgBar].hidden = NO;
+				}
 			}
-			 */
 			break;
 		default:
 			NSLog(@"This should never happen!");
@@ -162,7 +145,6 @@
 }
 
 -(void) failureWithError:(NSError *)error andIndex:(int)i{
-	[[cb getStatusLabel] setText:@""];
 	[cb verified:NO];
 }
 

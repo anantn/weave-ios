@@ -26,7 +26,7 @@
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
-		[window addSubview:tabController.view];
+		[window addSubview:mainController.view];
 	}
 	[window makeKeyAndVisible];
 }

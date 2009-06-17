@@ -13,6 +13,7 @@
 @class Store, Crypto, Connection, LoginViewController;
 
 @interface Service : NSObject <Responder> {
+	id cb;
 	NSString *server;
 	NSString *baseURI;
 	NSString *protocol;
@@ -23,9 +24,9 @@
 	
 	Store *store;
 	Connection *conn;
-	LoginViewController *cb;
 }
 
+@property (nonatomic, retain) id cb;
 @property (nonatomic, copy) NSString *server;
 @property (nonatomic, copy) NSString *baseURI;
 @property (nonatomic, copy) NSString *protocol;
@@ -36,7 +37,6 @@
 
 @property (nonatomic, retain) Store *store;
 @property (nonatomic, retain) Connection *conn;
-@property (nonatomic, retain) LoginViewController *cb;
 
 -(Service *) initWithServer:(NSString *)server;
 
@@ -44,6 +44,7 @@
 -(BOOL) loadFromStore;
 /* Asynchronous */
 -(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id)callback;
+-(void) loadBookmarksWithCallback:(id)callback;
 
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
