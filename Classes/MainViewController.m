@@ -52,7 +52,6 @@
 - (void)gotoBookmarkList:(id)sender {
 	[app setCurrentList:@"Bookmarks"];
 	[app switchMainToList];
-
 }
 
 - (void)didReceiveMemoryWarning {

@@ -12,6 +12,9 @@
 
 @interface ListController : UITableViewController {
 	WeaveAppDelegate *app;
+	UITableView *tView;
 }
+
+@property (nonatomic, retain) IBOutlet UITableView *tView;
 
 @end

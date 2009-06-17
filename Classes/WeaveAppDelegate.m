@@ -62,7 +62,12 @@
 }
 
 -(void) switchMainToList {
+	[listController.tView reloadData];
 	[self switchToView:listController.view From:mainController.view withDirection:kCATransitionFromRight];
+}
+
+-(void) switchListToMain:(id)sender {
+	[self switchToView:mainController.view From:listController.view withDirection:kCATransitionFromLeft];
 }
 
 -(void) switchLoginToMain {

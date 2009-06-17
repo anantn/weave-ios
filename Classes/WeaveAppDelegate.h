@@ -42,4 +42,6 @@
 -(void) switchMainToList;
 -(void) switchLoginToMain;
 
+-(IBAction) switchListToMain:(id)sender;
+
 @end
