@@ -6,11 +6,11 @@
 //  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
-#import "RecentController.h"
+#import "ListController.h"
 #import "WeaveAppDelegate.h"
 #import "Service.h"
 
-@implementation RecentController
+@implementation ListController
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
@@ -39,11 +39,14 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	return @"Tabs";
+	return [app currentList];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return [[[app service] getTabURIs] count];
+	if ([[app currentList] isEqualToString:@"Bookmarks"])
+		return [[[app service] getBookmarkURIs] count];
+	else
+		return [[[app service] getTabURIs] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -83,8 +86,14 @@
 	
 	cell.accessoryView = nil;
 	// Set up the cell...
-	title.text = [[[app service] getTabTitles] objectAtIndex:indexPath.row];
-	uri.text = [[[app service] getTabURIs] objectAtIndex:indexPath.row];
+	if ([[app currentList] isEqualToString:@"Bookmarks"]) {
+		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
+		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
+	} else {
+		title.text = [[[app service] getTabTitles] objectAtIndex:indexPath.row];
+		uri.text = [[[app service] getTabURIs] objectAtIndex:indexPath.row];
+	}
+
 	return cell;
 }
 

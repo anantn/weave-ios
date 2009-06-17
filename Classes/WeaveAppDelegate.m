@@ -9,7 +9,7 @@
 #import "Service.h"
 #import "WeaveAppDelegate.h"
 #import "LoginViewController.h"
-#import "TabViewController.h"
+#import "ListController.h"
 #import "WebViewController.h"
 #import "MainViewController.h"
 #import "Store.h"
@@ -18,14 +18,15 @@
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, uri;
-@synthesize tabController, loginController, webController, mainController;
+@synthesize window, service, uri, currentList;
+@synthesize listController, loginController, webController, mainController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/?path="];
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
+		[service loadFromStore];
 		[window addSubview:mainController.view];
 	}
 	[window makeKeyAndVisible];
@@ -49,31 +50,33 @@
 }
 
 -(void) switchWebToMain {
-	[self switchToView:tabController.view From:webController.view withDirection:kCATransitionFromLeft];
-	
-	/* WTF? But seems to be needed to get a non-blank view when switching back from webview */
-	[tabController setSelectedIndex:1];
-	[tabController.searchView reloadData];
-	[tabController setSelectedIndex:0];
+	[self switchToView:mainController.view From:webController.view withDirection:kCATransitionFromLeft];
 }
 
 -(void) switchMainToWeb {
-	[self switchToView:webController.view From:tabController.view withDirection:kCATransitionFromRight];
+	[self switchToView:webController.view From:mainController.view withDirection:kCATransitionFromRight];
 	
 	/* Load URI */
 	[webController.webView setScalesPageToFit:YES];
 	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
 }
 
+-(void) switchMainToList {
+	[self switchToView:listController.view From:mainController.view withDirection:kCATransitionFromRight];
+}
+
 -(void) switchLoginToMain {
+	[service loadDataWithCallback:mainController];
 	[self switchToView:mainController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 
 -(void) dealloc {
 	[service release];
     [window release];
-	[tabController release];
+	[listController release];
 	[loginController release];
+	[webController release];
+	[mainController release];
     [super dealloc];
 }
 

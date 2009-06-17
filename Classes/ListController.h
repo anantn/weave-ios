@@ -1,5 +1,5 @@
 //
-//  RecentController.h
+//  TabController.h
 //  Weave
 //
 //  Created by Anant Narayanan on 6/16/09.
@@ -10,7 +10,7 @@
 
 @class WeaveAppDelegate;
 
-@interface RecentController : UITableViewController {
+@interface ListController : UITableViewController {
 	WeaveAppDelegate *app;
 }
 

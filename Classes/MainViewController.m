@@ -27,15 +27,11 @@
 	pgTitle.hidden = YES;
 	spinner.hidden = YES;
 	
-	if ([[app service].store getUsers] > 0) {
-		[[app service] loadFromStore];
-	}
+	bmkList = [[NSMutableArray alloc] init];
+	histList = [[NSMutableArray alloc] init];
 	
+	[searchBar setShowsCancelButton:YES animated:YES];
 	[subView addSubview:iconView];
-}
-
-- (void)getOrUpdate:(id)sender {
-	[[app service] loadDataWithCallback:self];
 }
 
 - (void)downloadComplete:(BOOL)success {
@@ -43,8 +39,20 @@
 	[dF setDateStyle:NSDateFormatterShortStyle];
 	[dF	setTimeStyle:NSDateFormatterShortStyle];
 	
-	[pgTitle setText:[dF stringFromDate:[NSDate date]]];
+	pgTitle.hidden = NO;
+	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [dF stringFromDate:[NSDate date]]]];
 	[dF release];
+}
+
+- (void)gotoTabsList:(id)sender {
+	[app setCurrentList:@"Tabs"];
+	[app switchMainToList];
+}
+
+- (void)gotoBookmarkList:(id)sender {
+	[app setCurrentList:@"Bookmarks"];
+	[app switchMainToList];
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -123,6 +131,8 @@
 			uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
 			cell.accessoryView = [[[UIImageView alloc] initWithImage:star] autorelease];
 		}
+		
+		NSLog(@"Request for cell %d got %@ %@", indexPath.row, title.text, uri.text);
 	}
 	
 	return cell;
@@ -145,11 +155,25 @@
 }
 
 /* Search bar */
-- (void)searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
-	searching = YES;
-	
+- (void)searchToIcon {
 	CATransition *tr = [CATransition animation];
-	tr.duration = 1.0;
+	tr.duration = 0.5;
+	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+	tr.type = kCATransitionPush;
+	tr.subtype = kCATransitionFromTop;
+	
+	iconView.hidden = YES;
+	[subView addSubview:iconView];
+	[subView.layer addAnimation:tr forKey:nil];
+	
+	tableView.hidden = YES;
+	iconView.hidden = NO;
+	[tableView removeFromSuperview];	
+}
+
+- (void)iconToSearch {
+	CATransition *tr = [CATransition animation];
+	tr.duration = 0.5;
 	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 	tr.type = kCATransitionPush;
 	tr.subtype = kCATransitionFromBottom;
@@ -160,8 +184,20 @@
 	
 	iconView.hidden = YES;
 	tableView.hidden = NO;
-	[iconView removeFromSuperview];
-	
+	[iconView removeFromSuperview];	
+}
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
+	searching = YES;
+	if ([searchBar.text length] == 0)
+		[self iconToSearch];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)theSearchBar {
+	searching = NO;
+	searchBar.text = @"";
+	[searchBar resignFirstResponder];
+	[self searchToIcon];
 }
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText {
@@ -180,8 +216,7 @@
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)theSearchBar {
-	searching = NO;
-	searchBar.text = @"";
+	searching = YES;
 	[searchBar resignFirstResponder];
 	[tableView reloadData];
 }
@@ -196,6 +231,8 @@
 	NSArray *bmU = [[app service] getBookmarkURIs];
 	NSArray *hiT = [[app service] getHistoryTitles];
 	NSArray *hiU = [[app service] getHistoryURIs];
+	
+	NSLog(@"Queried service and got %d / %d / %d / %@", [bmT count], [hiT count], searching, searchText);
 	
 	/* Bookmark search */
 	for (i = 0; i < [bmT count]; i++) {
@@ -221,6 +258,8 @@
 			[histList addObject:[NSArray arrayWithObjects:title, uri, nil]];
 		}
 	}
+	
+	NSLog(@"Found %d / %d", [bmkList count], [histList count]);
 }
 
 - (void)dealloc {

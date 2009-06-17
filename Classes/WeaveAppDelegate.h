@@ -10,17 +10,19 @@
 
 @class Store;
 @class Service;
-@class TabViewController;
+@class ListController;
 @class WebViewController;
 @class MainViewController;
 @class LoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
 	NSString *uri;
+	NSString *currentList;
+	
 	UIWindow *window;
 	
 	Service *service;
-	TabViewController *tabController;
+	ListController *listController;
 	WebViewController *webController;
 	MainViewController *mainController;
 	LoginViewController *loginController;
@@ -28,14 +30,16 @@
 
 @property (retain) Service *service;
 @property (nonatomic, copy) NSString *uri;
+@property (nonatomic, copy) NSString *currentList;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet TabViewController *tabController;
+@property (nonatomic, retain) IBOutlet ListController *listController;
 @property (nonatomic, retain) IBOutlet WebViewController *webController;
 @property (nonatomic, retain) IBOutlet MainViewController *mainController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
 -(void) switchMainToWeb;
 -(void) switchWebToMain;
+-(void) switchMainToList;
 -(void) switchLoginToMain;
 
 @end

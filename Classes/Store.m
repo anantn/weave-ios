@@ -115,7 +115,6 @@
 			usr = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 1)];
 			pwd = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)];
 			pph = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)];
-			base = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
 			
 			[svc setUsername:usr];
 			[svc setPassword:pwd];

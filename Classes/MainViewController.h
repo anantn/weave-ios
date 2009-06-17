@@ -26,6 +26,7 @@
 	UIView *iconView;
 	UITableView *tableView;
 	
+	
 	NSMutableArray *bmkList;
 	NSMutableArray *histList;
 }
@@ -45,7 +46,9 @@
 @property (nonatomic, retain) NSMutableArray *bmkList;
 @property (nonatomic, retain) NSMutableArray *histList;
 
-- (IBAction)getOrUpdate:(id)sender;
+- (IBAction)gotoTabsList:(id)sender;
+- (IBAction)gotoBookmarkList:(id)sender;
+
 - (void)downloadComplete:(BOOL)success;
 - (void)searchTableView;
 

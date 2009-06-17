@@ -123,7 +123,7 @@
 			[[cb pgTitle] setText:@"Storing History"];
 			[store addHistory:response];
 			
-			/* Success */
+			/* Done! */
 			[cb downloadComplete:YES];
 			break;
 		case 3:
