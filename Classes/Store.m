@@ -60,7 +60,7 @@
 
 -(BOOL) addUserWithService:(Service *)svc {
 	sqlite3_stmt *stmnt;
-	const char *sql = "INSERT INTO users ('uid', 'password', 'passphrase', 'baseURI') VALUES (?, ?, ?, ?)";
+	const char *sql = "INSERT INTO users ('uid', 'password', 'passphrase') VALUES (?, ?, ?)";
 
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
@@ -69,7 +69,6 @@
 		sqlite3_bind_text(stmnt, 1, [[svc username] UTF8String], -1, SQLITE_TRANSIENT);
 		sqlite3_bind_text(stmnt, 2, [[svc password] UTF8String], -1, SQLITE_TRANSIENT);
 		sqlite3_bind_text(stmnt, 3, [[svc passphrase] UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 4, [[svc baseURI] UTF8String], -1, SQLITE_TRANSIENT);
 		
 		if (sqlite3_step(stmnt) != SQLITE_DONE) {
 			NSLog(@"Could not save user to DB!");
@@ -114,7 +113,6 @@
 			[svc setUsername:usr];
 			[svc setPassword:pwd];
 			[svc setPassphrase:pph];
-			[svc setBaseURI:base];
 		} else {
 			NSLog(@"Could not execute SQL to LOAD!");
 			sqlite3_finalize(stmnt);
@@ -277,8 +275,8 @@
 	NSDictionary *tab;
 	
 	while (obj = [iter nextObject]) {
-		NSDictionary *payload = [obj valueForKey:@"payload"];
 		@try {
+			NSDictionary *payload = [obj valueForKey:@"payload"];
 			NSString *cipher = [payload valueForKey:@"ciphertext"];
 			NSArray *tabs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
 			NSEnumerator *tEnum = [tabs objectEnumerator];
@@ -292,7 +290,7 @@
 				}
 			}
 		} @catch (id theException) {
-			NSLog(@"%@ threw %@", payload, theException);
+			NSLog(@"Threw %@", theException);
 		}
 	}
 	

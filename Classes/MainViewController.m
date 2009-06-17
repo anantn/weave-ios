@@ -42,11 +42,11 @@
 - (void)getOrUpdate:(id)sender {
 	NSLog(@"Calling service");
 	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	[[app service] loadBookmarksWithCallback:self];
+	[[app service] loadDataWithCallback:self];
 	NSLog(@"Called!");
 }
 
-- (void)bookmarksDownloaded:(BOOL)success {
+- (void)downloadComplete:(BOOL)success {
 	pgTitle.hidden = YES;
 	if (success)
 		NSLog(@"DONE!");

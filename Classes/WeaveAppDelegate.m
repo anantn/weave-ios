@@ -22,7 +22,7 @@
 @synthesize tabController, loginController, webController, mainController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[Service alloc] initWithServer:@"services.mozilla.com"];
+	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/?path="];
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {

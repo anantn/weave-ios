@@ -15,15 +15,14 @@
 
 @implementation Service
 
+@synthesize cb, store, conn, server;
 @synthesize username, password, passphrase;
-@synthesize cb, store, conn, protocol, server, baseURI;
 
 -(Service *) initWithServer:(NSString *)address {
 	self = [super init];
 	
 	if (self) {
 		self.server = address;
-		self.protocol = @"https://";
 		self.store = [[Store alloc] initWithDB:@"/store.sq3"];
 		self.conn = [Connection alloc];
 	}
@@ -44,8 +43,6 @@
 	passphrase = ph;
 	
 	/* We're using the crypto proxy */
-	baseURI = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%@%@:%@@%@/proxy/?path=",
-			   protocol, username, password, server]];
 	[conn setUser:user password:pwd andPassphrase:ph];
 	
 	[[cb getStatusLabel] setAlpha:1.0];
@@ -53,15 +50,14 @@
 	[[cb spinner] setAlpha:1.0];
 	[[cb spinner] startAnimating];
 	
-	NSString *cl = [NSString stringWithFormat:@"%@/tabs/?full=1", baseURI];
+	NSString *cl = [NSString stringWithFormat:@"%@tabs/?full=1", server];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
 }
 
-/* Background loading of bookmarks */
--(void) loadBookmarksWithCallback:(MainViewController *)callback {
+/* Background loading of bookmarks + history */
+-(void) loadDataWithCallback:(MainViewController *)callback {
 	cb = callback;
-	NSLog(@"Got request to download bmks, using %@", baseURI);
-	NSString *cl = [NSString stringWithFormat:@"%@/bookmarks/?full=1", baseURI];
+	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?full=1", server];
 	
 	[[cb pgTitle] setText:@"Downloading Bookmarks"];
 	[cb pgTitle].hidden = NO;
@@ -111,11 +107,25 @@
 			}
 			break;
 		case 1:
+			/* Got bookmarks */
 			[cb pgBar].hidden = YES;
 			[[cb pgTitle] setText:@"Storing Bookmarks"];
-			
 			[store addBookmarks:response];
-			[cb bookmarksDownloaded:YES];
+			
+			/* Now get history */
+			[[cb pgTitle] setText:@"Downloading History"];
+			[conn getResource:[NSURL URLWithString:
+				[NSString stringWithFormat:@"%@history/?full=1", server]]
+					withCallback:self pgIndex:4 andIndex:2];
+			break;
+		case 2:
+			/* Got history */
+			[cb pgBar].hidden = YES;
+			[[cb pgTitle] setText:@"Storing History"];
+			[store addHistory:response];
+			
+			/* Success */
+			[cb downloadComplete:YES];
 			break;
 		case 3:
 			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
@@ -138,6 +148,27 @@
 				}
 			}
 			break;
+		case 4:
+			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
+			
+			if (rp) {
+				pg = [rp valueForKey:@"progress"];
+				
+				c = [[pg lastObject] intValue];
+				tot = [[rp valueForKey:@"total"] intValue];
+				
+				[[cb pgBar] setProgress:(float)c/(float)tot];
+				[[cb pgTitle] setText:[NSString stringWithFormat:@"Downloading History: %d/%d", c, tot]];
+				
+				if (tot - c < 4) {
+					[cb pgBar].hidden = YES;
+					[[cb pgTitle] setText:@"Processing History"];
+				} else {
+					if ([cb pgBar].hidden)
+						[cb pgBar].hidden = NO;
+				}
+			}
+			break;			
 		default:
 			NSLog(@"This should never happen!");
 			break;

@@ -28,6 +28,6 @@
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
 - (IBAction)getOrUpdate:(id)sender;
-- (void)bookmarksDownloaded:(BOOL)success;
+- (void)downloadComplete:(BOOL)success;
 
 @end

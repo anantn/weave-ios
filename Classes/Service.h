@@ -15,8 +15,6 @@
 @interface Service : NSObject <Responder> {
 	id cb;
 	NSString *server;
-	NSString *baseURI;
-	NSString *protocol;
 	
 	NSString *username;
 	NSString *password;
@@ -28,8 +26,6 @@
 
 @property (nonatomic, retain) id cb;
 @property (nonatomic, copy) NSString *server;
-@property (nonatomic, copy) NSString *baseURI;
-@property (nonatomic, copy) NSString *protocol;
 
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
@@ -44,7 +40,7 @@
 -(BOOL) loadFromStore;
 /* Asynchronous */
 -(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id)callback;
--(void) loadBookmarksWithCallback:(id)callback;
+-(void) loadDataWithCallback:(id)callback;
 
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
