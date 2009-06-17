@@ -8,26 +8,45 @@
 
 #import <UIKit/UIKit.h>
 
+@class WeaveAppDelegate;
 
 @interface MainViewController : UIViewController {
-	UILabel *awTitle;
 	UILabel *pgTitle;
 	UIButton *bmkButton;
 	UIButton *tabButton;
-	UISearchBar *search;
 	UIProgressView *pgBar;
+	UISearchBar *searchBar;
+	
 	UIActivityIndicatorView *spinner;
+	
+	BOOL searching;
+	WeaveAppDelegate *app;
+	
+	UIView *subView;
+	UIView *iconView;
+	UITableView *tableView;
+	
+	NSMutableArray *bmkList;
+	NSMutableArray *histList;
 }
 
-@property (nonatomic, retain) IBOutlet UILabel *awTitle;
 @property (nonatomic, retain) IBOutlet UILabel *pgTitle;
 @property (nonatomic, retain) IBOutlet UIButton *bmkButton;
 @property (nonatomic, retain) IBOutlet UIButton *tabButton;
-@property (nonatomic, retain) IBOutlet UISearchBar *search;
 @property (nonatomic, retain) IBOutlet UIProgressView *pgBar;
+@property (nonatomic, retain) IBOutlet UISearchBar *searchBar;
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
+
+@property (nonatomic, retain) IBOutlet UIView *subView;
+@property (nonatomic, retain) IBOutlet UIView *iconView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
+
+@property (nonatomic, retain) WeaveAppDelegate *app;
+@property (nonatomic, retain) NSMutableArray *bmkList;
+@property (nonatomic, retain) NSMutableArray *histList;
 
 - (IBAction)getOrUpdate:(id)sender;
 - (void)downloadComplete:(BOOL)success;
+- (void)searchTableView;
 
 @end

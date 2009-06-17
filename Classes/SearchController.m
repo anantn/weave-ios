@@ -149,7 +149,7 @@
 }
 
 /* Search bar */
-- (void) searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
 	searching = YES;
 }
 

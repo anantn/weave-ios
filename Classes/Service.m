@@ -69,26 +69,25 @@
 	return [store bmkUris];
 }
 
--(NSMutableArray *)getBookmarkTitles {
+-(NSMutableArray *) getBookmarkTitles {
 	return [store bmkTitles];
 }
 
--(NSMutableArray *)getHistoryURIs {
+-(NSMutableArray *) getHistoryURIs {
 	return [store histUris];
 }
 
--(NSMutableArray *)getHistoryTitles {
+-(NSMutableArray *) getHistoryTitles {
 	return [store histTitles];
 }
 
--(NSMutableArray *)getTabURIs {
+-(NSMutableArray *) getTabURIs {
 	return [store tabUris];
 }
 
--(NSMutableArray *)getTabTitles {
+-(NSMutableArray *) getTabTitles {
 	return [store tabTitles];
 }
-
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
 	int tot, c;

@@ -22,6 +22,13 @@
 		BOOL success;
 		NSError *error;
 		
+		histUris = [[NSMutableArray alloc] init];
+		histTitles = [[NSMutableArray alloc] init];
+		bmkUris = [[NSMutableArray alloc] init];
+		bmkTitles = [[NSMutableArray alloc] init];
+		tabUris = [[NSMutableArray alloc] init];
+		tabTitles = [[NSMutableArray alloc] init];
+		
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 		NSString *documentsDir = [paths objectAtIndex:0];
@@ -124,13 +131,6 @@
 	}
 	sqlite3_finalize(stmnt);
 	
-	histUris = [[NSMutableArray alloc] init];
-	histTitles = [[NSMutableArray alloc] init];
-	bmkUris = [[NSMutableArray alloc] init];
-	bmkTitles = [[NSMutableArray alloc] init];
-	tabUris = [[NSMutableArray alloc] init];
-	tabTitles = [[NSMutableArray alloc] init];
-	
 	/* Load existing bookmarks, history and tabs */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
@@ -230,6 +230,8 @@
 				
 				NSRange r = NSMakeRange(0, 6);
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
+					[bmkUris addObject:uri];
+					[bmkTitles addObject:title];
 					[self addPlace:@"bookmark" withURI:uri andTitle:title];
 				}
 			}
@@ -257,6 +259,8 @@
 			NSString *title = [hist valueForKey:@"title"];
 			
 			if (title && uri) {
+				[histUris addObject:uri];
+				[histTitles addObject:title];
 				[self addPlace:@"history" withURI:uri andTitle:title];
 			}
 		} @catch (id theException) {
