@@ -41,12 +41,12 @@
 }
 
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-	NSLog(@"Shook!");
-	if ((fabsf(acceleration.x) > 1.6 ||
-		 fabsf(acceleration.y) > 1.6 ||
-		 fabsf(acceleration.z) > 1.6) &&
-		 okToUpdate) {
-		[[app service] updateDataWithCallback:self];
+	if (fabsf(acceleration.x) > 1.6 ||
+		fabsf(acceleration.y) > 1.6 ||
+		fabsf(acceleration.z) > 1.6) {
+		NSLog(@"Shook!");
+		if (okToUpdate)
+			[[app service] updateDataWithCallback:self];
 	}
 }
 
