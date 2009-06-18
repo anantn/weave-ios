@@ -104,6 +104,16 @@
 	return cell;
 }
 
+- (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	if ([[app currentList] isEqualToString:@"Bookmarks"]) {
+		[app setUri:[[[app service] getBookmarkURIs] objectAtIndex:indexPath.row]];
+	} else if ([[app currentList] isEqualToString:@"Tabs"]) {
+		[app setUri:[[[app service] getTabURIs] objectAtIndex:indexPath.row]];
+	} else {
+		[app setUri:[[[app service] getHistoryURIs] objectAtIndex:indexPath.row]];
+	}
+	[app switchListToWeb];
+}
 
 /*
 // Override to allow orientations other than the default portrait orientation.

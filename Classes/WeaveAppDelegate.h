@@ -16,6 +16,7 @@
 @class LoginViewController;
 
 @interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
+	BOOL bToList;
 	NSString *uri;
 	NSString *currentList;
 	
@@ -37,8 +38,9 @@
 @property (nonatomic, retain) IBOutlet MainViewController *mainController;
 @property (nonatomic, retain) IBOutlet LoginViewController *loginController;
 
+-(void) switchFromWeb;
 -(void) switchMainToWeb;
--(void) switchWebToMain;
+-(void) switchListToWeb;
 -(void) switchMainToList;
 -(void) switchLoginToMain;
 

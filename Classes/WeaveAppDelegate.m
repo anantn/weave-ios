@@ -49,16 +49,29 @@
 	[src removeFromSuperview];	
 }
 
--(void) switchWebToMain {
-	[self switchToView:mainController.view From:webController.view withDirection:kCATransitionFromLeft];
+-(void) switchFromWeb {
+	if (bToList)
+		[self switchToView:listController.view From:webController.view withDirection:kCATransitionFromLeft];
+	else
+		[self switchToView:mainController.view From:webController.view withDirection:kCATransitionFromLeft];
 }
 
 -(void) switchMainToWeb {
+	bToList = NO;
 	[self switchToView:webController.view From:mainController.view withDirection:kCATransitionFromRight];
 	
 	/* Load URI */
 	[webController.webView setScalesPageToFit:YES];
 	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
+}
+
+-(void) switchListToWeb {
+	bToList = YES;
+	[self switchToView:webController.view From:listController.view withDirection:kCATransitionFromRight];
+	
+	/* Load URI */
+	[webController.webView setScalesPageToFit:YES];
+	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];	
 }
 
 -(void) switchMainToList {
