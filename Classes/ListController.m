@@ -50,7 +50,7 @@
 	else if ([[app currentList] isEqualToString:@"Tabs"])
 		return [[[app service] getTabURIs] count];
 	else
-		return 20;
+		return ([[[app service] getHistoryURIs] count] > 20 ? 20 : [[[app service] getHistoryURIs] count]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

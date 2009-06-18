@@ -65,6 +65,14 @@
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
 }
 
+-(void) updateDataWithCallback:(id)callback {
+
+}
+
+-(NSString *)getSyncTime {
+	return [store getSyncTimeForUser:username];
+}
+
 -(NSMutableArray *) getBookmarkURIs {
 	return [store bmkUris];
 }
@@ -114,7 +122,7 @@
 			/* Now get history */
 			[[cb pgTitle] setText:@"Downloading History"];
 			[conn getResource:[NSURL URLWithString:
-				[NSString stringWithFormat:@"%@history/?full=1", server]]
+				[NSString stringWithFormat:@"%@history/?full=1&sort=oldest", server]]
 					withCallback:self pgIndex:4 andIndex:2];
 			break;
 		case 2:
@@ -124,6 +132,7 @@
 			[store addHistory:response];
 			
 			/* Done! */
+			[store setSyncTimeForUser:username];
 			[cb downloadComplete:YES];
 			break;
 		case 3:
@@ -167,7 +176,7 @@
 						[cb pgBar].hidden = NO;
 				}
 			}
-			break;			
+			break;
 		default:
 			NSLog(@"This should never happen!");
 			break;
@@ -175,7 +184,10 @@
 }
 
 -(void) failureWithError:(NSError *)error andIndex:(int)i{
-	[cb verified:NO];
+	if (i == 0)
+		[cb verified:NO];
+	else
+		[cb downloadComplete:NO];
 }
 
 -(void) dealloc {

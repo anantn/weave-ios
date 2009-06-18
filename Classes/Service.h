@@ -41,9 +41,11 @@
 /* Asynchronous */
 -(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(id)callback;
 -(void) loadDataWithCallback:(id)callback;
-
+-(void) updateDataWithCallback:(id)callback;
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
+
+-(NSString *)getSyncTime;
 
 -(NSMutableArray *) getBookmarkURIs;
 -(NSMutableArray *) getBookmarkTitles;

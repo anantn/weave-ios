@@ -31,11 +31,14 @@
 
 -(Store *) initWithDB:(NSString *)db;
 
+-(BOOL) addTabs:(NSString *)json;
+-(BOOL) addHistory:(NSString *)json;
+-(BOOL) addBookmarks:(NSString *)json;
+
 -(BOOL) loadUserToService:(Service *)svc;
 -(BOOL) addUserWithService:(Service *)svc;
--(BOOL) addBookmarks:(NSString *)json;
--(BOOL) addHistory:(NSString *)json;
--(BOOL) addTabs:(NSString *)json;
+-(BOOL) setSyncTimeForUser:(NSString *)user;
+-(NSString *) getSyncTimeForUser:(NSString *)user;
 
 -(int) getUsers;
 

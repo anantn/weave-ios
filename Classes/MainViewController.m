@@ -34,14 +34,18 @@
 	[subView addSubview:iconView];
 }
 
-- (void)downloadComplete:(BOOL)success {
-	NSDateFormatter *dF = [[NSDateFormatter alloc] init];
-	[dF setDateStyle:NSDateFormatterShortStyle];
-	[dF	setTimeStyle:NSDateFormatterShortStyle];
-	
+- (void)setSyncTime {
 	pgTitle.hidden = NO;
-	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [dF stringFromDate:[NSDate date]]]];
-	[dF release];
+	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [[app service] getSyncTime]]];
+}
+
+- (void)downloadComplete:(BOOL)success {
+	if (success) {
+		[self setSyncTime];
+	} else {
+		pgTitle.hidden = NO;
+		[pgTitle setText:@"There was an error in downloading your data!"];
+	}
 }
 
 - (void)gotoTabsList:(id)sender {

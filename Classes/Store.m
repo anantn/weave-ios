@@ -88,6 +88,50 @@
 	return YES;
 }
 
+-(NSString *) getSyncTimeForUser:(NSString *)user {
+	NSString *time;
+	sqlite3_stmt *stmnt;
+	const char *sql = "SELECT last_sync FROM users WHERE uid = ?";
+
+	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+		NSLog(@"Could not prepare statement (load time)!");
+		return nil;
+	} else {
+		sqlite3_bind_text(stmnt, 1, [user UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) == SQLITE_ROW) {
+			time = [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(stmnt, 0)];
+		} else {
+			NSLog(@"Could not execute SQL to load sync time!");
+			sqlite3_finalize(stmnt);
+			return nil;
+		}		
+	}
+	
+	return time;
+}
+
+-(BOOL) setSyncTimeForUser:(NSString *)user {
+	sqlite3_stmt *stmnt;
+	const char *sql = "UPDATE users SET last_sync = ? WHERE uid = ?";
+	
+	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+		NSLog(@"Could not prepare statement (set time)!");
+		return NO;
+	} else {
+		sqlite3_bind_text(stmnt, 1, [[[NSDate date] description] UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 2, [user UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"Could not execute SQL to update time for user!");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+	}
+	
+	sqlite3_finalize(stmnt);
+	NSLog(@"Sync time set for user %@", user);
+	return YES;	
+}
+
 -(BOOL) loadUserToService:(Service *)svc {
 	NSString *usr;
 	NSString *pwd;
