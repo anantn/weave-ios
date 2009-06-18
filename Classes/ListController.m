@@ -47,8 +47,10 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if ([[app currentList] isEqualToString:@"Bookmarks"])
 		return [[[app service] getBookmarkURIs] count];
-	else
+	else if ([[app currentList] isEqualToString:@"Tabs"])
 		return [[[app service] getTabURIs] count];
+	else
+		return 20;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -91,9 +93,12 @@
 	if ([[app currentList] isEqualToString:@"Bookmarks"]) {
 		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
 		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
-	} else {
+	} else if ([[app currentList] isEqualToString:@"Tabs"]) {
 		title.text = [[[app service] getTabTitles] objectAtIndex:indexPath.row];
 		uri.text = [[[app service] getTabURIs] objectAtIndex:indexPath.row];
+	} else {
+		title.text = [[[app service] getHistoryTitles] objectAtIndex:indexPath.row];
+		uri.text = [[[app service] getHistoryURIs] objectAtIndex:indexPath.row];
 	}
 
 	return cell;

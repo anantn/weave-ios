@@ -934,6 +934,15 @@
 					</object>
 					<int key="connectionID">430</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">gotoHistoryList:</string>
+						<reference key="source" ref="138350406"/>
+						<reference key="destination" ref="20564019"/>
+						<int key="IBEventType">7</int>
+					</object>
+					<int key="connectionID">436</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1397,7 +1406,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">435</int>
+			<int key="maxID">436</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1463,10 +1472,12 @@
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>gotoBookmarkList:</string>
+							<string>gotoHistoryList:</string>
 							<string>gotoTabsList:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 						</object>

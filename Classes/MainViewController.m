@@ -49,6 +49,11 @@
 	[app switchMainToList];
 }
 
+- (void)gotoHistoryList:(id)sender {
+	[app setCurrentList:@"History"];
+	[app switchMainToList];
+}
+
 - (void)gotoBookmarkList:(id)sender {
 	[app setCurrentList:@"Bookmarks"];
 	[app switchMainToList];
@@ -130,8 +135,6 @@
 			uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
 			cell.accessoryView = [[[UIImageView alloc] initWithImage:star] autorelease];
 		}
-		
-		NSLog(@"Request for cell %d got %@ %@", indexPath.row, title.text, uri.text);
 	}
 	
 	return cell;
@@ -231,8 +234,6 @@
 	NSArray *hiT = [[app service] getHistoryTitles];
 	NSArray *hiU = [[app service] getHistoryURIs];
 	
-	NSLog(@"Queried service and got %d / %d / %d / %@", [bmT count], [hiT count], searching, searchText);
-	
 	/* Bookmark search */
 	for (i = 0; i < [bmT count]; i++) {
 		NSString *uri = [bmU objectAtIndex:i];
@@ -257,8 +258,6 @@
 			[histList addObject:[NSArray arrayWithObjects:title, uri, nil]];
 		}
 	}
-	
-	NSLog(@"Found %d / %d", [bmkList count], [histList count]);
 }
 
 - (void)dealloc {
