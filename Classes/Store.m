@@ -92,7 +92,6 @@
 	NSString *usr;
 	NSString *pwd;
 	NSString *pph;
-	NSString *base;
 	
 	/* WTF: Close & open DB to get results? */
 	sqlite3_close(dataBase);
@@ -289,6 +288,8 @@
 				NSString *title = [tab valueForKey:@"title"];
 				
 				if (title && uri) {
+					[tabUris addObject:uri];
+					[tabTitles addObject:title];
 					[self addPlace:@"tab" withURI:uri andTitle:title];
 				}
 			}
