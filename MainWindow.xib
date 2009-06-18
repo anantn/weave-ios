@@ -8,9 +8,8 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="346"/>
 			<integer value="423"/>
-			<integer value="381"/>
+			<integer value="346"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -330,6 +329,8 @@
 							<int key="IBUIContentMode">3</int>
 							<bool key="IBUIMultipleTouchEnabled">YES</bool>
 							<int key="IBBarStyle">2</int>
+							<string key="IBText"/>
+							<string key="IBPlaceholder">Search Bookmarks and History</string>
 							<object class="IBUITextInputTraits" key="IBTextInputTraits"/>
 						</object>
 						<object class="IBUIView" id="414482454">
@@ -373,7 +374,7 @@
 				<float key="IBUISectionFooterHeight">2.200000e+01</float>
 			</object>
 			<object class="IBUIView" id="798422695">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -608,7 +609,6 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
-				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MQA</bytes>
