@@ -45,7 +45,7 @@
 -(void) successWithString:(NSString *)response andIndex:(int)i;
 -(void) failureWithError:(NSError *)error andIndex:(int)i;
 
--(NSString *)getSyncTime;
+-(NSDate *)getSyncTime;
 
 -(NSMutableArray *) getBookmarkURIs;
 -(NSMutableArray *) getBookmarkTitles;

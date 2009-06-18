@@ -38,7 +38,7 @@
 -(BOOL) loadUserToService:(Service *)svc;
 -(BOOL) addUserWithService:(Service *)svc;
 -(BOOL) setSyncTimeForUser:(NSString *)user;
--(NSString *) getSyncTimeForUser:(NSString *)user;
+-(double) getSyncTimeForUser:(NSString *)user;
 
 -(int) getUsers;
 

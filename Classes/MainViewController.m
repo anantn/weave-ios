@@ -36,7 +36,7 @@
 
 - (void)setSyncTime {
 	pgTitle.hidden = NO;
-	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [[app service] getSyncTime]]];
+	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [[[app service] getSyncTime] description]]];
 }
 
 - (void)downloadComplete:(BOOL)success {

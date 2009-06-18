@@ -64,19 +64,21 @@
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
 }
 
+/* For non-first time users,just check for updates */
 -(void) updateDataWithCallback:(MainViewController *)callback {
 	cb = callback;
-	NSDate *lastSync = [[[NSDateFormatter alloc] autorelease] dateFromString:[store getSyncTimeForUser:username]];
-	NSTimeInterval timeStamp = [lastSync timeIntervalSince1970];
-	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%@", server, timeStamp];
-
+	[conn setUser:username password:password andPassphrase:passphrase];
+	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
+	
+	NSLog(@"Request for %@", cl);
+	
 	[cb pgTitle].hidden = NO;
 	[[cb pgTitle] setText:@"Updating Bookmarks"];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
 }
 
--(NSString *)getSyncTime {
-	return [store getSyncTimeForUser:username];
+-(NSDate *)getSyncTime {
+	return [NSDate dateWithTimeIntervalSince1970:[store getSyncTimeForUser:username]];
 }
 
 -(NSMutableArray *) getBookmarkURIs {
@@ -195,19 +197,30 @@
 			break;
 		case 5:
 			/* Got bookmarks update */
-			if (tot == 0) {
-				
-			} else {
-				
+			if (tot != 0) {
+				[cb pgBar].hidden = YES;
+				[[cb spinner] startAnimating];
+				[[cb pgTitle] setText:@"Storing Bookmarks"];
+				[store addBookmarks:response];
 			}
+			
+			/* Now get history update*/
+			[cb spinner].hidden = YES;
+			[[cb pgTitle] setText:@"Updating History"];
+			[conn getResource:[NSURL URLWithString:
+							   [NSString stringWithFormat:@"%@history/?full=1&sort=oldest&newer=%f",
+								server, [store getSyncTimeForUser:username]]] withCallback:self pgIndex:4 andIndex:6];
 			break;
 		case 6:
 			/* Got history update */
-			if (tot == 0) {
-			
-			} else {
-			
+			if (tot != 0) {
+				[cb pgBar].hidden = YES;
+				[[cb pgTitle] setText:@"Storing History"];
+				[store addHistory:response];
 			}
+			[cb spinner].hidden = YES;
+			[store setSyncTimeForUser:username];
+			[cb downloadComplete:YES];
 			break;
 		default:
 			NSLog(@"This should never happen!");

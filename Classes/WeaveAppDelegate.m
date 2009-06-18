@@ -22,12 +22,12 @@
 @synthesize listController, loginController, webController, mainController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/?path="];
+	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/"];
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
 		[service loadFromStore];
-		//[service updateDataWithCallback:mainController];
+		[service updateDataWithCallback:mainController];
 		[window addSubview:mainController.view];
 	}
 	[window makeKeyAndVisible];
