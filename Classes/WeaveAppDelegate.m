@@ -27,7 +27,7 @@
 		[window addSubview:loginController.view];
 	} else {
 		[service loadFromStore];
-		[service updateDataWithCallback:mainController];
+		//[service updateDataWithCallback:mainController];
 		[window addSubview:mainController.view];
 	}
 	[window makeKeyAndVisible];
