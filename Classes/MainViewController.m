@@ -21,8 +21,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+	
 	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 	
+	UIAccelerometer *accel = [UIAccelerometer sharedAccelerometer];
+	accel.delegate = self;
+	accel.updateInterval = 1.0f/10.0f;
+	
+	okToUpdate = NO;
 	pgBar.hidden = YES;
 	pgTitle.hidden = YES;
 	spinner.hidden = YES;
@@ -34,6 +40,16 @@
 	[subView addSubview:iconView];
 }
 
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
+	NSLog(@"Shook!");
+	if ((fabsf(acceleration.x) > 1.6 ||
+		 fabsf(acceleration.y) > 1.6 ||
+		 fabsf(acceleration.z) > 1.6) &&
+		 okToUpdate) {
+		[[app service] updateDataWithCallback:self];
+	}
+}
+
 - (void)setSyncTime {
 	pgTitle.hidden = NO;
 	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [[[app service] getSyncTime] description]]];
@@ -41,6 +57,7 @@
 
 - (void)downloadComplete:(BOOL)success {
 	if (success) {
+		okToUpdate = YES;
 		[self setSyncTime];
 	} else {
 		pgTitle.hidden = NO;

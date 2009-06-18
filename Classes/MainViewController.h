@@ -10,7 +10,7 @@
 
 @class WeaveAppDelegate;
 
-@interface MainViewController : UIViewController {
+@interface MainViewController : UIViewController <UIAccelerometerDelegate> {
 	UILabel *pgTitle;
 	UIButton *bmkButton;
 	UIButton *tabButton;
@@ -20,6 +20,7 @@
 	UIActivityIndicatorView *spinner;
 	
 	BOOL searching;
+	BOOL okToUpdate;
 	WeaveAppDelegate *app;
 	
 	UIView *subView;

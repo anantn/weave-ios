@@ -23,6 +23,7 @@
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/"];
+	
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
