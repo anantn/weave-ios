@@ -44,9 +44,10 @@
 	if (fabsf(acceleration.x) > 1.6 ||
 		fabsf(acceleration.y) > 1.6 ||
 		fabsf(acceleration.z) > 1.6) {
-		NSLog(@"Shook!");
-		if (okToUpdate)
+		if (okToUpdate){
+			okToUpdate = NO;
 			[[app service] updateDataWithCallback:self];
+		}
 	}
 }
 
