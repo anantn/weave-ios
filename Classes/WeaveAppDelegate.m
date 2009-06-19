@@ -111,12 +111,13 @@
 
 -(void) dealloc {
 	[service release];
-    [window release];
+	[window release];
+	[infoController release];
 	[listController release];
 	[loginController release];
 	[webController release];
 	[mainController release];
-    [super dealloc];
+	[super dealloc];
 }
 
 @end
