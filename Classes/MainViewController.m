@@ -65,6 +65,10 @@
 	}
 }
 
+- (void)gotoInfoPage:(id)sender {
+	[app switchMainToInfo];
+}
+
 - (void)gotoTabsList:(id)sender {
 	[app setCurrentList:@"Tabs"];
 	[app switchMainToList];

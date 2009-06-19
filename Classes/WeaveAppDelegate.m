@@ -12,6 +12,7 @@
 #import "ListController.h"
 #import "WebViewController.h"
 #import "MainViewController.h"
+#import "InfoController.h"
 #import "Store.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -19,7 +20,7 @@
 @implementation WeaveAppDelegate
 
 @synthesize window, service, uri, currentList;
-@synthesize listController, loginController, webController, mainController;
+@synthesize infoController, listController, loginController, webController, mainController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/"];
@@ -74,6 +75,24 @@
 	/* Load URI */
 	[webController.webView setScalesPageToFit:YES];
 	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];	
+}
+
+-(void) switchMainToInfo {
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:1.5];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:window cache:NO];
+	[mainController.view removeFromSuperview];
+	[self.window addSubview:infoController.view];
+	[UIView commitAnimations];
+}
+
+-(void) switchInfoToMain {
+	[UIView beginAnimations:nil context:NULL];
+	[UIView setAnimationDuration:1.5];
+	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:window cache:NO];
+	[infoController.view removeFromSuperview];
+	[self.window addSubview:mainController.view];
+	[UIView commitAnimations];
 }
 
 -(void) switchMainToList {

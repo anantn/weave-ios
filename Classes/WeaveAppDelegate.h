@@ -10,6 +10,7 @@
 
 @class Store;
 @class Service;
+@class InfoController;
 @class ListController;
 @class WebViewController;
 @class MainViewController;
@@ -23,6 +24,7 @@
 	UIWindow *window;
 	
 	Service *service;
+	InfoController *infoController;
 	ListController *listController;
 	WebViewController *webController;
 	MainViewController *mainController;
@@ -33,6 +35,7 @@
 @property (nonatomic, copy) NSString *uri;
 @property (nonatomic, copy) NSString *currentList;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
+@property (nonatomic, retain) IBOutlet InfoController *infoController;
 @property (nonatomic, retain) IBOutlet ListController *listController;
 @property (nonatomic, retain) IBOutlet WebViewController *webController;
 @property (nonatomic, retain) IBOutlet MainViewController *mainController;
@@ -42,6 +45,8 @@
 -(void) switchMainToWeb;
 -(void) switchListToWeb;
 -(void) switchMainToList;
+-(void) switchMainToInfo;
+-(void) switchInfoToMain;
 -(void) switchLoginToMain;
 
 -(IBAction) switchListToMain:(id)sender;

@@ -47,6 +47,7 @@
 @property (nonatomic, retain) NSMutableArray *bmkList;
 @property (nonatomic, retain) NSMutableArray *histList;
 
+- (IBAction)gotoInfoPage:(id)sender;
 - (IBAction)gotoTabsList:(id)sender;
 - (IBAction)gotoHistoryList:(id)sender;
 - (IBAction)gotoBookmarkList:(id)sender;

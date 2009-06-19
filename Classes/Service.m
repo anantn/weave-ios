@@ -70,8 +70,6 @@
 	[conn setUser:username password:password andPassphrase:passphrase];
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
 	
-	NSLog(@"Request for %@", cl);
-	
 	[cb pgTitle].hidden = NO;
 	[[cb pgTitle] setText:@"Updating Bookmarks"];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
