@@ -6,83 +6,23 @@
 //  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
-#import "MainViewController.h"
+#import "SearchController.h"
 #import "WeaveAppDelegate.h"
 #import "Service.h"
 #import "Store.h"
 #import <QuartzCore/QuartzCore.h>
 
-@implementation MainViewController
+@implementation SearchController
 
+@synthesize searchBar, tableView;
 @synthesize bmkList, histList, app;
-@synthesize pgTitle, pgBar, searchBar;
-@synthesize subView, iconView, tableView;
-@synthesize bmkButton, tabButton, spinner;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-	
 	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	
-	UIAccelerometer *accel = [UIAccelerometer sharedAccelerometer];
-	accel.delegate = self;
-	accel.updateInterval = 1.0f/10.0f;
-	
-	okToUpdate = NO;
-	pgBar.hidden = YES;
-	pgTitle.hidden = YES;
-	spinner.hidden = YES;
-	
 	bmkList = [[NSMutableArray alloc] init];
 	histList = [[NSMutableArray alloc] init];
-	
 	[searchBar setShowsCancelButton:YES animated:YES];
-	[subView addSubview:iconView];
-}
-
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-	if (fabsf(acceleration.x) > 1.6 ||
-		fabsf(acceleration.y) > 1.6 ||
-		fabsf(acceleration.z) > 1.6) {
-		if (okToUpdate){
-			okToUpdate = NO;
-			[[app service] updateDataWithCallback:self];
-		}
-	}
-}
-
-- (void)setSyncTime {
-	pgTitle.hidden = NO;
-	[pgTitle setText:[NSString stringWithFormat:@"Last updated: %@", [[[app service] getSyncTime] description]]];
-}
-
-- (void)downloadComplete:(BOOL)success {
-	if (success) {
-		okToUpdate = YES;
-		[self setSyncTime];
-	} else {
-		pgTitle.hidden = NO;
-		[pgTitle setText:@"There was an error in downloading your data!"];
-	}
-}
-
-- (void)gotoInfoPage:(id)sender {
-	[app switchMainToInfo];
-}
-
-- (void)gotoTabsList:(id)sender {
-	[app setCurrentList:@"Tabs"];
-	[app switchMainToList];
-}
-
-- (void)gotoHistoryList:(id)sender {
-	[app setCurrentList:@"History"];
-	[app switchMainToList];
-}
-
-- (void)gotoBookmarkList:(id)sender {
-	[app setCurrentList:@"Bookmarks"];
-	[app switchMainToList];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -182,50 +122,14 @@
 	[self tableView:tv didSelectRowAtIndexPath:indexPath];
 }
 
-/* Search bar */
-- (void)searchToIcon {
-	CATransition *tr = [CATransition animation];
-	tr.duration = 0.5;
-	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-	tr.type = kCATransitionPush;
-	tr.subtype = kCATransitionFromTop;
-	
-	iconView.hidden = YES;
-	[subView addSubview:iconView];
-	[subView.layer addAnimation:tr forKey:nil];
-	
-	tableView.hidden = YES;
-	iconView.hidden = NO;
-	[tableView removeFromSuperview];	
-}
-
-- (void)iconToSearch {
-	CATransition *tr = [CATransition animation];
-	tr.duration = 0.5;
-	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-	tr.type = kCATransitionPush;
-	tr.subtype = kCATransitionFromBottom;
-	
-	tableView.hidden = YES;
-	[subView addSubview:tableView];
-	[subView.layer addAnimation:tr forKey:nil];
-	
-	iconView.hidden = YES;
-	tableView.hidden = NO;
-	[iconView removeFromSuperview];	
-}
-
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)theSearchBar {
 	searching = YES;
-	if ([searchBar.text length] == 0)
-		[self iconToSearch];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)theSearchBar {
 	searching = NO;
 	searchBar.text = @"";
 	[searchBar resignFirstResponder];
-	[self searchToIcon];
 }
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText {

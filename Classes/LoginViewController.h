@@ -39,9 +39,7 @@
 @property (nonatomic, retain) IBOutlet UILabel *stLbl;
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
--(void) login:(id)sender;
--(void) verified:(BOOL)answer;
-
 -(UILabel *) getStatusLabel;
+-(void) verified:(BOOL)answer;
 
 @end

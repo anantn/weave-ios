@@ -6,12 +6,12 @@
 //  Copyright 2009 Anant Narayanan. All rights reserved.
 //
 
+#import "Store.h"
 #import "Service.h"
 #import "Utility.h"
-#import "Store.h"
 #import "Connection.h"
+#import "TabViewController.h"
 #import "LoginViewController.h"
-#import "MainViewController.h"
 
 @implementation Service
 
@@ -55,24 +55,24 @@
 }
 
 /* Background loading of bookmarks + history */
--(void) loadDataWithCallback:(MainViewController *)callback {
+-(void) loadDataWithCallback:(TabViewController *)callback {
 	cb = callback;
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?full=1", server];
-	
-	[cb pgTitle].hidden = NO;
-	[[cb pgTitle] setText:@"Downloading Bookmarks"];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
+	
+	[[cb pgStatus] setText:@"Downloading Bookmarks"];
+	[cb overlay].hidden = NO;
 }
 
 /* For non-first time users,just check for updates */
--(void) updateDataWithCallback:(MainViewController *)callback {
+-(void) updateDataWithCallback:(TabViewController *)callback {
 	cb = callback;
 	[conn setUser:username password:password andPassphrase:passphrase];
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
-	
-	[cb pgTitle].hidden = NO;
-	[[cb pgTitle] setText:@"Updating Bookmarks"];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
+	
+	[[cb pgStatus] setText:@"Updating Bookmarks"];
+	[cb overlay].hidden = NO;
 }
 
 -(NSDate *)getSyncTime {
@@ -121,27 +121,19 @@
 			break;
 		case 1:
 			/* Got bookmarks */
-			[cb pgBar].hidden = YES;
-			
-			[[cb spinner] startAnimating];
-			[[cb pgTitle] setText:@"Storing Bookmarks"];
 			[store addBookmarks:response];
 			
 			/* Now get history */
-			[cb spinner].hidden = YES;
-			[[cb pgTitle] setText:@"Downloading History"];
 			[conn getResource:[NSURL URLWithString:
 				[NSString stringWithFormat:@"%@history/?full=1&sort=oldest", server]]
 					withCallback:self pgIndex:4 andIndex:2];
+			[[cb pgStatus] setText:@"Downloading History"];
 			break;
 		case 2:
 			/* Got history */
-			[cb pgBar].hidden = YES;
-			[[cb pgTitle] setText:@"Storing History"];
 			[store addHistory:response];
 			
 			/* Done! */
-			[cb spinner].hidden = YES;
 			[store setSyncTimeForUser:username];
 			[cb downloadComplete:YES];
 			break;
@@ -155,17 +147,15 @@
 				c = [[pg lastObject] intValue];
 				tot = [[rp valueForKey:@"total"] intValue];
 				
-				[[cb pgBar] setProgress:(float)c/(float)tot];
-				[[cb pgTitle] setText:[NSString stringWithFormat:@"Bookmarks fetched: %d/%d", c, tot]];
-				
 				if (tot - c < 4) {
+					[[cb pgStatus] setText:@"Processing Bookmarks"];
 					[cb pgBar].hidden = YES;
-					[cb spinner].hidden = NO;
-					[[cb spinner] startAnimating];
-					[[cb pgTitle] setText:@"Processing Bookmarks"];
+					[cb pgText].hidden = YES;
 				} else {
-					if ([cb pgBar].hidden)
-						[cb pgBar].hidden = NO;
+					[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d", c, tot]];
+					[[cb pgBar] setProgress:(float)c/(float)tot];
+					[cb pgBar].hidden = NO;
+					[cb pgText].hidden = NO;
 				}
 			}
 			break;
@@ -175,48 +165,38 @@
 			
 			if (rp) {
 				pg = [rp valueForKey:@"progress"];
-				
 				c = [[pg lastObject] intValue];
 				tot = [[rp valueForKey:@"total"] intValue];
 				
-				[[cb pgBar] setProgress:(float)c/(float)tot];
-				[[cb pgTitle] setText:[NSString stringWithFormat:@"History fetched: %d/%d", c, tot]];
-				
 				if (tot - c < 4) {
+					[[cb pgStatus] setText:@"Processing History"];
 					[cb pgBar].hidden = YES;
-					[cb spinner].hidden = NO;
-					[[cb spinner] startAnimating];
-					[[cb pgTitle] setText:@"Processing History"];
+					[cb pgText].hidden = YES;
 				} else {
-					if ([cb pgBar].hidden)
-						[cb pgBar].hidden = NO;
+					[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d", c, tot]];
+					[[cb pgBar] setProgress:(float)c/(float)tot];
+					[cb pgBar].hidden = NO;
+					[cb pgText].hidden = NO;
 				}
 			}
 			break;
 		case 5:
 			/* Got bookmarks update */
 			if (tot != 0) {
-				[cb pgBar].hidden = YES;
-				[[cb spinner] startAnimating];
-				[[cb pgTitle] setText:@"Storing Bookmarks"];
 				[store addBookmarks:response];
 			}
 			
 			/* Now get history update*/
-			[cb spinner].hidden = YES;
-			[[cb pgTitle] setText:@"Updating History"];
 			[conn getResource:[NSURL URLWithString:
 							   [NSString stringWithFormat:@"%@history/?full=1&sort=oldest&newer=%f",
 								server, [store getSyncTimeForUser:username]]] withCallback:self pgIndex:4 andIndex:6];
+			[[cb pgStatus] setText:@"Updating History"];
 			break;
 		case 6:
 			/* Got history update */
 			if (tot != 0) {
-				[cb pgBar].hidden = YES;
-				[[cb pgTitle] setText:@"Storing History"];
 				[store addHistory:response];
 			}
-			[cb spinner].hidden = YES;
 			[store setSyncTimeForUser:username];
 			[cb downloadComplete:YES];
 			break;

@@ -9,12 +9,15 @@
 #import <UIKit/UIKit.h>
 
 @class WeaveAppDelegate;
+@class TabViewController;
 
 @interface ListController : UITableViewController {
-	WeaveAppDelegate *app;
 	UITableView *tView;
+	WeaveAppDelegate *app;
+	TabViewController *tabController;
 }
 
 @property (nonatomic, retain) IBOutlet UITableView *tView;
+@property (nonatomic, retain) IBOutlet TabViewController *tabController;
 
 @end

@@ -6,21 +6,19 @@
 //  Copyright Anant Narayanan 2009. All rights reserved.
 //
 
+#import "Store.h"
 #import "Service.h"
 #import "WeaveAppDelegate.h"
-#import "LoginViewController.h"
-#import "ListController.h"
 #import "WebViewController.h"
-#import "MainViewController.h"
-#import "InfoController.h"
-#import "Store.h"
+#import "TabViewController.h"
+#import "LoginViewController.h"
 
 #import <QuartzCore/QuartzCore.h>
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, uri, currentList;
-@synthesize infoController, listController, loginController, webController, mainController;
+@synthesize window, service, uri;
+@synthesize tabController, loginController, webController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy/"];
@@ -29,8 +27,8 @@
 		[window addSubview:loginController.view];
 	} else {
 		[service loadFromStore];
-		[service updateDataWithCallback:mainController];
-		[window addSubview:mainController.view];
+		[service updateDataWithCallback:tabController];
+		[window addSubview:tabController.view];
 	}
 	[window makeKeyAndVisible];
 }
@@ -49,74 +47,29 @@
 	
 	src.hidden = YES;
 	dst.hidden = NO;
-	[src removeFromSuperview];	
+	[src removeFromSuperview];
 }
 
--(void) switchFromWeb {
-	if (bToList)
-		[self switchToView:listController.view From:webController.view withDirection:kCATransitionFromLeft];
-	else
-		[self switchToView:mainController.view From:webController.view withDirection:kCATransitionFromLeft];
+-(void) switchWebToMain {
+	[self switchToView:tabController.view From:webController.view withDirection:kCATransitionFromLeft];
 }
 
 -(void) switchMainToWeb {
-	bToList = NO;
-	[self switchToView:webController.view From:mainController.view withDirection:kCATransitionFromRight];
-	
-	/* Load URI */
-	[webController.webView setScalesPageToFit:YES];
-	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
-}
-
--(void) switchListToWeb {
-	bToList = YES;
-	[self switchToView:webController.view From:listController.view withDirection:kCATransitionFromRight];
-	
-	/* Load URI */
-	[webController.webView setScalesPageToFit:YES];
-	[webController.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];	
-}
-
--(void) switchMainToInfo {
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:1.5];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight forView:window cache:NO];
-	[mainController.view removeFromSuperview];
-	[self.window addSubview:infoController.view];
-	[UIView commitAnimations];
-}
-
--(void) switchInfoToMain {
-	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:1.5];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft forView:window cache:NO];
-	[infoController.view removeFromSuperview];
-	[self.window addSubview:mainController.view];
-	[UIView commitAnimations];
-}
-
--(void) switchMainToList {
-	[listController.tView reloadData];
-	[self switchToView:listController.view From:mainController.view withDirection:kCATransitionFromRight];
-}
-
--(void) switchListToMain:(id)sender {
-	[self switchToView:mainController.view From:listController.view withDirection:kCATransitionFromLeft];
+	[self switchToView:webController.view From:tabController.view withDirection:kCATransitionFromRight];
+	[webController loadURI:uri];
 }
 
 -(void) switchLoginToMain {
-	[service loadDataWithCallback:mainController];
-	[self switchToView:mainController.view From:loginController.view withDirection:kCATransitionFromRight];
+	[service loadDataWithCallback:tabController];
+	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 
 -(void) dealloc {
-	[service release];
 	[window release];
-	[infoController release];
-	[listController release];
-	[loginController release];
+	[service release];
+	[tabController release];
 	[webController release];
-	[mainController release];
+	[loginController release];
 	[super dealloc];
 }
 

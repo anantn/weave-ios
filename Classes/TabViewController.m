@@ -1,15 +1,18 @@
 //
-//  InfoController.m
+//  TabViewController.m
 //  Weave
 //
-//  Created by Anant Narayanan on 6/19/09.
+//  Created by Anant Narayanan on 6/24/09.
 //  Copyright 2009 Mozilla Corporation. All rights reserved.
 //
 
-#import "InfoController.h"
+#import "TabViewController.h"
 #import "WeaveAppDelegate.h"
+#import "Service.h"
 
-@implementation InfoController
+@implementation TabViewController
+
+@synthesize overlay, pgText, pgStatus, pgBar, tView;
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
@@ -27,12 +30,16 @@
 }
 */
 
-/*
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+	[self setDelegate:self];
+
+	okToUpdate = NO;
+	UIAccelerometer *accel = [UIAccelerometer sharedAccelerometer];
+	accel.delegate = self;
+	accel.updateInterval = 1.0f/10.0f;
 }
-*/
 
 /*
 // Override to allow orientations other than the default portrait orientation.
@@ -41,6 +48,25 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 */
+
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
+	if (fabsf(acceleration.x) > 1.6 ||
+		fabsf(acceleration.y) > 1.6 ||
+		fabsf(acceleration.z) > 1.6) {
+		if (okToUpdate) {
+			okToUpdate = NO;
+			[[(WeaveAppDelegate *)[[UIApplication sharedApplication] delegate] service] updateDataWithCallback:self];
+		}
+	}
+}
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+	[tView reloadData];
+}
+
+- (void)downloadComplete:(BOOL)success {
+	overlay.hidden = YES;
+}
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -54,10 +80,6 @@
 	// e.g. self.myOutlet = nil;
 }
 
-- (IBAction) gotoMainView:(id)sender {
-	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	[app switchInfoToMain];
-}
 
 - (void)dealloc {
     [super dealloc];

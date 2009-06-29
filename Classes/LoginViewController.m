@@ -13,29 +13,15 @@
 @implementation LoginViewController
 
 @synthesize logo, process, spinner;
-@synthesize stLbl, usrField, pwdField, pphField;
 @synthesize username, password, passphrase;
-
--(void) login:(id)sender {
-	if (process == NO) {
-		process = YES;
-		[logo setAlpha:0.0]; 
-		
-		username = usrField.text;
-		password = pwdField.text;
-		passphrase = pphField.text;
-		
-		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-		[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
-	}
-}
+@synthesize stLbl, usrField, pwdField, pphField;
 
 -(void) verified:(BOOL)answer {
 	if (answer) {
 		[logo setAlpha:1.0];
 		process = NO;
 		
-		/* Flip to main view */
+		/* Goto main view */
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 		[app switchLoginToMain];
 	} else {
@@ -61,7 +47,19 @@
 		return NO;
 	} else {
 		[pphField resignFirstResponder];
-		[self login:pphField];
+		
+		if (process == NO) {
+			process = YES;
+			[logo setAlpha:0.0]; 
+			
+			username = usrField.text;
+			password = pwdField.text;
+			passphrase = pphField.text;
+			
+			WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+			[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
+		}
+		
 		return YES;
 	}
 }

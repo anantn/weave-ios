@@ -8,29 +8,13 @@
 
 #import "ListController.h"
 #import "WeaveAppDelegate.h"
+#import "TabViewController.h"
 #import "Service.h"
 
 @implementation ListController
 
-@synthesize tView;
+@synthesize tView, tabController;
 
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
 	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
@@ -41,13 +25,18 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	return [app currentList];
+	if (tabController.selectedIndex == 2)
+		return @"Bookmarks";
+	else if (tabController.selectedIndex == 1)
+		return @"Tabs";
+	else
+		return @"History";
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if ([[app currentList] isEqualToString:@"Bookmarks"])
+	if (tabController.selectedIndex == 2)
 		return [[[app service] getBookmarkURIs] count];
-	else if ([[app currentList] isEqualToString:@"Tabs"])
+	else if (tabController.selectedIndex == 1)
 		return [[[app service] getTabURIs] count];
 	else
 		return ([[[app service] getHistoryURIs] count] > 20 ? 20 : [[[app service] getHistoryURIs] count]);
@@ -75,10 +64,10 @@
 		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
 		
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
-														 cell.indentationWidth,
-														 tableView.rowHeight - 20,
-														 tableView.bounds.size.width - cell.indentationWidth - 10,
-														 15)] autorelease];
+            cell.indentationWidth,
+			tableView.rowHeight - 20,
+			tableView.bounds.size.width - cell.indentationWidth - 10,
+			15)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
 		uri.font = [UIFont systemFontOfSize:[UIFont labelFontSize] - 3];
@@ -90,10 +79,10 @@
 	
 	cell.accessoryView = nil;
 	// Set up the cell...
-	if ([[app currentList] isEqualToString:@"Bookmarks"]) {
+	if (tabController.selectedIndex == 2) {
 		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
 		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
-	} else if ([[app currentList] isEqualToString:@"Tabs"]) {
+	} else if (tabController.selectedIndex == 1) {
 		title.text = [[[app service] getTabTitles] objectAtIndex:indexPath.row];
 		uri.text = [[[app service] getTabURIs] objectAtIndex:indexPath.row];
 	} else {
@@ -105,14 +94,14 @@
 }
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if ([[app currentList] isEqualToString:@"Bookmarks"]) {
+	if (tabController.selectedIndex == 2) {
 		[app setUri:[[[app service] getBookmarkURIs] objectAtIndex:indexPath.row]];
-	} else if ([[app currentList] isEqualToString:@"Tabs"]) {
+	} else if (tabController.selectedIndex == 1) {
 		[app setUri:[[[app service] getTabURIs] objectAtIndex:indexPath.row]];
 	} else {
 		[app setUri:[[[app service] getHistoryURIs] objectAtIndex:indexPath.row]];
 	}
-	[app switchListToWeb];
+	[app switchMainToWeb];
 }
 
 /*

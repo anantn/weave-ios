@@ -8,54 +8,82 @@
 
 #import "WebViewController.h"
 #import "WeaveAppDelegate.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation WebViewController
 
-@synthesize webView, toolBar, backButton, spinner;
+@synthesize webView, backButton, spinner, pt, ex;
 
-/*
- // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+	[webView setScalesPageToFit:YES];
 }
-*/
 
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+-(void)loadURI:(NSString *)uri {
+	[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:uri]]];
+	[pt setText:[[[webView request] URL] host]];
+	pt.hidden = NO;
 }
-*/
 
-- (IBAction) backButton_clicked:(id)sender {
+-(void)showExtraMenu {
+	CATransition *tr = [CATransition animation];
+	tr.duration = 0.75;
+	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+	
+	tr.type = kCATransitionMoveIn;
+	tr.subtype = kCATransitionFromTop;
+	
+	[self.view.window addSubview:ex];
+	[ex.layer addAnimation:tr forKey:nil];
+	
+	ex.hidden = NO;
+}
+
+-(void)hideExtraMenu {
+	CATransition *tr = [CATransition animation];
+	tr.duration = 0.75;
+	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+	
+	tr.type = kCATransitionPush;
+	tr.subtype = kCATransitionFromBottom;
+	
+	[ex.layer addAnimation:tr forKey:nil];
+	ex.hidden = YES;
+}
+
+- (void)extra_mail:(id)sender {
+	NSURL *url = [[NSURL alloc]
+				  initWithString:[NSString
+								  stringWithFormat:@"mailto:?body=%@", [[[webView request] URL] absoluteString]]];
+	[[UIApplication sharedApplication] openURL:url];
+}
+
+- (void)extra_safari:(id)sender {
+	[[UIApplication sharedApplication] openURL:[[webView request] URL]];
+}
+
+- (void)backButton_clicked:(id)sender {
 	WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-	[app switchFromWeb];
+	[app switchWebToMain];
+}
+
+- (void)browser_back:(id)sender {
+	[[self webView] goBack];
+}
+
+- (void)browser_forward:(id)sender {
+	[[self webView] goForward];
 }
 
 /* Web view delegate */
-- (void)webViewDidStartLoad:(UIWebView *)webView {
+- (void)webViewDidStartLoad:(UIWebView *)wv {
+	[pt setText:[[[wv request] URL] host]];
 	[spinner startAnimating];
-}
+	spinner.hidden = NO;}
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
+- (void)webViewDidFinishLoad:(UIWebView *)wv {
 	[spinner stopAnimating];
+	spinner.hidden = YES;
 }
 
 - (void)didReceiveMemoryWarning {
