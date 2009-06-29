@@ -51,7 +51,7 @@
 
 -(void) switchToView:(UIView *)dst From:(UIView *)src withDirection:(NSString *)direction {
 	CATransition *tr = [CATransition animation];
-	tr.duration = 0.75;
+	tr.duration = 0.4;
 	tr.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 	
 	tr.type = kCATransitionPush;

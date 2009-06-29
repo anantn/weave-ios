@@ -96,7 +96,7 @@
 					cell.indentationWidth,
 					tv.rowHeight - 20,
 					tv.bounds.size.width - cell.indentationWidth - star.size.width - 10,
-					15)] autorelease];
+					18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
 		uri.font = [UIFont systemFontOfSize:[UIFont labelFontSize] - 3];
