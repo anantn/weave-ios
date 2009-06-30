@@ -38,11 +38,10 @@
 		BOOL success;
 		NSError *error;
 		
-		favicons = [[NSDictionary alloc] init];
-		
 		tabs = [[NSMutableArray alloc] init];
 		history = [[NSMutableArray alloc] init];
 		bookmarks = [[NSMutableArray alloc] init];
+		favicons = [[NSMutableDictionary alloc] init];
 		
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -168,6 +167,7 @@
 	const char *hSql = "SELECT * FROM moz_places WHERE type = 'history'";
 	const char *bSql = "SELECT * FROM moz_places WHERE type = 'bookmark'";
 	const char *tSql = "SELECT * FROM moz_places WHERE type = 'tab'";
+	const char *iSql = "SELECT * FROM moz_favicons";
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) == SQLITE_OK) {
 		if (sqlite3_step(stmnt) == SQLITE_ROW) {
@@ -256,8 +256,19 @@
 	sqlite3_finalize(stmnt);
 	
 	/* Load favicons */
+	if (sqlite3_prepare_v2(dataBase, iSql, -1, &stmnt, NULL) == SQLITE_OK) {
+		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			[favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 1)]
+						 forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 0)]];
+		}
+	} else {
+		NSLog(@"Could not prepare SQL to load favicons!");
+		return NO;
+	}
+	sqlite3_finalize(stmnt);
 	
-	NSLog(@"Store loaded %d history items, %d bookmarks, and %d tabs", [history count], [bookmarks count], [tabs count]);
+	NSLog(@"Store loaded %d history items, %d bookmarks, %d tabs and %d favicons",
+		  [history count], [bookmarks count], [tabs count], [favicons count]);
 	return YES;
 }
 

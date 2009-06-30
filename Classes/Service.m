@@ -122,6 +122,10 @@
 	return [store bookmarks];
 }
 
+-(NSMutableDictionary *)getIcons {
+	return [store favicons];
+}
+
 -(void) successWithString:(NSString *)response andIndex:(int)i{
 	int tot, c;
 	NSArray *pg;

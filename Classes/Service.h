@@ -66,5 +66,6 @@
 -(NSMutableArray *) getTabs;
 -(NSMutableArray *) getHistory;
 -(NSMutableArray *) getBookmarks;
+-(NSMutableDictionary *) getIcons;
 
 @end

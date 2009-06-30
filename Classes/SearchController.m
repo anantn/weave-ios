@@ -26,6 +26,7 @@
 #import "WeaveAppDelegate.h"
 #import "Service.h"
 #import "Store.h"
+#import "Utility.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation SearchController
@@ -84,18 +85,18 @@
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth,
+					cell.indentationWidth + 24,
 					tv.rowHeight - 40,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 10,
+					tv.bounds.size.width - cell.indentationWidth - star.size.width - 28,
 					20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
 		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
 		
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth,
+					cell.indentationWidth + 24,
 					tv.rowHeight - 20,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 10,
+					tv.bounds.size.width - cell.indentationWidth - star.size.width - 28,
 					18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
@@ -106,17 +107,23 @@
 		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
+	cell.image = nil;
 	cell.accessoryView = nil;
-	// Set up the cell...
 	if (searching) {
+		NSArray *obj;
 		if (indexPath.row >= [bmkList count]) {
-			title.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:0];
-			uri.text = [[histList objectAtIndex:(indexPath.row - [bmkList count])] objectAtIndex:1];
+			obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
+			title.text = [obj objectAtIndex:0];
+			uri.text = [obj objectAtIndex:1];
 		} else {
-			title.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:0];
-			uri.text = [[bmkList objectAtIndex:indexPath.row] objectAtIndex:1];
+			obj = [bmkList objectAtIndex:indexPath.row];
+			title.text = [obj objectAtIndex:0];
+			uri.text = [obj objectAtIndex:1];
 			cell.accessoryView = [[[UIImageView alloc] initWithImage:star] autorelease];
 		}
+		
+		NSDictionary *icons = [[app service] getIcons];
+		cell.image = [UIImage imageWithData:[[[NSData alloc] initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 	}
 	
 	return cell;
@@ -187,7 +194,7 @@
 		NSRange rt = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		
 		if (ru.length > 0 || rt.length > 0)
-			[bmkList addObject:[NSArray arrayWithObjects:title, uri, nil]];
+			[bmkList addObject:[NSArray arrayWithObjects:title, uri, [[bmT objectAtIndex:i] objectAtIndex:2], nil]];
 	}
 	
 	/* History search */
@@ -198,9 +205,8 @@
 		NSRange hu = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange ht = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		
-		if (hu.length > 0 || ht.length > 0) {
-			[histList addObject:[NSArray arrayWithObjects:title, uri, nil]];
-		}
+		if (hu.length > 0 || ht.length > 0)
+			[histList addObject:[NSArray arrayWithObjects:title, uri, [[hiT objectAtIndex:i] objectAtIndex:2], nil]];
 	}
 }
 
