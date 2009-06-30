@@ -29,21 +29,19 @@
 
 @interface Store : NSObject {
 	sqlite3 *dataBase;
-	NSMutableArray *bmkUris;
-	NSMutableArray *bmkTitles;
-	NSMutableArray *histUris;
-	NSMutableArray *histTitles;
-	NSMutableArray *tabUris;
-	NSMutableArray *tabTitles;
+	NSDictionary *favicons;
+	
+	NSMutableArray *tabs;
+	NSMutableArray *history;
+	NSMutableArray *bookmarks;
 }
 
 @property (nonatomic) sqlite3 *dataBase;
-@property (nonatomic, retain) NSMutableArray *bmkUris;
-@property (nonatomic, retain) NSMutableArray *bmkTitles;
-@property (nonatomic, retain) NSMutableArray *histUris;
-@property (nonatomic, retain) NSMutableArray *histTitles;
-@property (nonatomic, retain) NSMutableArray *tabUris;
-@property (nonatomic, retain) NSMutableArray *tabTitles;
+@property (nonatomic, retain) NSDictionary *favicons;
+
+@property (nonatomic, retain) NSMutableArray *tabs;
+@property (nonatomic, retain) NSMutableArray *history;
+@property (nonatomic, retain) NSMutableArray *bookmarks;
 
 -(Store *) initWithDB:(NSString *)db;
 

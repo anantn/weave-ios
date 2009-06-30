@@ -63,11 +63,8 @@
 
 -(NSDate *)getSyncTime;
 
--(NSMutableArray *) getBookmarkURIs;
--(NSMutableArray *) getBookmarkTitles;
--(NSMutableArray *) getHistoryURIs;
--(NSMutableArray *) getHistoryTitles;
--(NSMutableArray *) getTabURIs;
--(NSMutableArray *) getTabTitles;
+-(NSMutableArray *) getTabs;
+-(NSMutableArray *) getHistory;
+-(NSMutableArray *) getBookmarks;
 
 @end

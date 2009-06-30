@@ -175,15 +175,13 @@
 	[bmkList removeAllObjects];
 	[histList removeAllObjects];
 	
-	NSArray *bmT = [[app service] getBookmarkTitles];
-	NSArray *bmU = [[app service] getBookmarkURIs];
-	NSArray *hiT = [[app service] getHistoryTitles];
-	NSArray *hiU = [[app service] getHistoryURIs];
+	NSArray *bmT = [[app service] getBookmarks];
+	NSArray *hiT = [[app service] getHistory];
 	
 	/* Bookmark search */
 	for (i = 0; i < [bmT count]; i++) {
-		NSString *uri = [bmU objectAtIndex:i];
-		NSString *title = [bmT objectAtIndex:i];
+		NSString *uri = [[bmT objectAtIndex:i] objectAtIndex:0];
+		NSString *title = [[bmT objectAtIndex:i] objectAtIndex:1];
 		
 		NSRange ru = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange rt = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
@@ -194,8 +192,8 @@
 	
 	/* History search */
 	for (i = 0; i < [hiT count]; i++) {
-		NSString *uri = [hiU objectAtIndex:i];
-		NSString *title = [hiT objectAtIndex:i];
+		NSString *uri = [[hiT objectAtIndex:i] objectAtIndex:0];
+		NSString *title = [[hiT objectAtIndex:i] objectAtIndex:1];
 		
 		NSRange hu = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange ht = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];

@@ -29,7 +29,7 @@
 
 @implementation Store
 
-@synthesize dataBase, bmkUris, bmkTitles, histUris, histTitles, tabUris, tabTitles;
+@synthesize dataBase, tabs, history, favicons, bookmarks;
 
 -(Store *) initWithDB:(NSString *)db {
 	self = [super init];
@@ -38,15 +38,11 @@
 		BOOL success;
 		NSError *error;
 		
-		histUris = [[NSMutableArray alloc] init];
-		histTitles = [[NSMutableArray alloc] init];
+		favicons = [[NSDictionary alloc] init];
 		
-		bmkUris = [[NSMutableArray alloc] init];
-		bmkTitles = [[NSMutableArray alloc] init];
-		
-		tabUris = [[NSMutableArray alloc] init];
-		tabTitles = [[NSMutableArray alloc] init];
-		
+		tabs = [[NSMutableArray alloc] init];
+		history = [[NSMutableArray alloc] init];
+		bookmarks = [[NSMutableArray alloc] init];
 		
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -152,6 +148,7 @@
 }
 
 -(BOOL) loadUserToService:(Service *)svc {
+	char *icon;
 	NSString *usr;
 	NSString *pwd;
 	NSString *pph;
@@ -192,11 +189,21 @@
 	}
 	sqlite3_finalize(stmnt);
 	
-	/* Load existing bookmarks, history and tabs */
+	/* Load existing bookmarks */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			[bmkUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
-			[bmkTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+			icon = (char *)sqlite3_column_text(stmnt, 4);
+			if (icon) {
+				[bookmarks addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  [NSString stringWithUTF8String:icon], nil]];
+			} else {
+				[bookmarks addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  @"", nil]];
+			}
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load bookmark!");
@@ -204,10 +211,21 @@
 	}
 	sqlite3_finalize(stmnt);
 	
+	/* Load existing history */
 	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			[histUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
-			[histTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+			icon = (char *)sqlite3_column_text(stmnt, 4);
+			if (icon) {
+				[history addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  [NSString stringWithUTF8String:icon], nil]];
+			} else {
+				[history addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  @"", nil]];
+			}
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load history!");
@@ -215,10 +233,21 @@
 	}
 	sqlite3_finalize(stmnt);
 	
+	/* Load existing tabs */
 	if (sqlite3_prepare_v2(dataBase, tSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			[tabUris addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)]];
-			[tabTitles addObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)]];
+			icon = (char *)sqlite3_column_text(stmnt, 4);
+			if (icon) {
+				[tabs addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  [NSString stringWithUTF8String:icon], nil]];
+			} else {
+				[tabs addObject:[NSArray arrayWithObjects:
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+									  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+									  @"", nil]];
+			}
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load tabs!");
@@ -226,7 +255,9 @@
 	}
 	sqlite3_finalize(stmnt);
 	
-	NSLog(@"Store loaded %d history items, %d bookmarks, and %d tabs", [histUris count], [bmkUris count], [tabUris count]);
+	/* Load favicons */
+	
+	NSLog(@"Store loaded %d history items, %d bookmarks, and %d tabs", [history count], [bookmarks count], [tabs count]);
 	return YES;
 }
 
@@ -335,8 +366,8 @@
 	
 	NSDictionary *obj;
 	while (obj = [iter nextObject]) {
-		NSDictionary *payload = [obj valueForKey:@"payload"];
 		@try {
+			NSDictionary *payload = [obj valueForKey:@"payload"];
 			NSString *cipher = [payload valueForKey:@"ciphertext"];
 			NSArray *item = [cipher JSONValue];
 			NSDictionary *bmk = [item objectAtIndex:0];
@@ -347,13 +378,12 @@
 				
 				NSRange r = NSMakeRange(0, 6);
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-					[bmkUris addObject:uri];
-					[bmkTitles addObject:title];
+					[bookmarks addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
 					[self addPlace:@"bookmark" withURI:uri andTitle:title];
 				}
 			}
 		} @catch (id theException) {
-			NSLog(@"%@ threw %@", payload, theException);
+			NSLog(@"threw %@", theException);
 		}
 	}
 	
@@ -366,8 +396,8 @@
 	
 	NSDictionary *obj;
 	while (obj = [iter nextObject]) {
-		NSDictionary *payload = [obj valueForKey:@"payload"];
 		@try {
+			NSDictionary *payload = [obj valueForKey:@"payload"];
 			NSString *cipher = [payload valueForKey:@"ciphertext"];
 			NSArray *item = [cipher JSONValue];
 			NSDictionary *hist = [item objectAtIndex:0];
@@ -376,12 +406,11 @@
 			NSString *title = [hist valueForKey:@"title"];
 			
 			if (title && uri) {
-				[histUris addObject:uri];
-				[histTitles addObject:title];
+				[history addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
 				[self addPlace:@"history" withURI:uri andTitle:title];
 			}
 		} @catch (id theException) {
-			NSLog(@"%@ threw %@", payload, theException);
+			NSLog(@"threw %@", theException);
 		}
 	}
 
@@ -399,16 +428,15 @@
 		@try {
 			NSDictionary *payload = [obj valueForKey:@"payload"];
 			NSString *cipher = [payload valueForKey:@"ciphertext"];
-			NSArray *tabs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
-			NSEnumerator *tEnum = [tabs objectEnumerator];
+			NSArray *tbs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
+			NSEnumerator *tEnum = [tbs objectEnumerator];
 			
 			while (tab = [tEnum nextObject]) {
 				NSString *uri = [[tab valueForKey:@"urlHistory"] objectAtIndex:0];
 				NSString *title = [tab valueForKey:@"title"];
 				
 				if (title && uri) {
-					[tabUris addObject:uri];
-					[tabTitles addObject:title];
+					[tabs addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
 					[self addPlace:@"tab" withURI:uri andTitle:title];
 				}
 			}

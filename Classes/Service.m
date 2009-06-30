@@ -93,10 +93,14 @@
 
 -(void) getFavicons {
 	NSMutableArray *uris = [[NSMutableArray alloc] initWithCapacity:
-							[[self getBookmarkURIs] count] + [[self getHistoryURIs] count]];
+							[[self getBookmarks] count] + [[self getHistory] count]];
 
-	[uris addObjectsFromArray:[self getBookmarkURIs]];
-	
+	NSArray *obj;
+	NSEnumerator *iter = [[self getBookmarks] objectEnumerator];
+	while (obj = [iter nextObject]) {
+		[uris addObject:[obj objectAtIndex:0]];
+	}
+
 	[[cb pgStatus] setText:@"Dowloading Favicons"];
 	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [uris JSONRepresentation]];
 	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7]; 
@@ -106,28 +110,16 @@
 	return [NSDate dateWithTimeIntervalSince1970:[store getSyncTimeForUser:username]];
 }
 
--(NSMutableArray *) getBookmarkURIs {
-	return [store bmkUris];
+-(NSMutableArray *) getTabs {
+	return [store tabs];
 }
 
--(NSMutableArray *) getBookmarkTitles {
-	return [store bmkTitles];
+-(NSMutableArray *) getHistory {
+	return [store history];
 }
 
--(NSMutableArray *) getHistoryURIs {
-	return [store histUris];
-}
-
--(NSMutableArray *) getHistoryTitles {
-	return [store histTitles];
-}
-
--(NSMutableArray *) getTabURIs {
-	return [store tabUris];
-}
-
--(NSMutableArray *) getTabTitles {
-	return [store tabTitles];
+-(NSMutableArray *) getBookmarks {
+	return [store bookmarks];
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
