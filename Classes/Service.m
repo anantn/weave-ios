@@ -91,6 +91,17 @@
 	[cb overlay].hidden = NO;
 }
 
+-(void) getFavicons {
+	NSMutableArray *uris = [[NSMutableArray alloc] initWithCapacity:
+							[[self getBookmarkURIs] count] + [[self getHistoryURIs] count]];
+
+	[uris addObjectsFromArray:[self getBookmarkURIs]];
+	
+	[[cb pgStatus] setText:@"Dowloading Favicons"];
+	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [uris JSONRepresentation]];
+	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7]; 
+}
+
 -(NSDate *)getSyncTime {
 	return [NSDate dateWithTimeIntervalSince1970:[store getSyncTimeForUser:username]];
 }
@@ -149,9 +160,9 @@
 			/* Got history */
 			[store addHistory:response];
 			
-			/* Done! */
+			/* Now get favicons */
 			[store setSyncTimeForUser:username];
-			[cb downloadComplete:YES];
+			[self getFavicons];
 			break;
 		case 3:
 			/* Progress for bookmarks download */
@@ -214,6 +225,13 @@
 				[store addHistory:response];
 			}
 			[store setSyncTimeForUser:username];
+			[self getFavicons];
+			//[cb downloadComplete:YES];
+			break;
+		case 7:
+			/* Got favicons, done! */
+			[[cb pgStatus] setText:@"Processing Favicons"];
+			[store addFavicons:response];
 			[cb downloadComplete:YES];
 			break;
 		default:

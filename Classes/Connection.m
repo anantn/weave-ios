@@ -56,6 +56,28 @@
 	[self getResource:url withCallback:callback andIndex:i];
 }
 
+/* Asynchronous POST */
+-(void) postTo:(NSURL *)url withData:(NSString *)data callback:(id <Responder>)callback andIndex:(int)i {
+	index = i;
+	cb = callback;
+	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
+	
+	responseData = [[NSMutableData data] retain];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+													   timeoutInterval:10];
+	
+	NSString *escaped = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
+									(CFStringRef)data, NULL,
+									(CFStringRef)@"!*'();:@&+$,/?%#[]",
+									kCFStringEncodingUTF8);
+
+	[request setHTTPMethod:@"POST"];
+	[request setHTTPBody:[escaped dataUsingEncoding:NSASCIIStringEncoding]];
+	
+	[[NSURLConnection alloc] initWithRequest:request delegate:self];
+}
+
 -(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	int code = [(NSHTTPURLResponse *)response statusCode];
 	NSLog([NSString stringWithFormat:@"Got response code %d", code]);

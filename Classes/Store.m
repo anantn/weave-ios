@@ -40,10 +40,13 @@
 		
 		histUris = [[NSMutableArray alloc] init];
 		histTitles = [[NSMutableArray alloc] init];
+		
 		bmkUris = [[NSMutableArray alloc] init];
 		bmkTitles = [[NSMutableArray alloc] init];
+		
 		tabUris = [[NSMutableArray alloc] init];
 		tabTitles = [[NSMutableArray alloc] init];
+		
 		
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -267,6 +270,62 @@
 		}
 	}
 	sqlite3_finalize(stmnt);
+	return YES;
+}
+
+-(BOOL) addFavicons:(NSString *)json {
+	NSString *key;
+	NSString *value;
+	NSEnumerator *iter;
+	
+	sqlite3_stmt *stmnt;
+	const char *fsql = "INSERT INTO moz_favicons VALUES(?, ?)";
+	const char *usql = "UPDATE moz_places SET favicon = ? WHERE url = ?";
+	
+	NSDictionary *resp = [json JSONValue];
+	
+	/* Store favicon URIs */
+	NSDictionary *uris = [resp valueForKey:@"uris"];
+	iter = [uris keyEnumerator];
+	while (key = [iter nextObject]) {
+		value = [uris valueForKey:key];
+		
+		if (sqlite3_prepare_v2(dataBase, usql, -1, &stmnt, NULL) != SQLITE_OK) {
+			NSLog(@"Could not prepare favicon uri statement!");
+			return NO;
+		}
+		
+		sqlite3_bind_text(stmnt, 1, [value UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 2, [key UTF8String], -1, SQLITE_TRANSIENT);
+		
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"Could not save favicon uri to DB!");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+		sqlite3_finalize(stmnt);
+	}
+	
+	/* Store favicons */
+	uris = [resp valueForKey:@"icons"];
+	iter = [uris keyEnumerator];
+	while (key = [iter nextObject]) {
+		value = [uris valueForKey:key];
+		
+		if (sqlite3_prepare_v2(dataBase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
+			NSLog(@"Could not prepare favicon statement!");
+			return NO;
+		}
+		
+		sqlite3_bind_text(stmnt, 1, [key UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 2, [value UTF8String], -1, SQLITE_TRANSIENT);
+		
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"%@ unsaved", key);
+		}
+		sqlite3_finalize(stmnt);		
+	}
+	
 	return YES;
 }
 

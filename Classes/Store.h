@@ -49,6 +49,7 @@
 
 -(BOOL) addTabs:(NSString *)json;
 -(BOOL) addHistory:(NSString *)json;
+-(BOOL) addFavicons:(NSString *)json;
 -(BOOL) addBookmarks:(NSString *)json;
 
 -(BOOL) loadUserToService:(Service *)svc;

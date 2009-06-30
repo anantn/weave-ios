@@ -48,5 +48,6 @@
 -(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph;
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i;
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i;
+-(void) postTo:(NSURL *)url withData:(NSString *)data callback:(id <Responder>)callback andIndex:(int)i;
 
 @end
