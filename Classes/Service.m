@@ -93,14 +93,18 @@
 
 -(void) getFavicons {
 	NSMutableArray *uris = [[NSMutableArray alloc] initWithCapacity:
-							[[self getBookmarks] count] + [[self getHistory] count]];
+							[[self getBookmarks] count] + [[self getHistory] count] + [[self getTabs] count]];
 
 	NSArray *obj;
 	NSEnumerator *iter = [[self getBookmarks] objectEnumerator];
 	while (obj = [iter nextObject]) {
 		[uris addObject:[obj objectAtIndex:0]];
 	}
-
+	iter = [[self getTabs] objectEnumerator];
+	while (obj = [iter nextObject]) {
+		[uris addObject:[obj objectAtIndex:0]];
+	}
+	
 	[[cb pgStatus] setText:@"Dowloading Favicons"];
 	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [uris JSONRepresentation]];
 	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7]; 
@@ -228,6 +232,9 @@
 			/* Got favicons, done! */
 			[[cb pgStatus] setText:@"Processing Favicons"];
 			[store addFavicons:response];
+			
+			/* Reload data to update favicon links */
+			[store loadUserToService:self];
 			[cb downloadComplete:YES];
 			break;
 		default:

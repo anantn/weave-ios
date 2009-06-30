@@ -65,7 +65,7 @@
 	responseData = [[NSMutableData data] retain];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
 										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-													   timeoutInterval:10];
+													   timeoutInterval:120];
 	
 	NSString *escaped = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
 									(CFStringRef)data, NULL,

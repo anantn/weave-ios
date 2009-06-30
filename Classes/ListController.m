@@ -26,6 +26,7 @@
 #import "WeaveAppDelegate.h"
 #import "TabViewController.h"
 #import "Service.h"
+#import "Utility.h"
 
 @implementation ListController
 
@@ -51,11 +52,11 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if (tabController.selectedIndex == 2)
-		return [[[app service] getBookmarkURIs] count];
+		return [[[app service] getBookmarks] count];
 	else if (tabController.selectedIndex == 1)
-		return [[[app service] getTabURIs] count];
+		return [[[app service] getTabs] count];
 	else
-		return ([[[app service] getHistoryURIs] count] > 20 ? 20 : [[[app service] getHistoryURIs] count]);
+		return ([[[app service] getHistory] count] > 20 ? 20 : [[[app service] getHistory] count]);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -71,18 +72,18 @@
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth,
+					cell.indentationWidth + 24,
 					tableView.rowHeight - 40,
-					tableView.bounds.size.width - cell.indentationWidth - 10,
+					tableView.bounds.size.width - cell.indentationWidth - 34,
 					20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
 		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
 		
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
-            cell.indentationWidth,
+            cell.indentationWidth + 24,
 			tableView.rowHeight - 20,
-			tableView.bounds.size.width - cell.indentationWidth - 10,
+			tableView.bounds.size.width - cell.indentationWidth - 34,
 			18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
@@ -93,29 +94,36 @@
 		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
+	cell.image = nil;
 	cell.accessoryView = nil;
-	// Set up the cell...
+
+	NSArray *obj;
 	if (tabController.selectedIndex == 2) {
-		title.text = [[[app service] getBookmarkTitles] objectAtIndex:indexPath.row];
-		uri.text = [[[app service] getBookmarkURIs] objectAtIndex:indexPath.row];
+		obj = [[[app service] getBookmarks] objectAtIndex:indexPath.row];
+		title.text = [obj objectAtIndex:0];
+		uri.text = [obj objectAtIndex:1];
 	} else if (tabController.selectedIndex == 1) {
-		title.text = [[[app service] getTabTitles] objectAtIndex:indexPath.row];
-		uri.text = [[[app service] getTabURIs] objectAtIndex:indexPath.row];
+		obj = [[[app service] getTabs] objectAtIndex:indexPath.row];
+		title.text = [obj objectAtIndex:0];
+		uri.text = [obj objectAtIndex:1];
 	} else {
-		title.text = [[[app service] getHistoryTitles] objectAtIndex:indexPath.row];
-		uri.text = [[[app service] getHistoryURIs] objectAtIndex:indexPath.row];
+		obj = [[[app service] getHistory] objectAtIndex:indexPath.row];
+		title.text = [obj objectAtIndex:0];
+		uri.text = [obj objectAtIndex:1];
 	}
 
+	cell.image = [UIImage imageWithData:[[[NSData alloc] initWithBase64EncodedString:[obj objectAtIndex:2]] autorelease]];
+	
 	return cell;
 }
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (tabController.selectedIndex == 2) {
-		[app setUri:[[[app service] getBookmarkURIs] objectAtIndex:indexPath.row]];
+		[app setUri:[[[[app service] getBookmarks] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	} else if (tabController.selectedIndex == 1) {
-		[app setUri:[[[app service] getTabURIs] objectAtIndex:indexPath.row]];
+		[app setUri:[[[[app service] getTabs] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	} else {
-		[app setUri:[[[app service] getHistoryURIs] objectAtIndex:indexPath.row]];
+		[app setUri:[[[[app service] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	}
 	[app switchMainToWeb];
 }

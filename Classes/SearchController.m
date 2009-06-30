@@ -87,7 +87,7 @@
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
 					cell.indentationWidth + 24,
 					tv.rowHeight - 40,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 28,
+					tv.bounds.size.width - cell.indentationWidth - star.size.width - 34,
 					20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
@@ -96,7 +96,7 @@
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
 					cell.indentationWidth + 24,
 					tv.rowHeight - 20,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 28,
+					tv.bounds.size.width - cell.indentationWidth - star.size.width - 34,
 					18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
