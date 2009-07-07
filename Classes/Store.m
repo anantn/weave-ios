@@ -287,16 +287,16 @@
 	return cnt;
 }
 
--(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri andTitle:(NSString *)title {
+-(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon {
 	const char *sql;
 	sqlite3_stmt *stmnt;
 	
 	if ([type isEqualToString:@"bookmark"])
-		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('bookmark', ?, ?)";
+		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('bookmark', ?, ?, ?)";
 	else if ([type isEqualToString:@"history"])
-		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('history', ?, ?)";
+		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('history', ?, ?, ?)";
 	else
-		sql = "INSERT INTO moz_places ('type', 'url', 'title') VALUES ('tab', ?, ?)";
+		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('tab', ?, ?, ?)";
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
@@ -304,7 +304,7 @@
 	} else {
 		sqlite3_bind_text(stmnt, 1, [uri UTF8String], -1, SQLITE_TRANSIENT);
 		sqlite3_bind_text(stmnt, 2, [title UTF8String], -1, SQLITE_TRANSIENT);
-		
+		sqlite3_bind_text(stmnt, 3, [favicon UTF8String], -1, SQLITE_TRANSIENT);
 		if (sqlite3_step(stmnt) != SQLITE_DONE) {
 			NSLog(@"Could not save place to DB!");
 			sqlite3_finalize(stmnt);
@@ -322,37 +322,12 @@
 	
 	sqlite3_stmt *stmnt;
 	const char *fsql = "INSERT INTO moz_favicons VALUES(?, ?)";
-	const char *usql = "UPDATE moz_places SET favicon = ? WHERE url = ?";
-	
-	NSDictionary *resp = [json JSONValue];
-	
-	/* Store favicon URIs */
-	NSDictionary *uris = [resp valueForKey:@"uris"];
-	iter = [uris keyEnumerator];
-	while (key = [iter nextObject]) {
-		value = [uris valueForKey:key];
-		
-		if (sqlite3_prepare_v2(dataBase, usql, -1, &stmnt, NULL) != SQLITE_OK) {
-			NSLog(@"Could not prepare favicon uri statement!");
-			return NO;
-		}
-		
-		sqlite3_bind_text(stmnt, 1, [value UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 2, [key UTF8String], -1, SQLITE_TRANSIENT);
-		
-		if (sqlite3_step(stmnt) != SQLITE_DONE) {
-			NSLog(@"Could not save favicon uri to DB!");
-			sqlite3_finalize(stmnt);
-			return NO;
-		}
-		sqlite3_finalize(stmnt);
-	}
 	
 	/* Store favicons */
-	uris = [resp valueForKey:@"icons"];
-	iter = [uris keyEnumerator];
+	NSDictionary *resp = [json JSONValue];
+	iter = [resp keyEnumerator];
 	while (key = [iter nextObject]) {
-		value = [uris valueForKey:key];
+		value = [resp valueForKey:key];
 		
 		if (sqlite3_prepare_v2(dataBase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
 			NSLog(@"Could not prepare favicon statement!");
@@ -389,8 +364,9 @@
 				
 				NSRange r = NSMakeRange(0, 6);
 				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-					[bookmarks addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
-					[self addPlace:@"bookmark" withURI:uri andTitle:title];
+					NSString *favicon = [[NSURL URLWithString:uri] host];
+					[bookmarks addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+					[self addPlace:@"bookmark" withURI:uri title:title andFavicon:favicon];
 				}
 			}
 		} @catch (id theException) {
@@ -417,8 +393,9 @@
 			NSString *title = [hist valueForKey:@"title"];
 			
 			if (title && uri) {
-				[history addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
-				[self addPlace:@"history" withURI:uri andTitle:title];
+				NSString *favicon = [[NSURL URLWithString:uri] host];
+				[history addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+				[self addPlace:@"history" withURI:uri title:title andFavicon:favicon];
 			}
 		} @catch (id theException) {
 			NSLog(@"threw %@", theException);
@@ -447,8 +424,9 @@
 				NSString *title = [tab valueForKey:@"title"];
 				
 				if (title && uri) {
-					[tabs addObject:[NSArray arrayWithObjects:uri, title, @"", nil]];
-					[self addPlace:@"tab" withURI:uri andTitle:title];
+					NSString *favicon = [[NSURL URLWithString:uri] host];
+					[tabs addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+					[self addPlace:@"tab" withURI:uri title:title andFavicon:favicon];
 				}
 			}
 		} @catch (id theException) {

@@ -40,7 +40,7 @@
 	index = i;
 	cb = callback;
 	
-	responseData = [[NSMutableData data] retain];
+	responseData = [[NSMutableData alloc] init];
 	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
 										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -57,23 +57,18 @@
 }
 
 /* Asynchronous POST */
--(void) postTo:(NSURL *)url withData:(NSString *)data callback:(id <Responder>)callback andIndex:(int)i {
+-(void) postTo:(NSURL *)url withData:(NSString *)post callback:(id <Responder>)callback andIndex:(int)i {
 	index = i;
 	cb = callback;
 	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
 	
-	responseData = [[NSMutableData data] retain];
+	responseData = [[NSMutableData alloc] init];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
 										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-													   timeoutInterval:120];
-	
-	NSString *escaped = (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-									(CFStringRef)data, NULL,
-									(CFStringRef)@"!*'();:@&+$,/?%#[]",
-									kCFStringEncodingUTF8);
+													   timeoutInterval:60];
 
 	[request setHTTPMethod:@"POST"];
-	[request setHTTPBody:[escaped dataUsingEncoding:NSASCIIStringEncoding]];
+	[request setHTTPBody:[post dataUsingEncoding:NSASCIIStringEncoding]];
 	
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }

@@ -92,22 +92,29 @@
 }
 
 -(void) getFavicons {
-	NSMutableArray *uris = [[NSMutableArray alloc] initWithCapacity:
-							[[self getBookmarks] count] + [[self getHistory] count] + [[self getTabs] count]];
+	NSMutableDictionary *uris = [[NSMutableDictionary alloc] init];
 
 	NSArray *obj;
-	NSEnumerator *iter = [[self getBookmarks] objectEnumerator];
+	NSEnumerator *iter = [[store bookmarks] objectEnumerator];
 	while (obj = [iter nextObject]) {
-		[uris addObject:[obj objectAtIndex:0]];
+		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
-	iter = [[self getTabs] objectEnumerator];
+	iter = [[store history] objectEnumerator];
 	while (obj = [iter nextObject]) {
-		[uris addObject:[obj objectAtIndex:0]];
+		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
+	}
+	iter = [[store tabs] objectEnumerator];
+	while (obj = [iter nextObject]) {
+		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
 	
-	[[cb pgStatus] setText:@"Dowloading Favicons"];
-	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [uris JSONRepresentation]];
-	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7]; 
+	[[cb pgStatus] setText:@"Dowloading Favicons"];	
+	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [[uris allKeys] JSONRepresentation]];
+	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
+	
+	NSLog(@"%@", [[uris allKeys] JSONRepresentation]);
+	
+	[uris release];
 }
 
 -(NSDate *)getSyncTime {
@@ -162,7 +169,8 @@
 			
 			/* Now get favicons */
 			[store setSyncTimeForUser:username];
-			[self getFavicons];
+			//[self getFavicons];
+			[cb downloadComplete:YES];
 			break;
 		case 3:
 			/* Progress for bookmarks download */
@@ -225,16 +233,14 @@
 				[store addHistory:response];
 			}
 			[store setSyncTimeForUser:username];
-			[self getFavicons];
-			//[cb downloadComplete:YES];
+			//[self getFavicons];
+			[cb downloadComplete:YES];
 			break;
 		case 7:
 			/* Got favicons, done! */
 			[[cb pgStatus] setText:@"Processing Favicons"];
+			NSLog(@"%@", response);
 			[store addFavicons:response];
-			
-			/* Reload data to update favicon links */
-			[store loadUserToService:self];
 			[cb downloadComplete:YES];
 			break;
 		default:

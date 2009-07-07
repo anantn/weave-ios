@@ -123,7 +123,12 @@
 		}
 		
 		NSDictionary *icons = [[app service] getIcons];
-		cell.image = [UIImage imageWithData:[[[NSData alloc] initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+		if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+			cell.image = [UIImage imageWithData:[[[NSData alloc]
+							initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+		} else {
+			cell.image = [UIImage imageNamed:@"Document.png"];
+		}
 	}
 	
 	return cell;
