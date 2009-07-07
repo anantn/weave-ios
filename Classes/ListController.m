@@ -42,9 +42,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	if (tabController.selectedIndex == 2)
-		return @"Bookmarks";
-	else if (tabController.selectedIndex == 1)
+	if (tabController.selectedIndex == 1)
 		return @"Tabs";
 	else
 		return @"History";
@@ -98,29 +96,29 @@
 	cell.accessoryView = nil;
 
 	NSArray *obj;
-	if (tabController.selectedIndex == 2) {
-		obj = [[[app service] getBookmarks] objectAtIndex:indexPath.row];
-		title.text = [obj objectAtIndex:0];
-		uri.text = [obj objectAtIndex:1];
-	} else if (tabController.selectedIndex == 1) {
+	if (tabController.selectedIndex == 1) {
 		obj = [[[app service] getTabs] objectAtIndex:indexPath.row];
-		title.text = [obj objectAtIndex:0];
-		uri.text = [obj objectAtIndex:1];
+		title.text = [obj objectAtIndex:1];
+		uri.text = [obj objectAtIndex:0];
 	} else {
 		obj = [[[app service] getHistory] objectAtIndex:indexPath.row];
-		title.text = [obj objectAtIndex:0];
-		uri.text = [obj objectAtIndex:1];
+		title.text = [obj objectAtIndex:1];
+		uri.text = [obj objectAtIndex:0];
 	}
 
-	cell.image = [UIImage imageWithData:[[[NSData alloc] initWithBase64EncodedString:[obj objectAtIndex:2]] autorelease]];
+	NSDictionary *icons = [[app service] getIcons];
+	if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+		cell.image = [UIImage imageWithData:[[[NSData alloc]
+											  initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+	} else {
+		cell.image = [UIImage imageNamed:@"Document.png"];
+	}
 	
 	return cell;
 }
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (tabController.selectedIndex == 2) {
-		[app setUri:[[[[app service] getBookmarks] objectAtIndex:indexPath.row] objectAtIndex:0]];
-	} else if (tabController.selectedIndex == 1) {
+	if (tabController.selectedIndex == 1) {
 		[app setUri:[[[[app service] getTabs] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	} else {
 		[app setUri:[[[[app service] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
