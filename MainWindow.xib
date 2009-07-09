@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="451"/>
+			<integer value="460"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -408,12 +408,17 @@
 			<object class="IBUITabBarController" id="1058540513">
 				<object class="IBUISimulatedTabBarMetrics" key="IBUISimulatedBottomBarMetrics"/>
 				<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
-				<object class="IBUIViewController" key="IBUISelectedViewController" id="714885775">
-					<string key="IBUITitle"/>
-					<object class="IBUITabBarItem" key="IBUITabBarItem" id="6021351">
-						<string key="IBUITitle"/>
+				<object class="IBUIViewController" key="IBUISelectedViewController" id="858879968">
+					<object class="IBUITabBarItem" key="IBUITabBarItem" id="810784425">
+						<string key="IBUITitle">Tabs</string>
+						<object class="NSCustomResource" key="IBUIImage">
+							<string key="NSClassName">NSImage</string>
+							<string key="NSResourceName">Tabs.png</string>
+						</object>
 						<reference key="IBUITabBar"/>
-						<int key="IBUISystemItemIdentifier">6</int>
+					</object>
+					<object class="NSArray" key="IBUIToolbarItems">
+						<bool key="EncodedWithXMLCoder">YES</bool>
 					</object>
 					<reference key="IBUIParentViewController" ref="1058540513"/>
 				</object>
@@ -568,21 +573,16 @@
 						</object>
 						<reference key="IBUIParentViewController" ref="1058540513"/>
 					</object>
-					<object class="IBUIViewController" id="858879968">
-						<object class="IBUITabBarItem" key="IBUITabBarItem" id="810784425">
-							<string key="IBUITitle">Tabs</string>
-							<object class="NSCustomResource" key="IBUIImage">
-								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">Tabs.png</string>
-							</object>
+					<reference ref="858879968"/>
+					<object class="IBUIViewController" id="714885775">
+						<string key="IBUITitle"/>
+						<object class="IBUITabBarItem" key="IBUITabBarItem" id="6021351">
+							<string key="IBUITitle"/>
 							<reference key="IBUITabBar"/>
-						</object>
-						<object class="NSArray" key="IBUIToolbarItems">
-							<bool key="EncodedWithXMLCoder">YES</bool>
+							<int key="IBUISystemItemIdentifier">6</int>
 						</object>
 						<reference key="IBUIParentViewController" ref="1058540513"/>
 					</object>
-					<reference ref="714885775"/>
 					<object class="IBUIViewController" id="263196160">
 						<object class="IBUIView" key="IBUIView" id="34900196">
 							<nil key="NSNextResponder"/>
