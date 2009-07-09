@@ -31,7 +31,7 @@
 
 @implementation Service
 
-@synthesize cb, store, conn, server;
+@synthesize cb, store, conn, server, favs;
 @synthesize username, password, passphrase;
 
 -(Service *) initWithServer:(NSString *)address {
@@ -80,7 +80,7 @@
 	[cb overlay].hidden = NO;
 }
 
-/* For non-first time users,just check for updates */
+/* For non-first time users, just check for updates */
 -(void) updateDataWithCallback:(TabViewController *)callback {
 	cb = callback;
 	[conn setUser:username password:password andPassphrase:passphrase];
@@ -108,16 +108,27 @@
 		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
 	
+	/* We must fetch favicons in batches of 20 */
+	NSString *postParams;
 	[[cb pgStatus] setText:@"Dowloading Favicons"];	
-	NSString *postParams = [NSString stringWithFormat:@"urls=%@", [[uris allKeys] JSONRepresentation]];
-	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
-	
-	NSLog(@"%@", [[uris allKeys] JSONRepresentation]);
-	
+	favs = [[NSArray alloc] initWithArray:[uris allKeys]];
 	[uris release];
+	
+	if ([favs count] <= 20) {
+		postParams = [NSString stringWithFormat:@"urls=%@", [favs JSONRepresentation]];
+		favsIndex = -1;
+	} else {
+		NSRange range;
+		range.location = 0;
+		range.length = 20;
+		favsIndex = range.length;
+		postParams = [NSString stringWithFormat:@"urls=%@", [[favs subarrayWithRange:range] JSONRepresentation]];
+	}
+	
+	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
 }
 
--(NSDate *)getSyncTime {
+-(NSDate *) getSyncTime {
 	return [NSDate dateWithTimeIntervalSince1970:[store getSyncTimeForUser:username]];
 }
 
@@ -133,7 +144,7 @@
 	return [store bookmarks];
 }
 
--(NSMutableDictionary *)getIcons {
+-(NSMutableDictionary *) getIcons {
 	return [store favicons];
 }
 
@@ -146,7 +157,6 @@
 		case 0:
 			/* Got tabs, now add user to Store */
 			[store addTabs:response];
-			
 			if ([store addUserWithService:self]) {
 				[cb verified:YES];
 			} else {
@@ -169,8 +179,7 @@
 			
 			/* Now get favicons */
 			[store setSyncTimeForUser:username];
-			//[self getFavicons];
-			[cb downloadComplete:YES];
+			[self getFavicons];
 			break;
 		case 3:
 			/* Progress for bookmarks download */
@@ -233,15 +242,28 @@
 				[store addHistory:response];
 			}
 			[store setSyncTimeForUser:username];
-			//[self getFavicons];
-			[cb downloadComplete:YES];
+			[self getFavicons];
 			break;
 		case 7:
-			/* Got favicons, done! */
-			[[cb pgStatus] setText:@"Processing Favicons"];
-			NSLog(@"%@", response);
+			/* Got 20 favicons, check if there's more or done */
 			[store addFavicons:response];
-			[cb downloadComplete:YES];
+			
+			if (favsIndex == -1) {
+				[cb downloadComplete:YES];
+			} else {
+				NSRange range;
+				if ([favs count] <= favsIndex + 20) {
+					range.location = favsIndex;
+					range.length = [favs count] - favsIndex;
+					favsIndex = -1;
+				} else {
+					range.location = favsIndex;
+					range.length = 20;
+					favsIndex += range.length;
+				}
+				NSString *postParams = [NSString stringWithFormat:@"urls=%@", [[favs subarrayWithRange:range] JSONRepresentation]];
+				[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
+			}
 			break;
 		default:
 			NSLog(@"This should never happen!");

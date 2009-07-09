@@ -70,18 +70,18 @@
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth + 24,
+					cell.indentationWidth + 30,
 					tableView.rowHeight - 40,
-					tableView.bounds.size.width - cell.indentationWidth - 34,
+					tableView.bounds.size.width - cell.indentationWidth - 30,
 					20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
 		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
 		
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
-            cell.indentationWidth + 24,
+            cell.indentationWidth + 30,
 			tableView.rowHeight - 20,
-			tableView.bounds.size.width - cell.indentationWidth - 34,
+			tableView.bounds.size.width - cell.indentationWidth - 30,
 			18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;

@@ -30,6 +30,8 @@
 
 @interface Service : NSObject <Responder> {
 	id cb;
+	int favsIndex;
+	NSArray *favs;
 	NSString *server;
 	
 	NSString *username;
@@ -41,6 +43,7 @@
 }
 
 @property (nonatomic, retain) id cb;
+@property (nonatomic, copy) NSArray *favs;
 @property (nonatomic, copy) NSString *server;
 
 @property (nonatomic, copy) NSString *username;

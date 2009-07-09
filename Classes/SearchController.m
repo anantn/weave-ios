@@ -77,26 +77,25 @@
 	
 	UILabel *title;
 	UILabel *uri;
-	UIImage *star = [UIImage imageNamed:@"Star.png"];
-	
+
 	static NSString *CellIdentifier = @"Cell";
 	UITableViewCell *cell = [tv dequeueReusableCellWithIdentifier:CellIdentifier];
 	
 	if (cell == nil) {
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
 		title = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth + 24,
+					cell.indentationWidth + 30,
 					tv.rowHeight - 40,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 34,
+					tv.bounds.size.width - cell.indentationWidth - 30,
 					20)] autorelease];
 		[cell.contentView addSubview:title];
 		title.tag = TITLE_TAG;
 		title.font = [UIFont systemFontOfSize:[UIFont labelFontSize] + 1];
 		
 		uri = [[[UILabel alloc] initWithFrame:CGRectMake(
-					cell.indentationWidth + 24,
+					cell.indentationWidth + 30,
 					tv.rowHeight - 20,
-					tv.bounds.size.width - cell.indentationWidth - star.size.width - 34,
+					tv.bounds.size.width - cell.indentationWidth - 30,
 					18)] autorelease];
 		[cell.contentView addSubview:uri];
 		uri.tag = URI_TAG;
@@ -111,23 +110,22 @@
 	cell.accessoryView = nil;
 	if (searching) {
 		NSArray *obj;
+		NSDictionary *icons = [[app service] getIcons];
 		if (indexPath.row >= [bmkList count]) {
 			obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
+			if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+				cell.image = [UIImage imageWithData:[[[NSData alloc]
+								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+			} else {
+				cell.image = [UIImage imageNamed:@"Document.png"];
+			}
 		} else {
 			obj = [bmkList objectAtIndex:indexPath.row];
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
-			cell.accessoryView = [[[UIImageView alloc] initWithImage:star] autorelease];
-		}
-		
-		NSDictionary *icons = [[app service] getIcons];
-		if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
-			cell.image = [UIImage imageWithData:[[[NSData alloc]
-							initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
-		} else {
-			cell.image = [UIImage imageNamed:@"Document.png"];
+			cell.image = [UIImage imageNamed:@"Star.png"];
 		}
 	}
 	
