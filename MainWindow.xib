@@ -9,6 +9,7 @@
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<integer value="460"/>
+			<integer value="236"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -250,7 +251,7 @@
 			</object>
 			<object class="IBUIViewController" id="828150876">
 				<object class="IBUIView" key="IBUIView" id="126217535">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">274</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -265,7 +266,7 @@
 							<bool key="IBUIUserInteractionEnabled">NO</bool>
 							<object class="NSCustomResource" key="IBUIImage">
 								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">Background.png</string>
+								<string key="NSResourceName">Default.png</string>
 							</object>
 						</object>
 						<object class="IBUITextField" id="529886124">
@@ -348,20 +349,6 @@
 								<bool key="IBUISecureTextEntry">YES</bool>
 							</object>
 						</object>
-						<object class="IBUIImageView" id="1044201703">
-							<reference key="NSNextResponder" ref="126217535"/>
-							<int key="NSvFlags">292</int>
-							<string key="NSFrame">{{40, 246}, {240, 162}}</string>
-							<reference key="NSSuperview" ref="126217535"/>
-							<bool key="IBUIOpaque">NO</bool>
-							<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
-							<int key="IBUIContentMode">4</int>
-							<bool key="IBUIUserInteractionEnabled">NO</bool>
-							<object class="NSCustomResource" key="IBUIImage" id="112718931">
-								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">Logo.png</string>
-							</object>
-						</object>
 						<object class="IBUILabel" id="1002965444">
 							<reference key="NSNextResponder" ref="126217535"/>
 							<int key="NSvFlags">292</int>
@@ -396,6 +383,7 @@
 						</object>
 					</object>
 					<string key="NSFrameSize">{320, 460}</string>
+					<reference key="NSSuperview"/>
 					<object class="NSColor" key="IBUIBackgroundColor">
 						<int key="NSColorSpace">3</int>
 						<bytes key="NSWhite">MQA</bytes>
@@ -598,7 +586,10 @@
 									<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 									<int key="IBUIContentMode">4</int>
 									<bool key="IBUIUserInteractionEnabled">NO</bool>
-									<reference key="IBUIImage" ref="112718931"/>
+									<object class="NSCustomResource" key="IBUIImage">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">Logo.png</string>
+									</object>
 								</object>
 								<object class="IBUITextView" id="562824424">
 									<reference key="NSNextResponder" ref="34900196"/>
@@ -751,14 +742,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 						<reference key="destination" ref="1002965444"/>
 					</object>
 					<int key="connectionID">245</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">logo</string>
-						<reference key="source" ref="828150876"/>
-						<reference key="destination" ref="1044201703"/>
-					</object>
-					<int key="connectionID">247</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
@@ -1128,7 +1111,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 							<reference ref="1002965444"/>
 							<reference ref="240079900"/>
 							<reference ref="564573400"/>
-							<reference ref="1044201703"/>
 							<reference ref="848652228"/>
 							<reference ref="529886124"/>
 							<reference ref="810394923"/>
@@ -1138,11 +1120,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 					<object class="IBObjectRecord">
 						<int key="objectID">239</int>
 						<reference key="object" ref="1002965444"/>
-						<reference key="parent" ref="126217535"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">240</int>
-						<reference key="object" ref="1044201703"/>
 						<reference key="parent" ref="126217535"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -1449,7 +1426,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 					<string>235.IBPluginDependency</string>
 					<string>236.IBPluginDependency</string>
 					<string>239.IBPluginDependency</string>
-					<string>240.IBPluginDependency</string>
 					<string>241.IBPluginDependency</string>
 					<string>242.IBPluginDependency</string>
 					<string>243.IBPluginDependency</string>
@@ -1523,7 +1499,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>LoginViewController</string>
 					<string>{{614, 615}, {320, 480}}</string>
-					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
