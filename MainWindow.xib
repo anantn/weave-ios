@@ -3,7 +3,7 @@
 	<data>
 		<int key="IBDocument.SystemTarget">528</int>
 		<string key="IBDocument.SystemVersion">9J61</string>
-		<string key="IBDocument.InterfaceBuilderVersion">677</string>
+		<string key="IBDocument.InterfaceBuilderVersion">680</string>
 		<string key="IBDocument.AppKitVersion">949.46</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
@@ -352,7 +352,7 @@
 						<object class="IBUILabel" id="1002965444">
 							<reference key="NSNextResponder" ref="126217535"/>
 							<int key="NSvFlags">292</int>
-							<string key="NSFrame">{{20, 217}, {280, 21}}</string>
+							<string key="NSFrame">{{20, 419}, {280, 21}}</string>
 							<reference key="NSSuperview" ref="126217535"/>
 							<bool key="IBUIOpaque">NO</bool>
 							<bool key="IBUIClipsSubviews">YES</bool>
@@ -1109,11 +1109,11 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 						<reference key="object" ref="126217535"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="1002965444"/>
 							<reference ref="240079900"/>
 							<reference ref="564573400"/>
 							<reference ref="848652228"/>
 							<reference ref="529886124"/>
+							<reference ref="1002965444"/>
 							<reference ref="810394923"/>
 						</object>
 						<reference key="parent" ref="828150876"/>
@@ -1499,7 +1499,7 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>LoginViewController</string>
-					<string>{{614, 615}, {320, 480}}</string>
+					<string>{{443, 632}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -1787,6 +1787,6 @@ ZWN0LCBwbGVhc2UgdmlzaXQgaHR0cHM6Ly9sYWJzLm1vemlsbGEuY29tL3Byb2plY3RzL3dlYXZlA</s
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.LastKnownRelativeProjectPath">Weave.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
-		<string key="IBCocoaTouchPluginVersion">3.0</string>
+		<string key="IBCocoaTouchPluginVersion">3.1</string>
 	</data>
 </archive>
