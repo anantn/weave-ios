@@ -150,6 +150,7 @@
 	NSString *usr;
 	NSString *pwd;
 	NSString *pph;
+	NSString *icon;
 	
 	/* WTF: Close & open DB to get results? */
 	sqlite3_close(dataBase);
@@ -191,10 +192,15 @@
 	/* Load existing bookmarks */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			if ((char *)sqlite3_column_text(stmnt, 4)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			} else {
+				icon = @"";
+			}
 			[bookmarks addObject:[NSArray arrayWithObjects:
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)], nil]];
+								  icon, nil]];
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load bookmark!");
@@ -205,10 +211,15 @@
 	/* Load existing history */
 	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			if ((char *)sqlite3_column_text(stmnt, 4)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			} else {
+				icon = @"";
+			}
 			[history addObject:[NSArray arrayWithObjects:
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)], nil]];
+								  icon, nil]];
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load history!");
@@ -219,10 +230,15 @@
 	/* Load existing tabs */
 	if (sqlite3_prepare_v2(dataBase, tSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
+			if ((char *)sqlite3_column_text(stmnt, 4)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			} else {
+				icon = @"";
+			}
 			[tabs addObject:[NSArray arrayWithObjects:
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)], nil]];
+								  icon, nil]];
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load tabs!");

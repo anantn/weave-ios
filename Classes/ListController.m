@@ -50,11 +50,9 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	if (tabController.selectedIndex == 2)
-		return [[[app service] getBookmarks] count];
-	else if (tabController.selectedIndex == 1)
-		return [[[app service] getTabs] count];
-	else
 		return ([[[app service] getHistory] count] > 20 ? 20 : [[[app service] getHistory] count]);
+	else
+		return [[[app service] getTabs] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -107,7 +105,7 @@
 	}
 
 	NSDictionary *icons = [[app service] getIcons];
-	if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+	if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
 		cell.image = [UIImage imageWithData:[[[NSData alloc]
 											  initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 	} else {

@@ -115,7 +115,7 @@
 			obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
-			if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+			if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
 				cell.image = [UIImage imageWithData:[[[NSData alloc]
 								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 			} else {
@@ -196,8 +196,12 @@
 		NSRange ru = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange rt = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		
-		if (ru.length > 0 || rt.length > 0)
-			[bmkList addObject:[NSArray arrayWithObjects:title, uri, [[bmT objectAtIndex:i] objectAtIndex:2], nil]];
+		if (ru.length > 0 || rt.length > 0) {
+			if ([[bmT objectAtIndex:i] count] > 2)
+				[bmkList addObject:[NSArray arrayWithObjects:title, uri, [[bmT objectAtIndex:i] objectAtIndex:2], nil]];
+			else
+				[bmkList addObject:[NSArray arrayWithObjects:title, uri, @"", nil]];
+		}
 	}
 	
 	/* History search */
@@ -208,8 +212,13 @@
 		NSRange hu = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		NSRange ht = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
 		
-		if (hu.length > 0 || ht.length > 0)
-			[histList addObject:[NSArray arrayWithObjects:title, uri, [[hiT objectAtIndex:i] objectAtIndex:2], nil]];
+		if (hu.length > 0 || ht.length > 0) {
+			if ([[hiT objectAtIndex:i] count] > 2)
+				[histList addObject:[NSArray arrayWithObjects:title, uri, [[hiT objectAtIndex:i] objectAtIndex:2], nil]];
+			else
+				[histList addObject:[NSArray arrayWithObjects:title, uri, @"", nil]];
+			
+		}
 	}
 }
 

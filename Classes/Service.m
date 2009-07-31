@@ -97,15 +97,18 @@
 	NSArray *obj;
 	NSEnumerator *iter = [[store bookmarks] objectEnumerator];
 	while (obj = [iter nextObject]) {
-		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
+		if ([obj count] > 2)
+			[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
 	iter = [[store history] objectEnumerator];
 	while (obj = [iter nextObject]) {
-		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
+		if ([obj count] > 2)
+			[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
 	iter = [[store tabs] objectEnumerator];
 	while (obj = [iter nextObject]) {
-		[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
+		if ([obj count] > 2)
+			[uris setObject:[obj objectAtIndex:1] forKey:[obj objectAtIndex:2]];
 	}
 	
 	/* We must fetch favicons in batches of 20 */
