@@ -159,6 +159,7 @@
 	switch (i) {
 		case 0:
 			/* Got tabs, now add user to Store */
+			NSLog(@"%@", response);
 			[store addTabs:response];
 			if ([store addUserWithService:self]) {
 				[cb verified:YES];

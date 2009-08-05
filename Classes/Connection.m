@@ -23,7 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Connection.h"
-#import <JSON/JSON.h>
+#import "JSON.h"
 
 @implementation Connection
 

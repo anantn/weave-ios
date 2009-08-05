@@ -25,7 +25,7 @@
 #import "Store.h"
 #import "Utility.h"
 #import "Service.h"
-#import <JSON/JSON.h>
+#import "JSON.h"
 
 @implementation Store
 

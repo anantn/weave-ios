@@ -23,7 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import <Foundation/Foundation.h>
-#import <JSON/JSON.h>
+#import "JSON.h"
 #import "Responder.h"
 
 @class Store, Crypto, Connection, LoginViewController;
