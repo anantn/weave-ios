@@ -46,6 +46,7 @@
 		[alert show];
 		[alert release];
 		
+		[spinner setAlpha:0.0];
 		[stLbl setAlpha:0.0];
 		[logo setAlpha:1.0];
 		process = NO;
