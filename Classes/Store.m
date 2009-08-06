@@ -435,6 +435,8 @@
 				
 				if (title && uri) {
 					NSString *favicon = [[NSURL URLWithString:uri] host];
+					if (favicon == nil)
+						favicon = @"";
 					
 					NSMutableArray *tb = [tabs objectForKey:client];
 					if (tb != nil) {

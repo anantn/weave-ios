@@ -113,9 +113,9 @@
 	}
 
 	NSDictionary *icons = [[app service] getIcons];
-	if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
+	if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
 		cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
-											  initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 	} else {
 		cell.imageView.image = [UIImage imageNamed:@"Document.png"];
 	}
@@ -158,6 +158,5 @@
 - (void)dealloc {
     [super dealloc];
 }
-
 
 @end

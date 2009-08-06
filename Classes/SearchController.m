@@ -115,7 +115,7 @@
 			obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
-			if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
+			if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
 				cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
 								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 			} else {
