@@ -76,8 +76,13 @@
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?full=1", server];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
 	
-	[[cb pgStatus] setText:@"Downloading Bookmarks"];
+	currentRecord = 0;
+	[cb pgBar].hidden = NO;
+	[cb pgText].hidden = NO;
 	[cb overlay].hidden = NO;
+	[[cb pgText] setText:@""];
+	[[cb pgBar] setProgress:0.0];
+	[[cb pgStatus] setText:@"Downloading Bookmarks"];
 }
 
 /* For non-first time users, just check for updates */
@@ -87,6 +92,9 @@
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
 	
+	currentRecord = 0;
+	[cb pgBar].hidden = NO;
+	[cb pgText].hidden = NO;
 	[[cb pgStatus] setText:@"Updating Bookmarks"];
 	[cb overlay].hidden = NO;
 }
@@ -151,11 +159,13 @@
 	return [store favicons];
 }
 
--(void) successWithString:(NSString *)response andIndex:(int)i{
-	int tot, c;
-	NSArray *pg;
-	NSDictionary *rp;
+-(void) setTotal:(NSString *) stot {
+	/* Hmm, Total records are always less than
+	   actual total thanks to empty records */
+	totalRecords = [stot intValue];
+}
 
+-(void) successWithString:(NSString *)response andIndex:(int)i{
 	switch (i) {
 		case 0:
 			/* Got tabs, now add user to Store */
@@ -167,90 +177,54 @@
 			}
 			break;
 		case 1:
-			/* Got bookmarks */
-			[store addBookmarks:response];
-			
-			/* Now get history */
+			/* Got bookmarks, Now get history */
+			currentRecord = 0;
+			[[cb pgText] setText:@""];
+			[[cb pgBar] setProgress:0.0];
 			[conn getResource:[NSURL URLWithString:
 				[NSString stringWithFormat:@"%@history/?full=1&sort=oldest", server]]
 					withCallback:self pgIndex:4 andIndex:2];
 			[[cb pgStatus] setText:@"Downloading History"];
 			break;
 		case 2:
-			/* Got history */
-			[store addHistory:response];
-			
-			/* Now get favicons */
+			/* Got history, Now get favicons */
 			[store setSyncTimeForUser:username];
 			[self getFavicons];
 			break;
 		case 3:
-			/* Progress for bookmarks download */
-			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
-			
-			if (rp) {
-				pg = [rp valueForKey:@"progress"];
-				
-				c = [[pg lastObject] intValue];
-				tot = [[rp valueForKey:@"total"] intValue];
-				
-				if (tot - c < 4) {
-					[[cb pgStatus] setText:@"Processing Bookmarks"];
-					[cb pgBar].hidden = YES;
-					[cb pgText].hidden = YES;
-				} else {
-					[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d", c, tot]];
-					[[cb pgBar] setProgress:(float)c/(float)tot];
-					[cb pgBar].hidden = NO;
-					[cb pgText].hidden = NO;
-				}
-			}
+			/* Progress for bookmarks */
+			[store addBookmarkRecord:response];
+			currentRecord++;
+			[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d",
+								  currentRecord, totalRecords]];
+			[[cb pgBar] setProgress:(float)currentRecord/(float)totalRecords];
 			break;
 		case 4:
-			/* Progress for history download */
-			rp = [[NSString stringWithFormat:@"%@%@", response, @"]}"] JSONValue];
-			
-			if (rp) {
-				pg = [rp valueForKey:@"progress"];
-				c = [[pg lastObject] intValue];
-				tot = [[rp valueForKey:@"total"] intValue];
-				
-				if (tot - c < 4) {
-					[[cb pgStatus] setText:@"Processing History"];
-					[cb pgBar].hidden = YES;
-					[cb pgText].hidden = YES;
-				} else {
-					[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d", c, tot]];
-					[[cb pgBar] setProgress:(float)c/(float)tot];
-					[cb pgBar].hidden = NO;
-					[cb pgText].hidden = NO;
-				}
-			}
+			/* Progress for history */
+			[store addHistoryRecord:response];
+			currentRecord++;
+			[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d",
+								  currentRecord, totalRecords]];
+			[[cb pgBar] setProgress:(float)currentRecord/(float)totalRecords];
 			break;
 		case 5:
-			/* Got bookmarks update */
-			if (tot != 0) {
-				[store addBookmarks:response];
-			}
-			
-			/* Now get history update*/
+			/* Got bookmarks update, Now get history update  */
+			currentRecord = 0;
+			[[cb pgText] setText:@""];
+			[[cb pgBar] setProgress:0.0];
 			[conn getResource:[NSURL URLWithString:
 							   [NSString stringWithFormat:@"%@history/?full=1&sort=oldest&newer=%f",
 								server, [store getSyncTimeForUser:username]]] withCallback:self pgIndex:4 andIndex:6];
 			[[cb pgStatus] setText:@"Updating History"];
 			break;
 		case 6:
-			/* Got history update */
-			if (tot != 0) {
-				[store addHistory:response];
-			}
+			/* Got history update, set sync time and get favicons */
 			[store setSyncTimeForUser:username];
 			[self getFavicons];
 			break;
 		case 7:
 			/* Got 20 favicons, check if there's more or done */
 			[store addFavicons:response];
-			
 			if (favsIndex == -1) {
 				[cb downloadComplete:YES];
 			} else {

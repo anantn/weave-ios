@@ -364,60 +364,52 @@
 	return YES;
 }
 
--(BOOL) addBookmarks:(NSString *)json {
-	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
-	NSEnumerator *iter = [items objectEnumerator];
-	
-	NSDictionary *obj;
-	while (obj = [iter nextObject]) {
-		@try {
-			NSDictionary *payload = [obj valueForKey:@"payload"];
-			NSString *cipher = [payload valueForKey:@"ciphertext"];
-			NSArray *item = [cipher JSONValue];
-			NSDictionary *bmk = [item objectAtIndex:0];
+-(BOOL) addBookmarkRecord:(NSString *)json {
+	@try {
+		NSDictionary *obj = [json JSONValue];
+		NSDictionary *payload = [obj valueForKey:@"payload"];
+		NSString *cipher = [payload valueForKey:@"ciphertext"];
+		NSArray *item = [cipher JSONValue];
+		NSDictionary *bmk = [item objectAtIndex:0];
 			
-			if ([[bmk valueForKey:@"type"] isEqualToString:@"bookmark"]) {
-				NSString *uri = [bmk valueForKey:@"bmkUri"];
-				NSString *title = [bmk valueForKey:@"title"];
+		if ([[bmk valueForKey:@"type"] isEqualToString:@"bookmark"]) {
+			NSString *uri = [bmk valueForKey:@"bmkUri"];
+			NSString *title = [bmk valueForKey:@"title"];
 				
-				NSRange r = NSMakeRange(0, 6);
-				if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-					NSString *favicon = [[NSURL URLWithString:uri] host];
-					[bookmarks addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-					[self addPlace:@"bookmark" withURI:uri title:title andFavicon:favicon];
-				}
+			NSRange r = NSMakeRange(0, 6);
+			if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
+				NSString *favicon = [[NSURL URLWithString:uri] host];
+				[bookmarks addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+				[self addPlace:@"bookmark" withURI:uri title:title andFavicon:favicon];
 			}
-		} @catch (id theException) {
-			NSLog(@"threw %@", theException);
 		}
+	} @catch (id theException) {
+		NSLog(@"threw %@", theException);
+		return NO;
 	}
 	
 	return YES;
 }
 
--(BOOL) addHistory:(NSString *)json {
-	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
-	NSEnumerator *iter = [items objectEnumerator];
-	
-	NSDictionary *obj;
-	while (obj = [iter nextObject]) {
-		@try {
-			NSDictionary *payload = [obj valueForKey:@"payload"];
-			NSString *cipher = [payload valueForKey:@"ciphertext"];
-			NSArray *item = [cipher JSONValue];
-			NSDictionary *hist = [item objectAtIndex:0];
+-(BOOL) addHistoryRecord:(NSString *)json {
+	@try {
+		NSDictionary *obj = [json JSONValue];
+		NSDictionary *payload = [obj valueForKey:@"payload"];
+		NSString *cipher = [payload valueForKey:@"ciphertext"];
+		NSArray *item = [cipher JSONValue];
+		NSDictionary *hist = [item objectAtIndex:0];
 			
-			NSString *uri = [hist valueForKey:@"histUri"];
-			NSString *title = [hist valueForKey:@"title"];
+		NSString *uri = [hist valueForKey:@"histUri"];
+		NSString *title = [hist valueForKey:@"title"];
 			
-			if (title && uri) {
-				NSString *favicon = [[NSURL URLWithString:uri] host];
-				[history addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-				[self addPlace:@"history" withURI:uri title:title andFavicon:favicon];
-			}
-		} @catch (id theException) {
-			NSLog(@"threw %@", theException);
+		if (title && uri) {
+			NSString *favicon = [[NSURL URLWithString:uri] host];
+			[history addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+			[self addPlace:@"history" withURI:uri title:title andFavicon:favicon];
 		}
+	} @catch (id theException) {
+		NSLog(@"threw %@", theException);
+		return NO;
 	}
 
 	return YES;

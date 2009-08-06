@@ -31,9 +31,11 @@
 @interface Service : NSObject <Responder> {
 	id cb;
 	int favsIndex;
+	int totalRecords;
+	int currentRecord;
+	
 	NSArray *favs;
 	NSString *server;
-	
 	NSString *username;
 	NSString *password;
 	NSString *passphrase;
@@ -70,5 +72,6 @@
 -(NSMutableArray *) getBookmarks;
 -(NSMutableDictionary *) getTabs;
 -(NSMutableDictionary *) getIcons;
+-(void) setTotal:(NSString *)stot;
 
 @end

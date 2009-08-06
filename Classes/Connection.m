@@ -23,6 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Connection.h"
+#import "Service.h"
 #import "JSON.h"
 
 @implementation Connection
@@ -53,6 +54,7 @@
 
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i {
 	pg = j;
+	currentLength = 0;
 	[self getResource:url withCallback:callback andIndex:i];
 }
 
@@ -82,14 +84,33 @@
 	} else {
 		success = YES;
 	}
+	
+	if (pg)
+		[cb setTotal:[[(NSHTTPURLResponse *)response allHeaderFields] 
+					  objectForKey:@"X-Weave-Records"]];
+	
 	[responseData setLength:0];
 }
 
 -(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
 	[responseData appendData:data];
 	if (pg) {
-		[cb successWithString:[[[NSString alloc] initWithData:responseData 
-								encoding:NSUTF8StringEncoding] autorelease] andIndex:pg];
+		if (!currentLength) {
+			[responseData getBytes:&currentLength length:sizeof(unsigned long)];
+			currentLength = NSSwapBigLongToHost(currentLength);
+		}
+		int from = sizeof(unsigned long) + currentLength;
+		if ([responseData length] >= from) {
+			[cb successWithString:[[[NSString alloc]
+									initWithData:[responseData subdataWithRange:
+												  NSMakeRange(sizeof(unsigned long), currentLength)]
+									encoding:NSUTF8StringEncoding] autorelease] andIndex:pg];
+			NSData *new = [responseData subdataWithRange:
+						   NSMakeRange(from, [responseData length] - from)];
+			[responseData release];
+			responseData = [[NSMutableData alloc] initWithData:new];
+			currentLength = 0;
+		}
 	}
 }
 
@@ -99,7 +120,12 @@
 }
 
 -(void) connectionDidFinishLoading:(NSURLConnection *)connection {
-	NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+	NSString *responseString;
+	
+	if (pg)
+		responseString = @"";
+	else
+		responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
 	[responseData release];
 	
 	if (success) {

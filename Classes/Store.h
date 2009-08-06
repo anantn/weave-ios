@@ -47,9 +47,9 @@
 -(Store *) initWithDB:(NSString *)db;
 
 -(BOOL) addTabs:(NSString *)json;
--(BOOL) addHistory:(NSString *)json;
 -(BOOL) addFavicons:(NSString *)json;
--(BOOL) addBookmarks:(NSString *)json;
+-(BOOL) addHistoryRecord:(NSString *)json;
+-(BOOL) addBookmarkRecord:(NSString *)json;
 
 -(BOOL) loadUserToService:(Service *)svc;
 -(BOOL) addUserWithService:(Service *)svc;

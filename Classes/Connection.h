@@ -30,6 +30,8 @@
 	int pg;
 	int index;
 	BOOL success;
+	unsigned long currentLength;
+	
 	NSString *user;
 	NSString *pass;
 	NSString *phrase;
