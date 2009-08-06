@@ -25,6 +25,7 @@
 #import "LoginViewController.h"
 #import "WeaveAppDelegate.h"
 #import "Service.h"
+#import "Reachability.h"
 
 @implementation LoginViewController
 
@@ -41,11 +42,27 @@
 		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 		[app switchLoginToMain];
 	} else {
-		/* Invalid credentials, try again */
-		UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Login failed" message:@"Your username, password or passphrase were incorrect.\nPlease try again!" delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-		[alert show];
-		[alert release];
+		/* First check if this is because of connection */
+		Reachability* rc = [Reachability sharedReachability];
+		[rc setHostName:@"services.mozilla.com"];
+		NetworkStatus st = [rc remoteHostStatus];
 		
+		if (st != NotReachable) {
+			/* Invalid credentials, try again */
+			UIAlertView *alert = [[UIAlertView alloc]
+								  initWithTitle:@"Login failed"
+								  message:@"Your username, password or passphrase were incorrect. Please try again!"
+								  delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+		} else {
+			UIAlertView *alert = [[UIAlertView alloc]
+								  initWithTitle:@"Connection Unavailable"
+								  message:@"An internet connection is not available. Please try again."
+								  delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+		}
 		[spinner setAlpha:0.0];
 		[stLbl setAlpha:0.0];
 		[logo setAlpha:1.0];
@@ -72,7 +89,7 @@
 			username = usrField.text;
 			password = pwdField.text;
 			passphrase = pphField.text;
-			
+
 			WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
 			[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
 		}

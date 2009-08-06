@@ -28,6 +28,7 @@
 #import "Connection.h"
 #import "TabViewController.h"
 #import "LoginViewController.h"
+#import "Reachability.h"
 
 @implementation Service
 
@@ -75,7 +76,7 @@
 	cb = callback;
 	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?full=1", server];
 	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
-	
+
 	currentRecord = 0;
 	[cb pgBar].hidden = NO;
 	[cb pgText].hidden = NO;
@@ -87,16 +88,29 @@
 
 /* For non-first time users, just check for updates */
 -(void) updateDataWithCallback:(TabViewController *)callback {
-	cb = callback;
-	[conn setUser:username password:password andPassphrase:passphrase];
-	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
-	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
+	Reachability* rc = [Reachability sharedReachability];
+	[rc setHostName:@"services.mozilla.com"];
+	NetworkStatus st = [rc remoteHostStatus];
 	
-	currentRecord = 0;
-	[cb pgBar].hidden = NO;
-	[cb pgText].hidden = NO;
-	[[cb pgStatus] setText:@"Updating Bookmarks"];
-	[cb overlay].hidden = NO;
+	if (st != NotReachable) {
+		cb = callback;
+		[conn setUser:username password:password andPassphrase:passphrase];
+		NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
+		[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
+
+		currentRecord = 0;
+		[cb pgBar].hidden = NO;
+		[cb pgText].hidden = NO;
+		[[cb pgStatus] setText:@"Updating Bookmarks"];
+		[cb overlay].hidden = NO;
+	} else {
+		UIAlertView *alert = [[UIAlertView alloc]
+							  initWithTitle:@"Connection Unavailable"
+							  message:@"An internet connection is not available, thus no updates will be performed"
+							  delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	}
 }
 
 -(void) getFavicons {

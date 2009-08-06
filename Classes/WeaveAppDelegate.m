@@ -28,6 +28,7 @@
 #import "WebViewController.h"
 #import "TabViewController.h"
 #import "LoginViewController.h"
+#import "Reachability.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -38,7 +39,6 @@
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
 	service = [[Service alloc] initWithServer:@"https://services.mozilla.com/proxy2/"];
-	
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {
