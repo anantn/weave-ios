@@ -46,6 +46,11 @@
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
 										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 												timeoutInterval:10];
+	
+	/* For streaming, we request whoisi style output from server */
+	if (pg)
+		[request addValue:@"application/whoisi" forHTTPHeaderField:@"Accept"];
+	
 	[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
 	[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
 	[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];

@@ -415,12 +415,10 @@
 	return YES;
 }
 
--(BOOL) addTabs:(NSString *)json {
-	NSArray *items = [[json JSONValue] valueForKey:@"contents"];
-	NSEnumerator *iter = [items objectEnumerator];
-	
+-(BOOL) addTabs:(NSString *)json {	
 	NSDictionary *obj;
 	NSDictionary *tab;
+	NSEnumerator *iter = [[json JSONValue] objectEnumerator];
 	
 	while (obj = [iter nextObject]) {
 		@try {
