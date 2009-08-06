@@ -97,7 +97,7 @@
 		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
-	cell.image = nil;
+	cell.imageView.image = nil;
 	cell.accessoryView = nil;
 
 	NSArray *obj;
@@ -114,10 +114,10 @@
 
 	NSDictionary *icons = [[app service] getIcons];
 	if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
-		cell.image = [UIImage imageWithData:[[[NSData alloc]
+		cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
 											  initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 	} else {
-		cell.image = [UIImage imageNamed:@"Document.png"];
+		cell.imageView.image = [UIImage imageNamed:@"Document.png"];
 	}
 	
 	return cell;
@@ -125,7 +125,9 @@
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (tabController.selectedIndex == 1) {
-		[app setUri:[[[[app service] getTabs] objectAtIndex:indexPath.row] objectAtIndex:0]];
+		NSDictionary *tb = [[app service] getTabs];
+		NSArray *obj = [[tb objectForKey:[[tb allKeys] objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
+		[app setUri:[obj objectAtIndex:0]];
 	} else {
 		[app setUri:[[[[app service] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	}

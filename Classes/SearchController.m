@@ -106,7 +106,7 @@
 		uri = (UILabel *)[cell viewWithTag:URI_TAG];
 	}
 	
-	cell.image = nil;
+	cell.imageView.image = nil;
 	cell.accessoryView = nil;
 	if (searching) {
 		NSArray *obj;
@@ -116,16 +116,16 @@
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
 			if ([obj count] > 2 && [obj objectAtIndex:2] != @"") {
-				cell.image = [UIImage imageWithData:[[[NSData alloc]
+				cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
 								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
 			} else {
-				cell.image = [UIImage imageNamed:@"Document.png"];
+				cell.imageView.image = [UIImage imageNamed:@"Document.png"];
 			}
 		} else {
 			obj = [bmkList objectAtIndex:indexPath.row];
 			title.text = [obj objectAtIndex:0];
 			uri.text = [obj objectAtIndex:1];
-			cell.image = [UIImage imageNamed:@"Star.png"];
+			cell.imageView.image = [UIImage imageNamed:@"Star.png"];
 		}
 	}
 	
