@@ -120,11 +120,13 @@
 }
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+	pg = 0;
 	[responseData release];
 	[cb failureWithError:error andIndex:index];
 }
 
 -(void) connectionDidFinishLoading:(NSURLConnection *)connection {
+	pg = 0;
 	NSString *responseString;
 	
 	if (pg)
