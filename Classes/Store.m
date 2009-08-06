@@ -38,7 +38,7 @@
 		BOOL success;
 		NSError *error;
 		
-		tabs = [[NSMutableArray alloc] init];
+		tabs = [[NSMutableDictionary alloc] init];
 		history = [[NSMutableArray alloc] init];
 		bookmarks = [[NSMutableArray alloc] init];
 		favicons = [[NSMutableDictionary alloc] init];
@@ -192,8 +192,8 @@
 	/* Load existing bookmarks */
 	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 4)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			if ((char *)sqlite3_column_text(stmnt, 5)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
 			} else {
 				icon = @"";
 			}
@@ -211,11 +211,12 @@
 	/* Load existing history */
 	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 4)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			if ((char *)sqlite3_column_text(stmnt, 5)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
 			} else {
 				icon = @"";
 			}
+			
 			[history addObject:[NSArray arrayWithObjects:
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
 								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
@@ -230,15 +231,27 @@
 	/* Load existing tabs */
 	if (sqlite3_prepare_v2(dataBase, tSql, -1, &stmnt, NULL) == SQLITE_OK) {
 		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 4)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			if ((char *)sqlite3_column_text(stmnt, 5)) {
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
 			} else {
 				icon = @"";
 			}
-			[tabs addObject:[NSArray arrayWithObjects:
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  icon, nil]];
+			
+			NSString *client = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
+			NSMutableArray *tb = [tabs objectForKey:client];
+			if (tb != nil) {
+				[tb addObject:[NSArray arrayWithObjects:
+							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+								[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+								icon, nil]];
+			} else {
+				NSMutableArray *tb = [[NSMutableArray alloc] init];
+				[tb addObject:[NSArray arrayWithObjects:
+							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
+							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
+							   icon, nil]];
+				[tabs setObject:tb forKey:client];
+			}
 		}
 	} else {
 		NSLog(@"Could not prepare SQL to load tabs!");
@@ -278,7 +291,7 @@
 	return cnt;
 }
 
--(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon {
+-(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon maybeClient:(NSString *)client {
 	const char *sql;
 	sqlite3_stmt *stmnt;
 	
@@ -286,8 +299,12 @@
 		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('bookmark', ?, ?, ?)";
 	else if ([type isEqualToString:@"history"])
 		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('history', ?, ?, ?)";
-	else
-		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('tab', ?, ?, ?)";
+	else {
+		if (client != nil)
+			sql = "INSERT INTO moz_places ('type', 'url', 'title', 'client', 'favicon') VALUES ('tab', ?, ?, ?, ?)";
+		else
+			return NO;
+	}
 	
 	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
@@ -295,7 +312,13 @@
 	} else {
 		sqlite3_bind_text(stmnt, 1, [uri UTF8String], -1, SQLITE_TRANSIENT);
 		sqlite3_bind_text(stmnt, 2, [title UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 3, [favicon UTF8String], -1, SQLITE_TRANSIENT);
+		if ([type isEqualToString:@"tab"]) {
+			sqlite3_bind_text(stmnt, 3, [client UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmnt, 4, [favicon UTF8String], -1, SQLITE_TRANSIENT);
+		} else {
+			sqlite3_bind_text(stmnt, 3, [favicon UTF8String], -1, SQLITE_TRANSIENT);
+		}
+		
 		if (sqlite3_step(stmnt) != SQLITE_DONE) {
 			NSLog(@"Could not save place to DB!");
 			sqlite3_finalize(stmnt);
@@ -304,6 +327,10 @@
 	}
 	sqlite3_finalize(stmnt);
 	return YES;
+}
+
+-(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon {
+	return [self addPlace:type withURI:uri title:title andFavicon:favicon maybeClient:nil];
 }
 
 -(BOOL) addFavicons:(NSString *)json {
@@ -407,7 +434,9 @@
 		@try {
 			NSDictionary *payload = [obj valueForKey:@"payload"];
 			NSString *cipher = [payload valueForKey:@"ciphertext"];
+
 			NSArray *tbs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
+			NSString *client = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"clientName"];
 			NSEnumerator *tEnum = [tbs objectEnumerator];
 			
 			while (tab = [tEnum nextObject]) {
@@ -416,8 +445,16 @@
 				
 				if (title && uri) {
 					NSString *favicon = [[NSURL URLWithString:uri] host];
-					[tabs addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-					[self addPlace:@"tab" withURI:uri title:title andFavicon:favicon];
+					
+					NSMutableArray *tb = [tabs objectForKey:client];
+					if (tb != nil) {
+						[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+					} else {
+						NSMutableArray *tb = [[NSMutableArray alloc] init];
+						[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+						[tabs setObject:tb forKey:client];
+					}
+					[self addPlace:@"tab" withURI:uri title:title andFavicon:favicon maybeClient:client];
 				}
 			}
 		} @catch (id theException) {

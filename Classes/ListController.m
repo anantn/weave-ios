@@ -38,21 +38,28 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {    
-	return 1;
+	if (tabController.selectedIndex == 1) {
+		return [[[[app service] getTabs] allKeys] count];
+	} else {
+		return 1;
+	}
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	if (tabController.selectedIndex == 1)
-		return @"Tabs";
-	else
+	if (tabController.selectedIndex == 1) {
+		return [[[[app service] getTabs] allKeys] objectAtIndex:section];
+	} else {
 		return @"History";
+	}
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if (tabController.selectedIndex == 2)
+	if (tabController.selectedIndex == 2) {
 		return ([[[app service] getHistory] count] > 20 ? 20 : [[[app service] getHistory] count]);
-	else
-		return [[[app service] getTabs] count];
+	} else {
+		NSDictionary *t = [[app service] getTabs];
+		return [[t objectForKey:[[t allKeys] objectAtIndex:section]] count];
+	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -95,7 +102,8 @@
 
 	NSArray *obj;
 	if (tabController.selectedIndex == 1) {
-		obj = [[[app service] getTabs] objectAtIndex:indexPath.row];
+		NSDictionary *tb = [[app service] getTabs];
+		obj = [[tb objectForKey:[[tb allKeys] objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
 		title.text = [obj objectAtIndex:1];
 		uri.text = [obj objectAtIndex:0];
 	} else {

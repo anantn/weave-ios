@@ -66,9 +66,9 @@
 
 -(NSDate *)getSyncTime;
 
--(NSMutableArray *) getTabs;
 -(NSMutableArray *) getHistory;
 -(NSMutableArray *) getBookmarks;
+-(NSMutableDictionary *) getTabs;
 -(NSMutableDictionary *) getIcons;
 
 @end
