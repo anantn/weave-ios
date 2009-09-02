@@ -59,31 +59,16 @@
 	username = user;
 	passphrase = ph;
 	
-	/* We're using the crypto proxy */
-	[conn setUser:user password:pwd andPassphrase:ph];
-	
 	[[cb getStatusLabel] setAlpha:1.0];
 	[[cb getStatusLabel] setText:@"Please wait while we log you in"];
 	[[cb spinner] setAlpha:1.0];
 	[[cb spinner] startAnimating];
 	
-	NSString *cl = [NSString stringWithFormat:@"%@tabs/?full=1", server];
-	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:0];
-}
-
-/* Background loading of bookmarks + history */
--(void) loadDataWithCallback:(TabViewController *)callback {
-	cb = callback;
-	NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?full=1", server];
-	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
-
-	currentRecord = 0;
-	[cb pgBar].hidden = NO;
-	[cb pgText].hidden = NO;
-	[cb overlay].hidden = NO;
-	[[cb pgText] setText:@""];
-	[[cb pgBar] setProgress:0.0];
-	[[cb pgStatus] setText:@"Downloading Bookmarks"];
+	/* Get cluster */
+	NSString *cl = [NSString
+					stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave",
+					username];
+	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:8];
 }
 
 /* For non-first time users, just check for updates */
@@ -94,15 +79,11 @@
 	
 	if (st != NotReachable) {
 		cb = callback;
-		[conn setUser:username password:password andPassphrase:passphrase];
-		NSString *cl = [NSString stringWithFormat:@"%@bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]];
-		[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:5];
-
-		currentRecord = 0;
-		[cb pgBar].hidden = NO;
-		[cb pgText].hidden = NO;
-		[[cb pgStatus] setText:@"Updating Bookmarks"];
-		[cb overlay].hidden = NO;
+		
+		NSString *cl = [NSString
+						stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave",
+						username];
+		[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:9];
 	} else {
 		UIAlertView *alert = [[UIAlertView alloc]
 							  initWithTitle:@"Connection Unavailable"
@@ -111,6 +92,22 @@
 		[alert show];
 		[alert release];
 	}
+}
+
+/* Background loading of bookmarks + history for first time users */
+-(void) loadDataWithCallback:(TabViewController *)callback {
+	cb = callback;
+	
+	currentRecord = 0;
+	[cb pgBar].hidden = NO;
+	[cb pgText].hidden = NO;
+	[cb overlay].hidden = NO;
+	[[cb pgText] setText:@""];
+	[[cb pgBar] setProgress:0.0];
+	[[cb pgStatus] setText:@"Downloading Bookmarks"];
+	
+	NSString *cl = [NSString stringWithFormat:@"%@storage/bookmarks/?full=1", server];
+	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
 }
 
 -(void) getFavicons {
@@ -196,7 +193,7 @@
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
 			[conn getResource:[NSURL URLWithString:
-				[NSString stringWithFormat:@"%@history/?full=1&sort=oldest", server]]
+				[NSString stringWithFormat:@"%@storage/history/?full=1&sort=newest", server]]
 					withCallback:self pgIndex:4 andIndex:2];
 			[[cb pgStatus] setText:@"Downloading History"];
 			break;
@@ -227,7 +224,7 @@
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
 			[conn getResource:[NSURL URLWithString:
-							   [NSString stringWithFormat:@"%@history/?full=1&sort=oldest&newer=%f",
+							   [NSString stringWithFormat:@"%@storage/history/?full=1&sort=newest&newer=%f",
 								server, [store getSyncTimeForUser:username]]] withCallback:self pgIndex:4 andIndex:6];
 			[[cb pgStatus] setText:@"Updating History"];
 			break;
@@ -255,6 +252,26 @@
 				NSString *postParams = [NSString stringWithFormat:@"urls=%@", [[favs subarrayWithRange:range] JSONRepresentation]];
 				[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
 			}
+			break;
+		case 8:
+			/* Got cluster for a first time user, now get tabs */
+			[conn setUser:username password:password passphrase:passphrase andCluster:response];
+			[conn getResource:[NSURL URLWithString:
+							   [NSString stringWithFormat:@"%@storage/tabs/?full=1", server]]
+				 withCallback:self andIndex:0];
+			break;
+		case 9:
+			/* Got cluster for a returning user */
+			[conn setUser:username password:password passphrase:passphrase andCluster:response];
+			[conn getResource:[NSURL URLWithString:
+							   [NSString stringWithFormat:@"%@storage/bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]]]
+				withCallback:self pgIndex:3 andIndex:5];
+			
+			currentRecord = 0;
+			[cb pgBar].hidden = NO;
+			[cb pgText].hidden = NO;
+			[[cb pgStatus] setText:@"Updating Bookmarks"];
+			[cb overlay].hidden = NO;
 			break;
 		default:
 			NSLog(@"This should never happen!");

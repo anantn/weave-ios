@@ -28,12 +28,13 @@
 
 @implementation Connection
 
-@synthesize cb, success, responseData, user, pass, phrase;
+@synthesize cb, success, responseData, user, pass, phrase, cluster;
 
--(void) setUser:(NSString *)u password:(NSString *)p andPassphrase:(NSString *)ph {
+-(void) setUser:(NSString *)u password:(NSString *)p passphrase:(NSString *)ph andCluster:(NSString *)cl{
 	user = u;
 	pass = p;
 	phrase = ph;
+	cluster = cl;
 }
 
 /* Asynchronous communication */
@@ -42,7 +43,7 @@
 	cb = callback;
 	
 	responseData = [[NSMutableData alloc] init];
-	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
+	NSLog(@"Request for %@!", [url absoluteURL]);
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
 										cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 												timeoutInterval:10];
@@ -51,9 +52,15 @@
 	if (pg)
 		[request addValue:@"application/whoisi" forHTTPHeaderField:@"Accept"];
 	
-	[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
-	[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
-	[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];
+	if (user)
+		[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
+	if (pass)
+		[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
+	if (phrase)
+		[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];
+	if (cluster)
+		[request addValue:cluster forHTTPHeaderField:@"X-Weave-Cluster"];
+	
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
@@ -67,7 +74,7 @@
 -(void) postTo:(NSURL *)url withData:(NSString *)post callback:(id <Responder>)callback andIndex:(int)i {
 	index = i;
 	cb = callback;
-	NSLog([NSString stringWithFormat:@"Request for %@!", [url path]]);
+	NSLog(@"Request for %@!", [url absoluteURL]);
 	
 	responseData = [[NSMutableData alloc] init];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
@@ -82,7 +89,7 @@
 
 -(void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	int code = [(NSHTTPURLResponse *)response statusCode];
-	NSLog([NSString stringWithFormat:@"Got response code %d", code]);
+	NSLog(@"Got response code %d", code);
 	
 	if (code != 200) {
 		success = NO;
@@ -138,7 +145,7 @@
 	if (success) {
 		[cb successWithString:responseString andIndex:index];
 	} else {
-		NSLog([NSString stringWithFormat:@"Failed with response: %@", responseString]);
+		NSLog(@"Failed with response: %@", responseString);
 		[cb failureWithError:[NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil] andIndex:index];
 	}
 }
