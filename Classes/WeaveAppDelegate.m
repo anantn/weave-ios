@@ -38,7 +38,7 @@
 @synthesize tabController, loginController, webController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[Service alloc] initWithServer:@"https://crypto.services.mozilla.com/"];
+	service = [[Service alloc] init];
 	if ([service.store getUsers] == 0) {
 		[window addSubview:loginController.view];
 	} else {

@@ -25,6 +25,7 @@
 #import "Connection.h"
 #import "Service.h"
 #import "JSON.h"
+#import "Utility.h"
 
 @implementation Connection
 
@@ -52,15 +53,9 @@
 	if (pg)
 		[request addValue:@"application/whoisi" forHTTPHeaderField:@"Accept"];
 	
-	if (user)
-		[request addValue:user forHTTPHeaderField:@"X-Weave-Username"];
-	if (pass)
-		[request addValue:pass forHTTPHeaderField:@"X-Weave-Password"];
-	if (phrase)
-		[request addValue:phrase forHTTPHeaderField:@"X-Weave-Passphrase"];
-	if (cluster)
-		[request addValue:cluster forHTTPHeaderField:@"X-Weave-Cluster"];
-	
+	NSString *format = [NSString stringWithFormat:@"%@:%@", user, pass];
+	[request addValue:[NSString stringWithFormat:@"Basic %@", [[format dataUsingEncoding:NSUTF8StringEncoding] base64Encoding]]
+		forHTTPHeaderField:@"Authorization"];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
@@ -68,6 +63,21 @@
 	pg = j;
 	currentLength = 0;
 	[self getResource:url withCallback:callback andIndex:i];
+}
+
+-(void) getRelativeResource:(NSString *)url withCallback:(id <Responder>)callback andIndex:(int)i {
+	if (!cluster) {
+		NSLog(@"Error! No cluster set and getRelativeResource called");
+	} else {
+		NSString *full = [NSString stringWithFormat:@"%@0.5/%@/%@", cluster, user, url];
+		[self getResource:[NSURL URLWithString:full] withCallback:callback andIndex:i];
+	}
+}
+
+-(void) getRelativeResource:(NSString *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i {		
+	pg = j;
+	currentLength = 0;
+	[self getRelativeResource:url withCallback:callback andIndex:i];
 }
 
 /* Asynchronous POST */

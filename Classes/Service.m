@@ -23,6 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Store.h"
+#import "Crypto.h"
 #import "Service.h"
 #import "Utility.h"
 #import "Connection.h"
@@ -32,16 +33,16 @@
 
 @implementation Service
 
-@synthesize cb, store, conn, server, favs;
-@synthesize username, password, passphrase;
+@synthesize cb, store, conn, favs;
+@synthesize crypto, username, password, passphrase;
 
--(Service *) initWithServer:(NSString *)address {
+-(Service *) init {
 	self = [super init];
 	
 	if (self) {
-		self.server = address;
 		self.store = [[Store alloc] initWithDB:@"/store.sq3"];
 		self.conn = [Connection alloc];
+		self.crypto = [[Crypto alloc] initWithService:self];
 	}
 	
 	return self;
@@ -52,7 +53,7 @@
 	return [store loadUserToService:self];
 }
 
-/* For first time users. We verify username/passwords and check passphrase by storing open tabs */
+/* For first time users. First order of business: get cluster */
 -(void) loadFromUser:(NSString *)user password:(NSString *)pwd passphrase:(NSString *)ph andCallback:(LoginViewController *)callback {
 	cb = callback;
 	password = pwd;
@@ -65,25 +66,23 @@
 	[[cb spinner] startAnimating];
 	
 	/* Get cluster */
-	NSString *cl = [NSString
-					stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave",
-					username];
-	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:8];
+	isFirst = YES;
+	NSString *cl = [NSString stringWithFormat:NODE_CHECK, username];
+	[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:GOT_CLUSTER];
 }
 
-/* For non-first time users, just check for updates */
+/* For non-first time users, first check connectivity because LoginController didn't appear
+   Then, update the user's cluster */
 -(void) updateDataWithCallback:(TabViewController *)callback {
 	Reachability* rc = [Reachability sharedReachability];
-	[rc setHostName:@"services.mozilla.com"];
+	[rc setHostName:SERV_BASE];
 	NetworkStatus st = [rc remoteHostStatus];
 	
 	if (st != NotReachable) {
 		cb = callback;
-		
-		NSString *cl = [NSString
-						stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave",
-						username];
-		[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:9];
+		isFirst = NO;
+		NSString *cl = [NSString stringWithFormat:NODE_CHECK, username];
+		[conn getResource:[NSURL URLWithString:cl] withCallback:self andIndex:GOT_CLUSTER];
 	} else {
 		UIAlertView *alert = [[UIAlertView alloc]
 							  initWithTitle:@"Connection Unavailable"
@@ -106,8 +105,25 @@
 	[[cb pgBar] setProgress:0.0];
 	[[cb pgStatus] setText:@"Downloading Bookmarks"];
 	
-	NSString *cl = [NSString stringWithFormat:@"%@storage/bookmarks/?full=1", server];
-	[conn getResource:[NSURL URLWithString:cl] withCallback:self pgIndex:3 andIndex:1];
+	[conn getRelativeResource:BMARKS_U withCallback:self pgIndex:BMARKS_PROGRESS andIndex:GOT_BMARKS];
+}
+
+/* Callback from Crypto setup */
+-(void) cryptoDone:(BOOL)res
+{
+	NSLog(@"Crypto done called with %d", res);
+	if (res) {
+		if (isFirst) {
+			[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS];
+		} else {
+			[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS_UP];
+		}
+	} else {
+		if (isFirst)
+			[self failureWithError:nil andIndex:0];
+		else
+			[self failureWithError:nil andIndex:1];
+	}
 }
 
 -(void) getFavicons {
@@ -147,7 +163,7 @@
 		postParams = [NSString stringWithFormat:@"urls=%@", [[favs subarrayWithRange:range] JSONRepresentation]];
 	}
 	
-	[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
+	[conn postTo:[NSURL URLWithString:FAVICONS_U] withData:postParams callback:self andIndex:GOT_FAVICONS];
 }
 
 -(NSDate *) getSyncTime {
@@ -177,32 +193,55 @@
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i{
+	NSArray *records;
+	
 	switch (i) {
-		case 0:
-			/* Got tabs, now add user to Store */
+		case GOT_TABS:
+			/* Got tabs, now add user to Store
 			[store addTabs:response];
 			if ([store addUserWithService:self]) {
 				[cb verified:YES];
 			} else {
 				[cb verified:NO];
 			}
+			 */
+			records = [response JSONValue];
+			[crypto decryptWBO:[records objectAtIndex:[records count] - 1]];
+			/*
+			for (NSDictionary *rec in records) {
+				[crypto decryptWBO:rec];
+			}
+			*/
 			break;
-		case 1:
+		case GOT_TABS_UP:
+			/* Got tabs for returning user, get bookmarks update 
+			[store addTabs:response];
+			[conn getRelativeResource:[NSString stringWithFormat:BMARKS_UP,
+									   [store getSyncTimeForUser:username]]
+						 withCallback:self pgIndex:BMARKS_PROGRESS andIndex:GOT_BMARKS];
+			
+			currentRecord = 0;
+			[cb pgBar].hidden = NO;
+			[cb pgText].hidden = NO;
+			[[cb pgStatus] setText:@"Updating Bookmarks"];
+			[cb overlay].hidden = NO;
+			 */
+			NSLog(@"%@", response);
+			break;
+		case GOT_BMARKS:
 			/* Got bookmarks, Now get history */
 			currentRecord = 0;
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
-			[conn getResource:[NSURL URLWithString:
-				[NSString stringWithFormat:@"%@storage/history/?full=1&sort=newest", server]]
-					withCallback:self pgIndex:4 andIndex:2];
+			[conn getRelativeResource:HISTORY_U withCallback:self pgIndex:HISTORY_PROGRESS andIndex:GOT_HISTORY];
 			[[cb pgStatus] setText:@"Downloading History"];
 			break;
-		case 2:
+		case GOT_HISTORY:
 			/* Got history, Now get favicons */
 			[store setSyncTimeForUser:username];
 			[self getFavicons];
 			break;
-		case 3:
+		case BMARKS_PROGRESS:
 			/* Progress for bookmarks */
 			[store addBookmarkRecord:response];
 			currentRecord++;
@@ -210,7 +249,7 @@
 								  currentRecord, totalRecords]];
 			[[cb pgBar] setProgress:(float)currentRecord/(float)totalRecords];
 			break;
-		case 4:
+		case HISTORY_PROGRESS:
 			/* Progress for history */
 			[store addHistoryRecord:response];
 			currentRecord++;
@@ -218,22 +257,21 @@
 								  currentRecord, totalRecords]];
 			[[cb pgBar] setProgress:(float)currentRecord/(float)totalRecords];
 			break;
-		case 5:
+		case GOT_BMARKS_UP:
 			/* Got bookmarks update, Now get history update  */
 			currentRecord = 0;
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
-			[conn getResource:[NSURL URLWithString:
-							   [NSString stringWithFormat:@"%@storage/history/?full=1&sort=newest&newer=%f",
-								server, [store getSyncTimeForUser:username]]] withCallback:self pgIndex:4 andIndex:6];
+			[conn getRelativeResource:[NSString stringWithFormat:HISTORY_UP, 
+							   [store getSyncTimeForUser:username]] withCallback:self pgIndex:HISTORY_PROGRESS andIndex:GOT_HISTORY_UP];
 			[[cb pgStatus] setText:@"Updating History"];
 			break;
-		case 6:
+		case GOT_HISTORY_UP:
 			/* Got history update, set sync time and get favicons */
 			[store setSyncTimeForUser:username];
 			[self getFavicons];
 			break;
-		case 7:
+		case GOT_FAVICONS:
 			/* Got 20 favicons, check if there's more or done */
 			[store addFavicons:response];
 			if (favsIndex == -1) {
@@ -250,28 +288,14 @@
 					favsIndex += range.length;
 				}
 				NSString *postParams = [NSString stringWithFormat:@"urls=%@", [[favs subarrayWithRange:range] JSONRepresentation]];
-				[conn postTo:[NSURL URLWithString:@"https://services.mozilla.com/favicons/"] withData:postParams callback:self andIndex:7];
+				[conn postTo:[NSURL URLWithString:FAVICONS_U] withData:postParams callback:self andIndex:GOT_FAVICONS];
 			}
 			break;
-		case 8:
-			/* Got cluster for a first time user, now get tabs */
+		case GOT_CLUSTER:
+			/* Got cluster */
 			[conn setUser:username password:password passphrase:passphrase andCluster:response];
-			[conn getResource:[NSURL URLWithString:
-							   [NSString stringWithFormat:@"%@storage/tabs/?full=1", server]]
-				 withCallback:self andIndex:0];
-			break;
-		case 9:
-			/* Got cluster for a returning user */
-			[conn setUser:username password:password passphrase:passphrase andCluster:response];
-			[conn getResource:[NSURL URLWithString:
-							   [NSString stringWithFormat:@"%@storage/bookmarks/?newer=%f", server, [store getSyncTimeForUser:username]]]
-				withCallback:self pgIndex:3 andIndex:5];
-			
-			currentRecord = 0;
-			[cb pgBar].hidden = NO;
-			[cb pgText].hidden = NO;
-			[[cb pgStatus] setText:@"Updating Bookmarks"];
-			[cb overlay].hidden = NO;
+			/* Fetch user's public key */
+			[conn getRelativeResource:PUBKEY_U withCallback:crypto andIndex:GOT_PUB_KEY];
 			break;
 		default:
 			NSLog(@"This should never happen!");

@@ -51,6 +51,9 @@
 
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback andIndex:(int)i;
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i;
+-(void) getRelativeResource:(NSString *)url withCallback:(id <Responder>)callback andIndex:(int)i;
+-(void) getRelativeResource:(NSString *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i;
+
 -(void) postTo:(NSURL *)url withData:(NSString *)data callback:(id <Responder>)callback andIndex:(int)i;
 -(void) setUser:(NSString *)u password:(NSString *)p passphrase:(NSString *)ph andCluster:(NSString *)cl;
 

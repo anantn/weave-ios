@@ -26,36 +26,64 @@
 #import "JSON.h"
 #import "Responder.h"
 
+/* URL constants */
+#define SERV_BASE	@"services.mozilla.com"
+#define NODE_CHECK	@"https://auth.services.mozilla.com/user/1/%@/node/weave"
+
+#define TABS_U		@"storage/tabs/?full=1"
+#define HISTORY_U	@"storage/history/?full=1&sort=newest"
+#define HISTORY_UP	@"storage/history/?full=1&sort=newest&newer=%f"
+#define FAVICONS_U	@"https://services.mozilla.com/favicons/"
+#define BMARKS_U	@"storage/bookmarks/?full=1"
+#define BMARKS_UP	@"storage/bookmarks/?newer=%f"
+
+#define PUBKEY_U	@"storage/keys/pubkey"
+#define PRIVKEY_U	@"storage/keys/privkey"
+
+/* Connection constants */
+#define GOT_TABS			0
+#define GOT_TABS_UP			1
+#define GOT_BMARKS			2
+#define GOT_HISTORY			3
+#define BMARKS_PROGRESS		4
+#define HISTORY_PROGRESS	5
+#define GOT_BMARKS_UP		6
+#define GOT_HISTORY_UP		7
+#define GOT_FAVICONS		8
+#define GOT_CLUSTER			9
+
 @class Store, Crypto, Connection, LoginViewController;
 
 @interface Service : NSObject <Responder> {
 	id cb;
+	BOOL isFirst;
 	int favsIndex;
 	int totalRecords;
 	int currentRecord;
 	
 	NSArray *favs;
-	NSString *server;
 	NSString *username;
 	NSString *password;
 	NSString *passphrase;
 	
 	Store *store;
+	Crypto *crypto;
 	Connection *conn;
 }
 
 @property (nonatomic, retain) id cb;
 @property (nonatomic, copy) NSArray *favs;
-@property (nonatomic, copy) NSString *server;
-
 @property (nonatomic, copy) NSString *username;
 @property (nonatomic, copy) NSString *password;
 @property (nonatomic, copy) NSString *passphrase;
 
 @property (nonatomic, retain) Store *store;
+@property (nonatomic, retain) Crypto *crypto;
 @property (nonatomic, retain) Connection *conn;
 
--(Service *) initWithServer:(NSString *)server;
+-(Service *) init;
+
+-(void) cryptoDone:(BOOL)res;
 
 /* Synchronous */
 -(BOOL) loadFromStore;

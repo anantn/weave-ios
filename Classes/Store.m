@@ -72,7 +72,7 @@
 			}
 		} else {
 			NSLog(@"Could not create database!");
-			NSLog([error localizedDescription]);
+			NSLog(@"%@", [error localizedDescription]);
 		}
 	}
 	
