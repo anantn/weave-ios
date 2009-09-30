@@ -294,8 +294,8 @@
 		case GOT_CLUSTER:
 			/* Got cluster */
 			[conn setUser:username password:password passphrase:passphrase andCluster:response];
-			/* Fetch user's public key */
-			[conn getRelativeResource:PUBKEY_U withCallback:crypto andIndex:GOT_PUB_KEY];
+			/* Fetch user's private key */
+			[conn getRelativeResource:PRIVKEY_U withCallback:crypto andIndex:GOT_PRIV_KEY];
 			break;
 		default:
 			NSLog(@"This should never happen!");

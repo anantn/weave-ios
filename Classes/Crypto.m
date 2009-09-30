@@ -40,10 +40,7 @@
 -(Crypto *) initWithService:(Service *)s {
 	self = [super init];
 	
-	if (self) {
-		pubkey = nil;
-		privkey = nil;
-		
+	if (self) {		
 		self.serv = s;
 		self.curBulk = nil;
 		self.wbos = [[NSMutableArray alloc] init];
@@ -98,7 +95,6 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
     CFBooleanRef    kBoolToCF[2] = { kCFBooleanFalse, kCFBooleanTrue };
 	
     result = NO;
-    
     keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
     assert(keyTagData != nil);
 	
@@ -138,19 +134,6 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
     }
     
     return result;
-}
-
-- (void)_installKeys
-{
-    uint8_t     publicKeyHash[CC_SHA1_DIGEST_LENGTH];
-    NSData *    publicKeyHashData;
-	
-    (void) CC_SHA1([pubkey bytes], [pubkey length], publicKeyHash);
-    publicKeyHashData = [NSData dataWithBytes:publicKeyHash length:sizeof(publicKeyHash)];
-    assert(publicKeyHashData != NULL);
-	
-    [self _installKeyData:pubkey  name:PUB_KEY_NAME  label:publicKeyHashData private:NO];
-    [self _installKeyData:privkey name:PRIV_KEY_NAME label:publicKeyHashData private:YES];
 }
 
 - (SecKeyRef)_getKeyNamed:(NSString *)keyName
@@ -229,7 +212,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	[salt getBytes:tsalt];
 	PKCS5_PBKDF2_HMAC_SHA1(
 		[[serv passphrase] cStringUsingEncoding:NSUTF8StringEncoding],
-		10, tsalt, [salt length], 4096, 32, final
+		-1, tsalt, [salt length], 4096, 32, final
 	);
 	
 	[salt release];
@@ -274,89 +257,21 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 		len = [rsaKey length] - off;
 	
 	/* Step 4. Now extract actual key */
-	privkey = [rsaKey subdataWithRange:NSMakeRange(off, len)];	
-	if (privkey && pubkey)
+	NSData *privkey = [rsaKey subdataWithRange:NSMakeRange(off, len)];	
+	if (privkey) {
+		/* Step 5. Add it to the Keychain */
+		uint8_t keyHash[CC_SHA1_DIGEST_LENGTH];
+		NSData *keyHashData;
+		
+		(void) CC_SHA1([privkey bytes], [privkey length], keyHash);
+		keyHashData = [NSData dataWithBytes:keyHash length:sizeof(keyHash)];
+		assert(keyHashData != NULL);
+		[self _installKeyData:privkey name:PRIV_KEY_NAME label:keyHashData private:YES];		
 		return YES;
-	else {
-		NSLog(@"pubkey or privkey missing!");
+	} else {
+		NSLog(@"privkey missing!");
 		return NO;
 	}
-
-}
-
-/* Temporary: Test keys */
-- (void)testKeys
-{
-    OSStatus        err;
-    SecKeyRef       publicKey;
-    SecKeyRef       privateKey;
-    size_t          blockSize;
-    const char *    plainText;
-    size_t          plainTextLen;
-    uint8_t *       cipherText;
-    size_t          cipherTextLen;
-    char *          decodedText;
-    size_t          decodedTextLen;
-    
-    publicKey  = [self _getKeyNamed:PUB_KEY_NAME];
-    privateKey = [self _getKeyNamed:PRIV_KEY_NAME];
-    if ( (publicKey == NULL) || (publicKey == NULL) ) {
-        NSLog(@"Key missing");
-    } else {
-        blockSize = SecKeyGetBlockSize(publicKey);
-		
-        plainText = "Hello Cruel World!";
-		// include trailing null
-        plainTextLen = strlen(plainText) + 1;
-        
-        cipherTextLen = blockSize;
-        cipherText = malloc(cipherTextLen);
-        assert(cipherText != NULL);
-        
-		// makes it easier to see if things are working
-        memset(cipherText, 0xAA, cipherTextLen);
-        
-        err = SecKeyEncrypt(
-							publicKey, 
-							kSecPaddingPKCS1, 
-							(const uint8_t *) plainText, 
-							plainTextLen,
-							cipherText, 
-							&cipherTextLen
-							);
-        assert(err == noErr);
-        
-        decodedTextLen = blockSize;
-        decodedText = malloc(decodedTextLen);
-        assert(decodedText != NULL);
-		
-        memset(decodedText, 0xAA, decodedTextLen);
-        
-        err = SecKeyDecrypt(
-							privateKey, 
-							kSecPaddingPKCS1, 
-							cipherText, 
-							cipherTextLen, 
-							(uint8_t *) decodedText, 
-							&decodedTextLen
-							);
-        assert(err == noErr);
-        
-        if (decodedTextLen != plainTextLen) {
-            NSLog(@"wrong length");
-        } else if (memcmp(decodedText, plainText, plainTextLen) != 0) {
-            NSLog(@"wrong data");
-        } else {
-            NSLog(@"success");
-        }
-    }
-    
-    if (publicKey != NULL) {
-        CFRelease(publicKey);
-    }
-    if (privateKey != NULL) {
-        CFRelease(privateKey);
-    }
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i
@@ -366,21 +281,8 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	NSString *cipher;
 		
 	switch (i) {
-		case GOT_PUB_KEY:
-			pubkey = [[NSData alloc] initWithBase64EncodedString:
-					  [[[[response JSONValue] objectForKey:@"payload"]
-						JSONValue] objectForKey:@"keyData"]];
-			if (pubkey) {
-				[[serv conn] getRelativeResource:PRIVKEY_U withCallback:self andIndex:GOT_PRIV_KEY];
-			} else {
-				NSLog(@"Could not fetch public key!");
-				[serv cryptoDone:NO];
-			}
-			break;
 		case GOT_PRIV_KEY:
 			if ([self decryptRSA:[[[response JSONValue] valueForKey:@"payload"] JSONValue]]) {
-				/* Let's install the user's keys */
-				[self _installKeys];
 				[serv cryptoDone:YES];
 			} else {
 				[serv cryptoDone:NO];
@@ -390,10 +292,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 			if (curBulk == nil) {
 				NSLog(@"Error: GOT_BULK_KEY without set curBulk!");
 			} else {
-				/* Decrypt and store bulk key */
-				NSLog(@"testing keys");
-				[self testKeys];
-				
+				/* Decrypt and store bulk key */				
 				cipher = [[[[[response JSONValue] objectForKey:@"payload"] JSONValue]
 						  objectForKey:@"keyring"] objectForKey:
 						  [NSString stringWithFormat:@"%@0.5/%@/storage/keys/pubkey",

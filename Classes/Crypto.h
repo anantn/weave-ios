@@ -25,12 +25,10 @@
 #import <Foundation/Foundation.h>
 #import "Responder.h"
 
-#define GOT_PUB_KEY			0
-#define GOT_PRIV_KEY		1
-#define GOT_BULK_KEY		2
+#define GOT_PRIV_KEY		0
+#define GOT_BULK_KEY		1
 
 #define KEY_SIZE			2048
-#define PUB_KEY_NAME		@"public"
 #define PRIV_KEY_NAME		@"private"
 
 @class Connection, Service;
@@ -40,10 +38,6 @@
 	NSString *curBulk;
 	NSMutableArray *wbos;
 	NSMutableDictionary *bulk;
-	
-	/* Key data */
-	NSData *pubkey;
-	NSData *privkey;
 }
 
 @property (nonatomic, retain) Service *serv;
