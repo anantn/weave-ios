@@ -28,12 +28,17 @@
 #define GOT_PRIV_KEY		0
 #define GOT_BULK_KEY		1
 
+#define CRYPTO_DONE_FAIL	0
+#define CRYPTO_DONE_INIT	1
+#define CRYPTO_DONE_LAST	2
+
 #define KEY_SIZE			2048
 #define PRIV_KEY_NAME		@"private"
 
 @class Connection, Service;
 
 @interface Crypto : NSObject <Responder> {
+	SEL select;
 	Service *serv;
 	NSString *curBulk;
 	NSMutableArray *wbos;
@@ -45,6 +50,7 @@
 @property (nonatomic, retain) NSMutableArray *wbos;
 @property (nonatomic, retain) NSMutableDictionary *bulk;
 
+-(void) setSelector:(SEL)selector;
 -(void) decryptWBO:(NSDictionary *)record;
 
 -(Crypto *) initWithService:(Service *)s;

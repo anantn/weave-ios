@@ -105,24 +105,57 @@
 	[[cb pgBar] setProgress:0.0];
 	[[cb pgStatus] setText:@"Downloading Bookmarks"];
 	
+	[crypto setSelector:@selector(addBookmarkRecord:)];
 	[conn getRelativeResource:BMARKS_U withCallback:self pgIndex:BMARKS_PROGRESS andIndex:GOT_BMARKS];
 }
 
 /* Callback from Crypto setup */
--(void) cryptoDone:(BOOL)res
+-(void) cryptoDone:(int)res
 {
-	NSLog(@"Crypto done called with %d", res);
-	if (res) {
-		if (isFirst) {
-			[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS];
-		} else {
-			[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS_UP];
-		}
-	} else {
-		if (isFirst)
-			[self failureWithError:nil andIndex:0];
-		else
-			[self failureWithError:nil andIndex:1];
+	switch (res) {
+		case CRYPTO_DONE_INIT:
+			[crypto setSelector:@selector(addTabRecord:)];
+			if (isFirst) {
+				[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS];
+			} else {
+				[conn getRelativeResource:TABS_U withCallback:self andIndex:GOT_TABS_UP];
+			}
+			break;
+		case CRYPTO_DONE_FAIL:
+			if (isFirst)
+				[self failureWithError:nil andIndex:0];
+			else
+				[self failureWithError:nil andIndex:1];
+			break;
+		case CRYPTO_DONE_LAST:
+			/* These match with index in successWithString */
+			switch (state) {
+				case GOT_TABS:
+					if ([store addUserWithService:self]) {
+						[cb verified:YES];
+					} else {
+						[cb verified:NO];
+					}
+					break;
+				case GOT_TABS_UP:
+					[crypto setSelector:@selector(addBookmarkRecord:)];
+					[conn getRelativeResource:[NSString stringWithFormat:BMARKS_UP,
+											   [store getSyncTimeForUser:username]]
+								 withCallback:self pgIndex:BMARKS_PROGRESS andIndex:GOT_BMARKS];
+					
+					currentRecord = 0;
+					[cb pgBar].hidden = NO;
+					[cb pgText].hidden = NO;
+					[[cb pgStatus] setText:@"Updating Bookmarks"];
+					[cb overlay].hidden = NO;
+					break;
+				default:
+					NSLog(@"This should never happen! %d cryptoDone", state);
+					break;
+			}
+		default:
+			NSLog(@"cryptoDone called with invalid value %d", res);
+			break;
 	}
 }
 
@@ -195,44 +228,29 @@
 -(void) successWithString:(NSString *)response andIndex:(int)i{
 	NSArray *records;
 	
+	state = i;
 	switch (i) {
 		case GOT_TABS:
-			/* Got tabs, now add user to Store
-			[store addTabs:response];
-			if ([store addUserWithService:self]) {
-				[cb verified:YES];
-			} else {
-				[cb verified:NO];
-			}
-			 */
+			/* Got tabs for initial user */
 			records = [response JSONValue];
-			[crypto decryptWBO:[records objectAtIndex:[records count] - 1]];
-			/*
 			for (NSDictionary *rec in records) {
 				[crypto decryptWBO:rec];
 			}
-			*/
 			break;
 		case GOT_TABS_UP:
-			/* Got tabs for returning user, get bookmarks update 
-			[store addTabs:response];
-			[conn getRelativeResource:[NSString stringWithFormat:BMARKS_UP,
-									   [store getSyncTimeForUser:username]]
-						 withCallback:self pgIndex:BMARKS_PROGRESS andIndex:GOT_BMARKS];
-			
-			currentRecord = 0;
-			[cb pgBar].hidden = NO;
-			[cb pgText].hidden = NO;
-			[[cb pgStatus] setText:@"Updating Bookmarks"];
-			[cb overlay].hidden = NO;
-			 */
-			NSLog(@"%@", response);
+			/* Got tabs for returning user */
+			records = [response JSONValue];
+			for (NSDictionary *rec in records) {
+				[crypto decryptWBO:rec];
+			}
 			break;
 		case GOT_BMARKS:
-			/* Got bookmarks, Now get history */
+			/* Got bookmarks, now get history */
 			currentRecord = 0;
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
+			
+			[crypto setSelector:@selector(addHistoryRecord:)];
 			[conn getRelativeResource:HISTORY_U withCallback:self pgIndex:HISTORY_PROGRESS andIndex:GOT_HISTORY];
 			[[cb pgStatus] setText:@"Downloading History"];
 			break;
@@ -243,7 +261,8 @@
 			break;
 		case BMARKS_PROGRESS:
 			/* Progress for bookmarks */
-			[store addBookmarkRecord:response];
+			[crypto decryptWBO:[response JSONValue]];
+			
 			currentRecord++;
 			[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d",
 								  currentRecord, totalRecords]];
@@ -251,7 +270,8 @@
 			break;
 		case HISTORY_PROGRESS:
 			/* Progress for history */
-			[store addHistoryRecord:response];
+			[crypto decryptWBO:[response JSONValue]];
+			
 			currentRecord++;
 			[[cb pgText] setText:[NSString stringWithFormat:@"%d / %d",
 								  currentRecord, totalRecords]];
@@ -262,6 +282,8 @@
 			currentRecord = 0;
 			[[cb pgText] setText:@""];
 			[[cb pgBar] setProgress:0.0];
+			
+			[crypto setSelector:@selector(addHistoryRecord:)];
 			[conn getRelativeResource:[NSString stringWithFormat:HISTORY_UP, 
 							   [store getSyncTimeForUser:username]] withCallback:self pgIndex:HISTORY_PROGRESS andIndex:GOT_HISTORY_UP];
 			[[cb pgStatus] setText:@"Updating History"];

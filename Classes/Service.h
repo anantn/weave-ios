@@ -56,6 +56,7 @@
 
 @interface Service : NSObject <Responder> {
 	id cb;
+	int state;
 	BOOL isFirst;
 	int favsIndex;
 	int totalRecords;
@@ -83,7 +84,7 @@
 
 -(Service *) init;
 
--(void) cryptoDone:(BOOL)res;
+-(void) cryptoDone:(int)res;
 
 /* Synchronous */
 -(BOOL) loadFromStore;

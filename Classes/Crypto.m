@@ -40,7 +40,7 @@
 -(Crypto *) initWithService:(Service *)s {
 	self = [super init];
 	
-	if (self) {		
+	if (self) {
 		self.serv = s;
 		self.curBulk = nil;
 		self.wbos = [[NSMutableArray alloc] init];
@@ -164,25 +164,38 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 
 /* Private Crypto functions END */
 
+/* Set selector sets the method that is called by _processWBO to add to storage */
+-(void) setSelector:(SEL)selector
+{
+	select = selector;
+}
+
 /* Take a single WBO from self.wbos and attempt decryption.
  * When this is called, the corresponding bulk key should already be in self.bulk */
 -(void) _processWBO
 {
-	NSDictionary *wbo = [wbos lastObject];
-	NSDictionary *bulkKey = [bulk objectForKey:[wbo objectForKey:@"encryption"]];
+	if ([wbos length] > 0) {
+		NSDictionary *wbo = [wbos lastObject];
+		NSDictionary *bulkKey = [bulk objectForKey:[wbo objectForKey:@"encryption"]];
 	
-	NSData *bulkIV = [[NSData alloc] initWithBase64EncodedString:[bulkKey objectForKey:@"iv"]];
-	NSData *symKey = [bulkKey objectForKey:@"key"];
+		NSData *bulkIV = [[NSData alloc] initWithBase64EncodedString:[bulkKey objectForKey:@"iv"]];
+		NSData *symKey = [bulkKey objectForKey:@"key"];
 	
-	NSData *cipher = [[NSData alloc] initWithBase64EncodedString:[wbo objectForKey:@"ciphertext"]];
+		NSData *cipher = [[NSData alloc] initWithBase64EncodedString:[wbo objectForKey:@"ciphertext"]];
 	
-	NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [cipher base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
+		NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [cipher base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
 
-	NSString *plainText = [[NSString alloc] initWithData:[cipher AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
-	plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	NSLog(@"Got %@!", plainText);
+		NSString *plainText = [[NSString alloc] initWithData:[cipher AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
+		plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+		NSLog(@"Got %@!", plainText);
+		
+		[[serv store] performSelector:select withObject:plainText];
+	} else {
+		[serv cryptoDone:CRYPTO_DONE_LAST];
+	}
 	
-	[plainText release]; [bulkIV release]; [cipher release];
+	//FIXME: ??
+	//[plainText release]; [bulkIV release]; [cipher release];
 }
 
 /* Add a WBO to self.wbos. If it's bulk-key hasn't been fetched yet, get it */
@@ -279,13 +292,13 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	NSData *symKey;
 	NSData *usymKey;
 	NSString *cipher;
-		
+	
 	switch (i) {
 		case GOT_PRIV_KEY:
 			if ([self decryptRSA:[[[response JSONValue] valueForKey:@"payload"] JSONValue]]) {
-				[serv cryptoDone:YES];
+				[serv cryptoDone:CRYPTO_DONE_INIT];
 			} else {
-				[serv cryptoDone:NO];
+				[serv cryptoDone:CRYPTO_DONE_FAIL];
 			}
 			break;
 		case GOT_BULK_KEY:
@@ -325,7 +338,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 
 -(void) failureWithError:(NSError *)error andIndex:(int)i
 {
-	[serv cryptoDone:NO];
+	[serv cryptoDone:CRYPTO_DONE_FAIL];
 }
 
 -(NSData *) unwrapSymmetricKey:(NSData *)symKey
