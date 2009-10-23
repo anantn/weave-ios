@@ -24,7 +24,7 @@
 
 #import "SearchController.h"
 #import "WeaveAppDelegate.h"
-#import "Service.h"
+//#import "Service.h"
 #import "Store.h"
 #import "Utility.h"
 #import <QuartzCore/QuartzCore.h>
@@ -66,7 +66,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	if (searching)
-		return @"Search Results";
+		return @"Filtered Results";
 	else
 		return @"";
 }
@@ -110,7 +110,7 @@
 	cell.accessoryView = nil;
 	if (searching) {
 		NSArray *obj;
-		NSDictionary *icons = [[app service] getIcons];
+		NSDictionary *icons = [[Store getStore] getFavicons];
 		if (indexPath.row >= [bmkList count]) {
 			obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
 			title.text = [obj objectAtIndex:0];
@@ -185,8 +185,8 @@
 	[bmkList removeAllObjects];
 	[histList removeAllObjects];
 	
-	NSArray *bmT = [[app service] getBookmarks];
-	NSArray *hiT = [[app service] getHistory];
+	NSArray *bmT = [[Store getStore] getBookmarks];
+	NSArray *hiT = [[Store getStore] getHistory];
 	
 	/* Bookmark search */
 	for (i = 0; i < [bmT count]; i++) {

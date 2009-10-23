@@ -23,7 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Store.h"
-#import "Service.h"
+#import "Stockboy.h"
 #import "WeaveAppDelegate.h"
 #import "WebViewController.h"
 #import "TabViewController.h"
@@ -37,13 +37,15 @@
 @synthesize window, service, uri;
 @synthesize tabController, loginController, webController;
 
--(void) applicationDidFinishLaunching:(UIApplication *)application {
-	service = [[Service alloc] init];
-	if ([service.store getUsers] == 0) {
+-(void) applicationDidFinishLaunching:(UIApplication *)application 
+{
+	if ([[Store getStore] getUsername] == nil) 
+  {
 		[window addSubview:loginController.view];
-	} else {
-		[service loadFromStore];
-		[service updateDataWithCallback:tabController];
+	} 
+  else 
+  {
+		[[Stockboy getStockboy] refreshStock];
 		[window addSubview:tabController.view];
 	}
 	[window makeKeyAndVisible];
@@ -76,7 +78,7 @@
 }
 
 -(void) switchLoginToMain {
-	[service loadDataWithCallback:tabController];
+	[[Stockboy getStockboy] refreshStock]; // TODO, really?
 	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 

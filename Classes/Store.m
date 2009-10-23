@@ -24,48 +24,100 @@
 
 #import "Store.h"
 #import "Utility.h"
-#import "Service.h"
+//#import "Service.h"
 #import "JSON.h"
+
+
+/* 
+CREATE TABLE moz_favicons (url LONGVARCHAR PRIMARY KEY, image LONGVARCHAR);
+CREATE TABLE moz_places (id INTEGER PRIMARY KEY, guid LONGVARCHAR, type LONGVARCHAR, url LONGVARCHAR, title LONGVARCHAR, client LONGVARCHAR, favicon LONGVARCHAR);
+CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, password LONGVARCHAR, passphrase LONGVARCHAR, last_sync INTEGER);
+*/
+
+#define PLACES_ID_COLUMN      0
+#define PLACES_GUID_COLUMN    1
+#define PLACES_TYPE_COLUMN    2
+#define PLACES_URL_COLUMN     3
+#define PLACES_TITLE_COLUMN   4
+#define PLACES_CLIENT_COLUMN  5
+#define PLACES_FAVICON_COLUMN 6
+
+
+@interface Store (Private)
+-(Store *) initWithDBFile:(NSString *)filePath;
+- (void) loadUserInfo;
+- (void) loadExistingTabs;
+- (void) loadExistingHistory;
+- (void) loadExistingBookmarks;
+- (void) loadExistingFavicons;
+@end
 
 @implementation Store
 
-@synthesize dataBase, tabs, history, favicons, bookmarks;
+// The singleton instance
+static Store* _gStore = nil;
 
--(Store *) initWithDB:(NSString *)db {
+
+//CLASS METHODS////////
++ (Store*)getStore
+{
+  if (_gStore == nil)
+    _gStore = [[[Store alloc] initWithDBFile:@"/store.sq3"] retain];
+  return _gStore;
+}
+
+
+-(Store *) initWithDBFile:(NSString *)filePath 
+{
 	self = [super init];
 	
-	if (self) {
+	if (self) 
+	{
 		BOOL success;
 		NSError *error;
-		
-		tabs = [[NSMutableDictionary alloc] init];
-		history = [[NSMutableArray alloc] init];
-		bookmarks = [[NSMutableArray alloc] init];
-		favicons = [[NSMutableDictionary alloc] init];
+				
+		username = nil;
+		password = nil;
+		passphrase = nil;
+		tabIndex = [[NSMutableArray alloc] init];
 		
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 		NSString *documentsDir = [paths objectAtIndex:0];
-		NSString *writablePath = [documentsDir stringByAppendingString:db];
+		NSString *writablePath = [documentsDir stringByAppendingString:filePath];
 		
 		/* DB already exists */
 		success = [fm fileExistsAtPath:writablePath];
-		if (success) {
+		if (success) 
+		{
 			NSLog(@"Existing DB found, using");
-			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
+			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) 
+			{
+				[self loadUserInfo];
+				[self loadExistingTabs];
+				[self loadExistingHistory];
+				[self loadExistingBookmarks];
+				[self loadExistingFavicons];
 				return self;
-			} else {
+			} 
+			else 
+			{
 				NSLog(@"Could not open database!");
+				// TODO this should be a fatal
 				return NULL;
 			}
 		}
 		
 		/* DB doesn't exist, copy from resource bundle */
-		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:db];
+		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filePath];
 		
 		success = [fm copyItemAtPath:defaultDB toPath:writablePath error:&error];
 		if (success) {
-			if (sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
+			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) {
+				tabs = [[NSMutableDictionary alloc] init];
+				history = [[NSMutableArray alloc] init];
+				bookmarks = [[NSMutableArray alloc] init];
+				favicons = [[NSMutableDictionary alloc] init];
 				return self;
 			} else {
 				NSLog(@"Could not open database!");
@@ -75,46 +127,60 @@
 			NSLog(@"%@", [error localizedDescription]);
 		}
 	}
-	
 	return NULL;
 }
 
--(BOOL) addUserWithService:(Service *)svc {
-	sqlite3_stmt *stmnt;
-	const char *sql = "INSERT INTO users ('uid', 'password', 'passphrase') VALUES (?, ?, ?)";
+- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword passphrase:(NSString*) newPassphrase 
+{
+	sqlite3_stmt *sqlStatement;
+	const char *insertUserSQL = "INSERT INTO users ('uid', 'password', 'passphrase') VALUES (?, ?, ?)";
 
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+	if (sqlite3_prepare_v2(sqlDatabase, insertUserSQL, -1, &sqlStatement, NULL) != SQLITE_OK) 
+  {
 		NSLog(@"Could not prepare statement!");
 		return NO;
-	} else {
-		sqlite3_bind_text(stmnt, 1, [[svc username] UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 2, [[svc password] UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 3, [[svc passphrase] UTF8String], -1, SQLITE_TRANSIENT);
+	} 
+  else 
+  {
+		sqlite3_bind_text(sqlStatement, 1, [newUser UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(sqlStatement, 2, [newPassword UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(sqlStatement, 3, [newPassphrase UTF8String], -1, SQLITE_TRANSIENT);
 		
-		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+		if (sqlite3_step(sqlStatement) != SQLITE_DONE) 
+    {
 			NSLog(@"Could not save user to DB!");
-			sqlite3_finalize(stmnt);
+			sqlite3_finalize(sqlStatement);
 			return NO;
 		}
+		username = newUser;
+		password = newPassword;
+		passphrase = newPassphrase;
 	}
 	
-	sqlite3_finalize(stmnt);
+	sqlite3_finalize(sqlStatement);
 	return YES;
 }
 
--(double) getSyncTimeForUser:(NSString *)user {
+-(double) getSyncTime
+{
 	double time;
 	sqlite3_stmt *stmnt;
 	const char *sql = "SELECT last_sync FROM users WHERE uid = ?";
 
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
 		NSLog(@"Could not prepare statement (load time)!");
 		return 0;
-	} else {
-		sqlite3_bind_text(stmnt, 1, [user UTF8String], -1, SQLITE_TRANSIENT);
-		if (sqlite3_step(stmnt) == SQLITE_ROW) {
+	} 
+  else 
+  {
+		sqlite3_bind_text(stmnt, 1, [username UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) == SQLITE_ROW) 
+    {
 			time = sqlite3_column_double(stmnt, 0);
-		} else {
+		} 
+    else 
+    {
 			NSLog(@"Could not execute SQL to load sync time!");
 			sqlite3_finalize(stmnt);
 			return 0;
@@ -124,17 +190,23 @@
 	return time;
 }
 
--(BOOL) setSyncTimeForUser:(NSString *)user {
+
+-(BOOL) setSyncTimeToNow
+{
 	sqlite3_stmt *stmnt;
 	const char *sql = "UPDATE users SET last_sync = ? WHERE uid = ?";
 	
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
 		NSLog(@"Could not prepare statement (set time)!");
 		return NO;
-	} else {
+	} 
+  else 
+  {
 		sqlite3_bind_double(stmnt, 1, [[NSDate date] timeIntervalSince1970]);
-		sqlite3_bind_text(stmnt, 2, [user UTF8String], -1, SQLITE_TRANSIENT);
-		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+		sqlite3_bind_text(stmnt, 2, [username UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) != SQLITE_DONE) 
+    {
 			NSLog(@"Could not execute SQL to update time for user!");
 			sqlite3_finalize(stmnt);
 			return NO;
@@ -142,185 +214,68 @@
 	}
 	
 	sqlite3_finalize(stmnt);
-	NSLog(@"Sync time set for user %@", user);
 	return YES;	
 }
 
--(BOOL) loadUserToService:(Service *)svc {
-	NSString *usr;
-	NSString *pwd;
-	NSString *pph;
-	NSString *icon;
-	
-	/* WTF: Close & open DB to get results? */
-	sqlite3_close(dataBase);
-	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-	NSString *documentsDir = [paths objectAtIndex:0];
-	NSString *writablePath = [documentsDir stringByAppendingString:@"/store.sq3"];
-	if (!sqlite3_open([writablePath UTF8String], &dataBase) == SQLITE_OK) {
-		NSLog(@"Could not open database!");
-		return NO;
-	}
-	
-	sqlite3_stmt *stmnt;
-	const char *sql = "SELECT * FROM users LIMIT 1";
-	const char *hSql = "SELECT * FROM moz_places WHERE type = 'history'";
-	const char *bSql = "SELECT * FROM moz_places WHERE type = 'bookmark'";
-	const char *tSql = "SELECT * FROM moz_places WHERE type = 'tab'";
-	const char *iSql = "SELECT * FROM moz_favicons";
-	
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) == SQLITE_OK) {
-		if (sqlite3_step(stmnt) == SQLITE_ROW) {
-			usr = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 1)];
-			pwd = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)];
-			pph = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)];
-			
-			[svc setUsername:usr];
-			[svc setPassword:pwd];
-			[svc setPassphrase:pph];
-		} else {
-			NSLog(@"Could not execute SQL to LOAD!");
-			sqlite3_finalize(stmnt);
-			return NO;
-		}
-	} else {
-		NSLog(@"Could not prepare SQL to LOAD!");
-		return NO;
-	}
-	sqlite3_finalize(stmnt);
-	
-	/* Load existing bookmarks */
-	if (sqlite3_prepare_v2(dataBase, bSql, -1, &stmnt, NULL) == SQLITE_OK) {
-		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 5)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
-			} else {
-				icon = @"";
-			}
-			[bookmarks addObject:[NSArray arrayWithObjects:
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  icon, nil]];
-		}
-	} else {
-		NSLog(@"Could not prepare SQL to load bookmark!");
-		return NO;
-	}
-	sqlite3_finalize(stmnt);
-	
-	/* Load existing history */
-	if (sqlite3_prepare_v2(dataBase, hSql, -1, &stmnt, NULL) == SQLITE_OK) {
-		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 5)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
-			} else {
-				icon = @"";
-			}
-			
-			[history addObject:[NSArray arrayWithObjects:
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
-								  [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								  icon, nil]];
-		}
-	} else {
-		NSLog(@"Could not prepare SQL to load history!");
-		return NO;
-	}
-	sqlite3_finalize(stmnt);
-	
-	/* Load existing tabs */
-	if (sqlite3_prepare_v2(dataBase, tSql, -1, &stmnt, NULL) == SQLITE_OK) {
-		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			if ((char *)sqlite3_column_text(stmnt, 5)) {
-				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 5)];
-			} else {
-				icon = @"";
-			}
-			
-			NSString *client = [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 4)];
-			NSMutableArray *tb = [tabs objectForKey:client];
-			if (tb != nil) {
-				[tb addObject:[NSArray arrayWithObjects:
-							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
-								[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-								icon, nil]];
-			} else {
-				NSMutableArray *tb = [[NSMutableArray alloc] init];
-				[tb addObject:[NSArray arrayWithObjects:
-							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 2)],
-							   [NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 3)],
-							   icon, nil]];
-				[tabs setObject:tb forKey:client];
-			}
-		}
-	} else {
-		NSLog(@"Could not prepare SQL to load tabs!");
-		return NO;
-	}
-	sqlite3_finalize(stmnt);
-	
-	/* Load favicons */
-	if (sqlite3_prepare_v2(dataBase, iSql, -1, &stmnt, NULL) == SQLITE_OK) {
-		while (sqlite3_step(stmnt) == SQLITE_ROW) {
-			[favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 1)]
-						 forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(stmnt, 0)]];
-		}
-	} else {
-		NSLog(@"Could not prepare SQL to load favicons!");
-		return NO;
-	}
-	sqlite3_finalize(stmnt);
-	
-	NSLog(@"Store loaded %d history items, %d bookmarks, %d tabs and %d favicons",
-		  [history count], [bookmarks count], [tabs count], [favicons count]);
-	return YES;
-}
 
--(int) getUsers {
-	int cnt = 0;
-	sqlite3_stmt *stmnt;
-	const char *sql = "SELECT COUNT(*) FROM users";
-	
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) == SQLITE_OK) {
-		if (sqlite3_step(stmnt) == SQLITE_ROW) {
-			cnt = sqlite3_column_int(stmnt, 0);
-		}
-	}
-	
-	sqlite3_finalize(stmnt);
-	return cnt;
-}
 
--(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon maybeClient:(NSString *)client {
+-(BOOL) storePlaceInDB:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon andID:(NSString*)theID maybeClient:(NSString *)client {
 	const char *sql;
 	sqlite3_stmt *stmnt;
 	
 	if ([type isEqualToString:@"bookmark"])
-		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('bookmark', ?, ?, ?)";
+		sql = "INSERT INTO moz_places ('guid', 'type', 'url', 'title', 'favicon') VALUES (?, 'bookmark', ?, ?, ?)";
 	else if ([type isEqualToString:@"history"])
-		sql = "INSERT INTO moz_places ('type', 'url', 'title', 'favicon') VALUES ('history', ?, ?, ?)";
+		sql = "INSERT INTO moz_places ('guid', 'type', 'url', 'title', 'favicon') VALUES (?, 'history', ?, ?, ?)";
 	else {
 		if (client != nil)
-			sql = "INSERT INTO moz_places ('type', 'url', 'title', 'client', 'favicon') VALUES ('tab', ?, ?, ?, ?)";
+			sql = "INSERT INTO moz_places ('guid', 'type', 'url', 'title', 'client', 'favicon') VALUES (?, 'tab', ?, ?, ?, ?)";
 		else
 			return NO;
 	}
 	
-	if (sqlite3_prepare_v2(dataBase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
 		NSLog(@"Could not prepare statement!");
 		return NO;
 	} else {
-		sqlite3_bind_text(stmnt, 1, [uri UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 2, [title UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 1, [theID UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 2, [uri UTF8String], -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmnt, 3, [title UTF8String], -1, SQLITE_TRANSIENT);
+
 		if ([type isEqualToString:@"tab"]) {
-			sqlite3_bind_text(stmnt, 3, [client UTF8String], -1, SQLITE_TRANSIENT);
-			sqlite3_bind_text(stmnt, 4, [favicon UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmnt, 4, [client UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmnt, 5, [favicon UTF8String], -1, SQLITE_TRANSIENT);
 		} else {
-			sqlite3_bind_text(stmnt, 3, [favicon UTF8String], -1, SQLITE_TRANSIENT);
+			sqlite3_bind_text(stmnt, 4, [favicon UTF8String], -1, SQLITE_TRANSIENT);
 		}
 		
 		if (sqlite3_step(stmnt) != SQLITE_DONE) {
-			NSLog(@"Could not save place to DB!");
+			int resultCode = sqlite3_finalize(stmnt);
+			NSLog(@"Could not save place to DB! (error code %d)", resultCode);
+			return NO;
+		}
+	}
+	sqlite3_finalize(stmnt);
+	return YES;
+}
+
+-(BOOL) storePlaceInDB:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon andID:(NSString*)theID {
+	return [self storePlaceInDB:type withURI:uri title:title andFavicon:favicon andID:theID maybeClient:nil];
+}
+
+-(BOOL) removePlaceFromDB:(NSString *)theID
+{
+	const char *sql;
+	sqlite3_stmt *stmnt;
+	
+	sql = "DELETE FROM moz_places where guid = ?";
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+		NSLog(@"Could not prepare statement!");
+		return NO;
+	} else {
+		sqlite3_bind_text(stmnt, 1, [theID UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"Could not remove place from DB!");
 			sqlite3_finalize(stmnt);
 			return NO;
 		}
@@ -329,11 +284,206 @@
 	return YES;
 }
 
--(BOOL) addPlace:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon {
-	return [self addPlace:type withURI:uri title:title andFavicon:favicon maybeClient:nil];
+-(BOOL) removePlace:(NSString *)theID
+{
+	// TODO remove from in-memory list
+	return [self removePlaceFromDB:theID];
 }
 
--(BOOL) addFavicons:(NSString *)json {
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+- (void) loadUserInfo
+{
+  sqlite3_stmt *dbStatement;
+  const char *userQuery = "SELECT * FROM users LIMIT 1";
+
+  if (sqlite3_prepare_v2(sqlDatabase, userQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+  {
+    if (sqlite3_step(dbStatement) == SQLITE_ROW) 
+    {
+      username = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)] retain];
+      password = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 2)] retain];
+      passphrase = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 3)] retain];
+    } 
+    sqlite3_finalize(dbStatement);
+  } 
+}
+
+///////////////////////////////////////////////////////////////////////
+- (NSString*) getUsername
+{
+  return username;
+}
+
+- (NSString*) getPassword
+{
+  return password;
+}
+
+- (NSString*) getPassphrase
+{
+  return passphrase;
+}
+
+- (NSDictionary*)  getTabs
+{
+	return tabs;
+}
+
+- (NSArray*) getTabIndex
+{
+  return tabIndex;
+}
+
+- (NSDictionary*) getFavicons
+{
+	return favicons;
+}
+
+- (NSArray*) getHistory
+{
+	return history;
+}
+
+- (NSArray*) getBookmarks
+{
+  return bookmarks;
+}
+
+
+///////////////////////////////////////////////////////////////////////
+
+-(void)loadExistingTabs
+{
+	sqlite3_stmt *dbStatement;
+	const char *tabQuery = "SELECT * FROM moz_places WHERE type = 'tab'";
+	NSString* icon;
+	
+	tabs = [[NSMutableDictionary alloc] init];
+	
+	if (sqlite3_prepare_v2(sqlDatabase, tabQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+	{
+		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+		{
+			if ((char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)) 
+			{
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)];
+			} 
+			else 
+			{
+				icon = @"";
+			}
+			
+			NSString *client = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_CLIENT_COLUMN)];
+			NSMutableArray *thisTab = [tabs objectForKey:client];
+			if (thisTab != nil) 
+			{
+				[thisTab addObject:[NSArray arrayWithObjects:
+											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
+											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
+											 icon, nil]];
+			} 
+			else 
+			{
+				NSMutableArray *thisTab = [[NSMutableArray alloc] init];
+				[thisTab addObject:[NSArray arrayWithObjects:
+											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
+											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
+											 icon, nil]];
+				[tabs setObject:thisTab forKey:client];
+				[tabIndex addObject:client];
+			}
+		}
+		sqlite3_finalize(dbStatement);
+	} 
+}
+
+-(void) loadExistingFavicons
+{
+	if (favicons == nil)
+	{
+		sqlite3_stmt *dbStatement;
+		const char *faviconQuery = "SELECT * FROM moz_favicons";
+		
+		favicons = [[NSMutableDictionary alloc] init];
+		
+		if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+		{
+			while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+			{
+				[favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)]
+										 forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
+			}
+		} 
+		sqlite3_finalize(dbStatement);
+	}
+}
+
+- (void) loadExistingHistory
+{
+ sqlite3_stmt *dbStatement;
+	const char *historyQuery = "SELECT * FROM moz_places WHERE type = 'history'";
+	NSString* icon;
+	
+	history = [[NSMutableArray array] retain];
+	
+	/* Load existing history */
+	if (sqlite3_prepare_v2(sqlDatabase, historyQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+	{
+		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+		{
+			if ((char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)) 
+			{
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)];
+			} 
+			else 
+			{
+				icon = @"";
+			}
+			
+			[history addObject:[NSArray arrayWithObjects:
+													[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
+													[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
+													icon, nil]];
+		}
+		sqlite3_finalize(dbStatement);
+	} 
+}
+
+-(void) loadExistingBookmarks
+{
+	sqlite3_stmt *dbStatement;
+	const char *bookmarkQuery = "SELECT * FROM moz_places WHERE type = 'bookmark'";
+	NSString* icon;
+	
+	bookmarks = [[NSMutableArray array] retain];
+	
+	//load any bookmarks we can find in the db
+	if (sqlite3_prepare_v2(sqlDatabase, bookmarkQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+	{
+		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+		{
+			if ((char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)) 
+			{
+				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)];
+			} 
+			else 
+			{
+				icon = @"";
+			}
+			[bookmarks addObject:[NSArray arrayWithObjects:
+														[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
+														[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
+														icon, nil]];
+		}
+		sqlite3_finalize(dbStatement);
+	} 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+-(BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID {
 	NSString *key;
 	NSString *value;
 	NSEnumerator *iter;
@@ -342,12 +492,12 @@
 	const char *fsql = "INSERT INTO moz_favicons VALUES(?, ?)";
 	
 	/* Store favicons */
-	NSDictionary *resp = [json JSONValue];
+	NSDictionary *resp = [JSONObject JSONValue];
 	iter = [resp keyEnumerator];
 	while (key = [iter nextObject]) {
 		value = [resp valueForKey:key];
 		
-		if (sqlite3_prepare_v2(dataBase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
+		if (sqlite3_prepare_v2(sqlDatabase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
 			NSLog(@"Could not prepare favicon statement!");
 			return NO;
 		}
@@ -364,13 +514,11 @@
 	return YES;
 }
 
--(BOOL) addBookmarkRecord:(NSString *)json {
+///////////////////////////////////////////////////////////////////////
+-(BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID {
 	@try {
-		NSDictionary *obj = [json JSONValue];
-		NSDictionary *payload = [obj valueForKey:@"payload"];
-		NSString *cipher = [payload valueForKey:@"ciphertext"];
-		NSArray *item = [cipher JSONValue];
-		NSDictionary *bmk = [item objectAtIndex:0];
+		NSArray *bmkArray = [json JSONValue];
+		NSDictionary *bmk = [bmkArray objectAtIndex:0];
 			
 		if ([[bmk valueForKey:@"type"] isEqualToString:@"bookmark"]) {
 			NSString *uri = [bmk valueForKey:@"bmkUri"];
@@ -380,7 +528,8 @@
 			if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
 				NSString *favicon = [[NSURL URLWithString:uri] host];
 				[bookmarks addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-				[self addPlace:@"bookmark" withURI:uri title:title andFavicon:favicon];
+				[self storePlaceInDB:@"bookmark" withURI:uri title:title andFavicon:favicon andID:theID];
+				//NSLog(@"Added bookmark %@", uri);
 			}
 		}
 	} @catch (id theException) {
@@ -391,21 +540,36 @@
 	return YES;
 }
 
--(BOOL) addHistoryRecord:(NSString *)json {
+
+
+///////////////////////////////////////////////////////////////////////
+-(BOOL) removeBookmarkRecord:(NSString *)json 
+{
+	NSDictionary *data = [json JSONValue];
+	NSString *theID = [data valueForKey:@"id"];
+	
+	[self removePlace:theID];
+	return YES;
+}
+
+
+///////////////////////////////////////////////////////////////////////
+//Not sure, but I suspect we will be storing an entire history set, not one at a time.
+-(BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID {
+	// NSLog(@"addHistory %@", json);
 	@try {
-		NSDictionary *obj = [json JSONValue];
-		NSDictionary *payload = [obj valueForKey:@"payload"];
-		NSString *cipher = [payload valueForKey:@"ciphertext"];
-		NSArray *item = [cipher JSONValue];
-		NSDictionary *hist = [item objectAtIndex:0];
-			
-		NSString *uri = [hist valueForKey:@"histUri"];
-		NSString *title = [hist valueForKey:@"title"];
-			
-		if (title && uri) {
-			NSString *favicon = [[NSURL URLWithString:uri] host];
-			[history addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-			[self addPlace:@"history" withURI:uri title:title andFavicon:favicon];
+		NSArray *historyArray = [json JSONValue];
+		NSEnumerator *iter = [historyArray objectEnumerator];
+		NSDictionary *hist;
+		while (hist = [iter nextObject]) {
+			NSString *uri = [hist valueForKey:@"histUri"];
+			NSString *title = [hist valueForKey:@"title"];
+				
+			if (title && uri) {
+				NSString *favicon = [[NSURL URLWithString:uri] host];
+				[history addObject:[NSArray arrayWithObjects:[uri retain], [title retain], [favicon retain], nil]];
+				[self storePlaceInDB:@"history" withURI:uri title:title andFavicon:favicon andID:theID ];
+			}
 		}
 	} @catch (id theException) {
 		NSLog(@"threw %@", theException);
@@ -415,50 +579,63 @@
 	return YES;
 }
 
--(BOOL) addTabs:(NSString *)json {	
-	NSDictionary *obj;
-	NSDictionary *tab;
-	NSEnumerator *iter = [[json JSONValue] objectEnumerator];
-	
-	while (obj = [iter nextObject]) {
-		@try {
-			NSDictionary *payload = [obj valueForKey:@"payload"];
-			NSString *cipher = [payload valueForKey:@"ciphertext"];
 
-			NSArray *tbs = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"tabs"];
-			NSString *client = [[[cipher JSONValue] objectAtIndex:0] valueForKey:@"clientName"];
-			NSEnumerator *tEnum = [tbs objectEnumerator];
-			
-			while (tab = [tEnum nextObject]) {
-				NSString *uri = [[tab valueForKey:@"urlHistory"] objectAtIndex:0];
-				NSString *title = [tab valueForKey:@"title"];
-				
-				if (title && uri) {
-					NSString *favicon = [[NSURL URLWithString:uri] host];
-					if (favicon == nil)
-						favicon = @"";
-					
-					NSMutableArray *tb = [tabs objectForKey:client];
-					if (tb != nil) {
-						[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-					} else {
-						NSMutableArray *tb = [[NSMutableArray alloc] init];
-						[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-						[tabs setObject:tb forKey:client];
-					}
-					[self addPlace:@"tab" withURI:uri title:title andFavicon:favicon maybeClient:client];
-				}
-			}
-		} @catch (id theException) {
-			NSLog(@"Threw %@", theException);
-		}
-	}
+//------------------------------------------------------------
+//------------------------------------------------------------
+
+-(BOOL) addTab:(NSString *)json withID:(NSString*)theID {	
+	// NSLog(@"addTab %@", json);
+	// curiously, the input is an array.
+
+	tabs = [[NSMutableDictionary alloc] init];
+	NSArray *data = [json JSONValue];
+	NSDictionary *tabRecord = [data objectAtIndex:0];
+	NSDictionary *clientDict = [[NSMutableDictionary alloc] init];
 	
+	@try {
+		NSArray *tbs = [tabRecord valueForKey:@"tabs"];
+		NSString *client = [tabRecord valueForKey:@"clientName"];
+		[clientDict setValue:self forKey:client];
+		NSEnumerator *tEnum = [tbs objectEnumerator];
+		
+		NSDictionary *tab;
+		while (tab = [tEnum nextObject]) {
+			NSString *uri = [[tab valueForKey:@"urlHistory"] objectAtIndex:0];
+			NSString *title = [tab valueForKey:@"title"];
+			
+			if (title && uri) {
+				NSString *favicon = [[NSURL URLWithString:uri] host];
+				if (favicon == nil)
+					favicon = @"";
+				
+				NSMutableArray *tb = [tabs objectForKey:client];
+				if (tb != nil) {
+					[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+				} else {
+					NSMutableArray *tb = [[NSMutableArray alloc] init];
+					[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+					[tabs setObject:tb forKey:client];
+				}
+				[self storePlaceInDB:@"tab" withURI:uri title:title andFavicon:favicon andID:theID maybeClient:client ];
+			}
+		}
+	} @catch (id theException) {
+		NSLog(@"Threw %@", theException);
+	}
+	// TODO leak?
+	NSEnumerator *iter = [clientDict keyEnumerator];
+	NSString *key;
+	tabIndex = [[NSMutableArray alloc] init];
+	while (key = [iter nextObject]) {
+		[tabIndex addObject:key];
+	}
 	return YES;
 }
-	
+
+
+///////////////////////////////////////////////////////////////////////
 -(void) dealloc {
-	sqlite3_close(dataBase);
+	sqlite3_close(sqlDatabase);
 	[super dealloc];
 }
 

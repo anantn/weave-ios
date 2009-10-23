@@ -29,7 +29,7 @@
 #import <Security/Security.h>
 
 #import "Store.h"
-#import "Service.h"
+//#import "Service.h"
 #import "Utility.h"
 #import "Connection.h"
 
@@ -41,6 +41,9 @@
 	self = [super init];
 	
 	if (self) {
+		pubkey = nil;
+		privkey = nil;
+		
 		self.serv = s;
 		self.curBulk = nil;
 		self.wbos = [[NSMutableArray alloc] init];
@@ -95,6 +98,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
     CFBooleanRef    kBoolToCF[2] = { kCFBooleanFalse, kCFBooleanTrue };
 	
     result = NO;
+    
     keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
     assert(keyTagData != nil);
 	
@@ -136,6 +140,19 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
     return result;
 }
 
+- (void)_installKeys
+{
+    uint8_t     publicKeyHash[CC_SHA1_DIGEST_LENGTH];
+    NSData *    publicKeyHashData;
+	
+    (void) CC_SHA1([pubkey bytes], [pubkey length], publicKeyHash);
+    publicKeyHashData = [NSData dataWithBytes:publicKeyHash length:sizeof(publicKeyHash)];
+    assert(publicKeyHashData != NULL);
+	
+    [self _installKeyData:pubkey  name:PUB_KEY_NAME  label:publicKeyHashData private:NO];
+    [self _installKeyData:privkey name:PRIV_KEY_NAME label:publicKeyHashData private:YES];
+}
+
 - (SecKeyRef)_getKeyNamed:(NSString *)keyName
 {
     OSStatus    err;
@@ -164,38 +181,25 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 
 /* Private Crypto functions END */
 
-/* Set selector sets the method that is called by _processWBO to add to storage */
--(void) setSelector:(SEL)selector
-{
-	select = selector;
-}
-
 /* Take a single WBO from self.wbos and attempt decryption.
  * When this is called, the corresponding bulk key should already be in self.bulk */
 -(void) _processWBO
 {
-	if ([wbos length] > 0) {
-		NSDictionary *wbo = [wbos lastObject];
-		NSDictionary *bulkKey = [bulk objectForKey:[wbo objectForKey:@"encryption"]];
+	NSDictionary *wbo = [wbos lastObject];
+	NSDictionary *bulkKey = [bulk objectForKey:[wbo objectForKey:@"encryption"]];
 	
-		NSData *bulkIV = [[NSData alloc] initWithBase64EncodedString:[bulkKey objectForKey:@"iv"]];
-		NSData *symKey = [bulkKey objectForKey:@"key"];
+	NSData *bulkIV = [[NSData alloc] initWithBase64EncodedString:[bulkKey objectForKey:@"iv"]];
+	NSData *symKey = [bulkKey objectForKey:@"key"];
 	
-		NSData *cipher = [[NSData alloc] initWithBase64EncodedString:[wbo objectForKey:@"ciphertext"]];
+	NSData *cipher = [[NSData alloc] initWithBase64EncodedString:[wbo objectForKey:@"ciphertext"]];
 	
-		NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [cipher base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
+	NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [cipher base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
 
-		NSString *plainText = [[NSString alloc] initWithData:[cipher AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
-		plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-		NSLog(@"Got %@!", plainText);
-		
-		[[serv store] performSelector:select withObject:plainText];
-	} else {
-		[serv cryptoDone:CRYPTO_DONE_LAST];
-	}
+	NSString *plainText = [[NSString alloc] initWithData:[cipher AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
+	plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	NSLog(@"Got %@!", plainText);
 	
-	//FIXME: ??
-	//[plainText release]; [bulkIV release]; [cipher release];
+	[plainText release]; [bulkIV release]; [cipher release];
 }
 
 /* Add a WBO to self.wbos. If it's bulk-key hasn't been fetched yet, get it */
@@ -224,7 +228,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	
 	[salt getBytes:tsalt];
 	PKCS5_PBKDF2_HMAC_SHA1(
-		[[serv passphrase] cStringUsingEncoding:NSUTF8StringEncoding],
+		[[[Store getStore] getPassphrase] cStringUsingEncoding:NSUTF8StringEncoding],
 		-1, tsalt, [salt length], 4096, 32, final
 	);
 	
@@ -236,8 +240,9 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	NSData *rsaKey = [rawKey AESdecryptWithKey:aesKey andIV:iv];
 	[iv release]; [rawKey release]; [aesKey release];
 	
+  //Dan says: this is dangerous.  [NSData bytes] is not null-terminated.  it is not a string, it is a counted number of bytes.
 	/* Hmm, some ASN.1 parsing. YUCK */
-	char *rsaKeyBytes = (char *)[rsaKey bytes];
+	uint8_t* rsaKeyBytes = (uint8_t *)[rsaKey bytes];
 	
 	/* Step 1. Is offset 22 a OCTET tag? */
 	int off = 22;
@@ -270,21 +275,89 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 		len = [rsaKey length] - off;
 	
 	/* Step 4. Now extract actual key */
-	NSData *privkey = [rsaKey subdataWithRange:NSMakeRange(off, len)];	
-	if (privkey) {
-		/* Step 5. Add it to the Keychain */
-		uint8_t keyHash[CC_SHA1_DIGEST_LENGTH];
-		NSData *keyHashData;
-		
-		(void) CC_SHA1([privkey bytes], [privkey length], keyHash);
-		keyHashData = [NSData dataWithBytes:keyHash length:sizeof(keyHash)];
-		assert(keyHashData != NULL);
-		[self _installKeyData:privkey name:PRIV_KEY_NAME label:keyHashData private:YES];		
+	privkey = [rsaKey subdataWithRange:NSMakeRange(off, len)];	
+	if (privkey && pubkey)
 		return YES;
-	} else {
-		NSLog(@"privkey missing!");
+	else {
+		NSLog(@"pubkey or privkey missing!");
 		return NO;
 	}
+
+}
+
+/* Temporary: Test keys */
+- (void)testKeys
+{
+    OSStatus        err;
+    SecKeyRef       publicKey;
+    SecKeyRef       privateKey;
+    size_t          blockSize;
+    const char *    plainText;
+    size_t          plainTextLen;
+    uint8_t *       cipherText;
+    size_t          cipherTextLen;
+    char *          decodedText;
+    size_t          decodedTextLen;
+    
+    publicKey  = [self _getKeyNamed:PUB_KEY_NAME];
+    privateKey = [self _getKeyNamed:PRIV_KEY_NAME];
+    if ( (publicKey == NULL) || (publicKey == NULL) ) {
+        NSLog(@"Key missing");
+    } else {
+        blockSize = SecKeyGetBlockSize(publicKey);
+		
+        plainText = "Hello Cruel World!";
+		// include trailing null
+        plainTextLen = strlen(plainText) + 1;
+        
+        cipherTextLen = blockSize;
+        cipherText = malloc(cipherTextLen);
+        assert(cipherText != NULL);
+        
+		// makes it easier to see if things are working
+        memset(cipherText, 0xAA, cipherTextLen);
+        
+        err = SecKeyEncrypt(
+							publicKey, 
+							kSecPaddingPKCS1, 
+							(const uint8_t *) plainText, 
+							plainTextLen,
+							cipherText, 
+							&cipherTextLen
+							);
+        assert(err == noErr);
+        
+        decodedTextLen = blockSize;
+        decodedText = malloc(decodedTextLen);
+        assert(decodedText != NULL);
+		
+        memset(decodedText, 0xAA, decodedTextLen);
+        
+        err = SecKeyDecrypt(
+							privateKey, 
+							kSecPaddingPKCS1, 
+							cipherText, 
+							cipherTextLen, 
+							(uint8_t *) decodedText, 
+							&decodedTextLen
+							);
+        assert(err == noErr);
+        
+        if (decodedTextLen != plainTextLen) {
+            NSLog(@"wrong length");
+        } else if (memcmp(decodedText, plainText, plainTextLen) != 0) {
+            NSLog(@"wrong data");
+        } else {
+            NSLog(@"success");
+        }
+    }
+    
+    if (publicKey != NULL) {
+        CFRelease(publicKey);
+    }
+    if (privateKey != NULL) {
+        CFRelease(privateKey);
+    }
 }
 
 -(void) successWithString:(NSString *)response andIndex:(int)i
@@ -292,24 +365,40 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 	NSData *symKey;
 	NSData *usymKey;
 	NSString *cipher;
-	
+		
 	switch (i) {
+		case GOT_PUB_KEY:
+			pubkey = [[NSData alloc] initWithBase64EncodedString:
+					  [[[[response JSONValue] objectForKey:@"payload"]
+						JSONValue] objectForKey:@"keyData"]];
+			if (pubkey) {
+				[[serv conn] getRelativeResource:PRIVKEY_U withCallback:self andIndex:GOT_PRIV_KEY];
+			} else {
+				NSLog(@"Could not fetch public key!");
+				[serv cryptoDone:NO];
+			}
+			break;
 		case GOT_PRIV_KEY:
 			if ([self decryptRSA:[[[response JSONValue] valueForKey:@"payload"] JSONValue]]) {
-				[serv cryptoDone:CRYPTO_DONE_INIT];
+				/* Let's install the user's keys */
+				[self _installKeys];
+				[serv cryptoDone:YES];
 			} else {
-				[serv cryptoDone:CRYPTO_DONE_FAIL];
+				[serv cryptoDone:NO];
 			}
 			break;
 		case GOT_BULK_KEY:
 			if (curBulk == nil) {
 				NSLog(@"Error: GOT_BULK_KEY without set curBulk!");
 			} else {
-				/* Decrypt and store bulk key */				
+				/* Decrypt and store bulk key */
+				NSLog(@"testing keys");
+				[self testKeys];
+				
 				cipher = [[[[[response JSONValue] objectForKey:@"payload"] JSONValue]
 						  objectForKey:@"keyring"] objectForKey:
 						  [NSString stringWithFormat:@"%@0.5/%@/storage/keys/pubkey",
-						  [[serv conn] cluster], [[serv conn] user]]];
+						  [[serv conn] cluster], [[Store getStore] getUsername]]];
 
 				if (cipher != nil) {
 					symKey = [[NSData alloc] initWithBase64EncodedString:cipher];
@@ -338,7 +427,7 @@ int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
 
 -(void) failureWithError:(NSError *)error andIndex:(int)i
 {
-	[serv cryptoDone:CRYPTO_DONE_FAIL];
+	[serv cryptoDone:NO];
 }
 
 -(NSData *) unwrapSymmetricKey:(NSData *)symKey

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Private Key URL</key>
+	<string>storage/keys/privkey</string>
+	<key>Public Key URL</key>
+	<string>storage/keys/pubkey</string>
+	<key>Bookmarks Update URL</key>
+	<string>storage/bookmarks/?newer=%f</string>
+	<key>Bookmarks URL</key>
+	<string>storage/bookmarks/?full=1</string>
+	<key>Favicons URL</key>
+	<string>https://services.mozilla.com/favicons/</string>
+	<key>History Update URL</key>
+	<string>storage/history/?full=1&amp;sort=newest&amp;newer=%f</string>
+	<key>History URL</key>
+	<string>storage/history/?full=1&amp;sort=newest</string>
+	<key>Tabs URL</key>
+	<string>storage/tabs/?full=1</string>
+	<key>Node Query URL</key>
+	<string>https://auth.services.mozilla.com/user/1/%@/node/weave</string>
+	<key>Service Base URL</key>
+	<string>services.mozilla.com</string>
+</dict>
+</plist>

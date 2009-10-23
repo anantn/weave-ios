@@ -32,9 +32,6 @@
 	BOOL success;
 	unsigned long currentLength;
 	
-	NSString *user;
-	NSString *pass;
-	NSString *phrase;
 	NSString *cluster;
 	NSMutableData *responseData;
 }
@@ -42,9 +39,6 @@
 @property (nonatomic) BOOL success;
 @property (nonatomic, retain) id cb;
 
-@property (nonatomic, copy) NSString *user;
-@property (nonatomic, copy) NSString *pass;
-@property (nonatomic, copy) NSString *phrase;
 @property (nonatomic, copy) NSString *cluster;
 
 @property (nonatomic, retain) NSMutableData *responseData;
@@ -55,6 +49,6 @@
 -(void) getRelativeResource:(NSString *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i;
 
 -(void) postTo:(NSURL *)url withData:(NSString *)data callback:(id <Responder>)callback andIndex:(int)i;
--(void) setUser:(NSString *)u password:(NSString *)p passphrase:(NSString *)ph andCluster:(NSString *)cl;
+-(void) setCluster:(NSString *)cl;
 
 @end

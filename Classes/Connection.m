@@ -23,18 +23,17 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Connection.h"
-#import "Service.h"
+//#import "Service.h"
 #import "JSON.h"
 #import "Utility.h"
+#import "Store.h"
 
 @implementation Connection
 
-@synthesize cb, success, responseData, user, pass, phrase, cluster;
+@synthesize cb, success, responseData, cluster;
 
--(void) setUser:(NSString *)u password:(NSString *)p passphrase:(NSString *)ph andCluster:(NSString *)cl{
-	user = u;
-	pass = p;
-	phrase = ph;
+-(void) setCluster:(NSString *)cl
+{
 	cluster = cl;
 }
 
@@ -53,11 +52,38 @@
 	if (pg)
 		[request addValue:@"application/whoisi" forHTTPHeaderField:@"Accept"];
 	
-	NSString *format = [NSString stringWithFormat:@"%@:%@", user, pass];
+	NSString *format = [NSString stringWithFormat:@"%@:%@", [[Store getStore] getUsername] , [[Store getStore] getPassword]];
 	[request addValue:[NSString stringWithFormat:@"Basic %@", [[format dataUsingEncoding:NSUTF8StringEncoding] base64Encoding]]
 		forHTTPHeaderField:@"Authorization"];
 	[[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
+
+
+//[mConn getResource:[NSURL URLWithString:cl] notify:self with: @selector(gotCluster:)];
+-(void) getResource:(NSURL *)url notify:(id)observer with: (SEL)method
+{
+	responseData = [[NSMutableData alloc] init];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+                                      cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                      timeoutInterval:10];
+	
+	/* For streaming, we request whoisi style output from server */
+	//if (pg) [request addValue:@"application/whoisi" forHTTPHeaderField:@"Accept"];
+	
+	NSString *format = [NSString stringWithFormat:@"%@:%@", [[Store getStore] getUsername] , [[Store getStore] getPassword]];
+  
+	[request addValue:[NSString stringWithFormat:@"Basic %@", 
+                     [[format dataUsingEncoding:NSUTF8StringEncoding] base64Encoding]] forHTTPHeaderField:@"Authorization"];
+  
+	[[NSURLConnection alloc] initWithRequest:request delegate:self];
+}
+
+
+
+
+
+
+
 
 -(void) getResource:(NSURL *)url withCallback:(id <Responder>)callback pgIndex:(int)j andIndex:(int)i {
 	pg = j;
@@ -69,7 +95,7 @@
 	if (!cluster) {
 		NSLog(@"Error! No cluster set and getRelativeResource called");
 	} else {
-		NSString *full = [NSString stringWithFormat:@"%@0.5/%@/%@", cluster, user, url];
+		NSString *full = [NSString stringWithFormat:@"%@0.5/%@/%@", cluster, [[Store getStore] getUsername], url];
 		[self getResource:[NSURL URLWithString:full] withCallback:callback andIndex:i];
 	}
 }
@@ -107,34 +133,46 @@
 		success = YES;
 	}
 	
-	if (pg)
-		[cb setTotal:[[(NSHTTPURLResponse *)response allHeaderFields] 
-					  objectForKey:@"X-Weave-Records"]];
+//	if (pg)
+//		[cb setTotal:[[(NSHTTPURLResponse *)response allHeaderFields] 
+//					  objectForKey:@"X-Weave-Records"]];
 	
 	[responseData setLength:0];
 }
 
--(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+
+
+//he's chopping the incoming data up into chunks, each of which are length-prefixed with 4 bytes
+// after each chunk, he sends it to the caller.  I think all this is pretty much unecessary.
+//let's collect all the data instead, then chop it up, and return an array of nsdatas.
+-(void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data 
+{
 	[responseData appendData:data];
-	if (pg) {
-		if (!currentLength) {
+	if (pg) 
+  {
+		if (!currentLength) 
+    {
 			[responseData getBytes:&currentLength length:sizeof(unsigned long)];
 			currentLength = NSSwapBigLongToHost(currentLength);
 		}
 		int from = sizeof(unsigned long) + currentLength;
-		if ([responseData length] >= from) {
+    
+		if ([responseData length] >= from) 
+    {
 			[cb successWithString:[[[NSString alloc]
-									initWithData:[responseData subdataWithRange:
-												  NSMakeRange(sizeof(unsigned long), currentLength)]
-									encoding:NSUTF8StringEncoding] autorelease] andIndex:pg];
-			NSData *new = [responseData subdataWithRange:
-						   NSMakeRange(from, [responseData length] - from)];
+                              initWithData:[responseData subdataWithRange: NSMakeRange(sizeof(unsigned long), currentLength)]
+                              encoding:NSUTF8StringEncoding] autorelease] andIndex:pg];
+      
+			NSData *new = [responseData subdataWithRange: NSMakeRange(from, [responseData length] - from)];
 			[responseData release];
 			responseData = [[NSMutableData alloc] initWithData:new];
 			currentLength = 0;
 		}
 	}
 }
+
+
+
 
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	pg = 0;

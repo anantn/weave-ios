@@ -24,8 +24,9 @@
 
 #import "LoginViewController.h"
 #import "WeaveAppDelegate.h"
-#import "Service.h"
+#import "Stockboy.h"
 #import "Reachability.h"
+#import "Store.h"
 
 @implementation LoginViewController
 
@@ -90,8 +91,9 @@
 			password = pwdField.text;
 			passphrase = pphField.text;
 
-			WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-			[app.service loadFromUser:username password:password passphrase:passphrase andCallback:self];
+			//WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+			[[Store getStore] setUser:username password:password passphrase:passphrase];
+			[[Stockboy getStockboy] refreshStock];
 		}
 		
 		return YES;

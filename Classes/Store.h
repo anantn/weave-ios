@@ -25,37 +25,51 @@
 #import <Foundation/Foundation.h>
 #import <sqlite3.h>
 
+//Changing this class to be a write-through cache.
+// asking for data causes the encrypted data to be read from disk, decrypted, and cached in memory, for subsequent reads.
+// setting new (encrypted) data flushes the cache, and overwrites the data on disk.  next read will cause a decrypt and cache.
+
+//Note: at the moment, everything is still plaintext in the database, until I get the crypto moved over here
 @class Service;
 
 @interface Store : NSObject {
-	sqlite3 *dataBase;
+	sqlite3             *sqlDatabase;
 	
-	NSMutableArray *history;
-	NSMutableArray *bookmarks;
-	
-	NSMutableDictionary *tabs;
+  NSString *username;
+  NSString *password;
+  NSString *passphrase;
+  
+  NSMutableDictionary *tabs;			// table from clientName -> array of [uri, title, favicon]
+  NSMutableArray      *tabIndex;	// list of clientNames
 	NSMutableDictionary *favicons;
+  NSMutableArray      *history;
+	NSMutableArray      *bookmarks;
 }
 
-@property (nonatomic) sqlite3 *dataBase;
+//if the global is null, it loads the default store
++ (Store*) getStore;
 
-@property (nonatomic, retain) NSMutableArray *history;
-@property (nonatomic, retain) NSMutableArray *bookmarks;
-@property (nonatomic, retain) NSMutableDictionary *tabs;
-@property (nonatomic, retain) NSMutableDictionary *favicons;
+//for creating a user when there is none
+- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword passphrase:(NSString*) newPassphrase;
 
--(Store *) initWithDB:(NSString *)db;
+//for now, these are stored in the db. obviously this is not secure at all.
+- (NSString*) getUsername;
+- (NSString*) getPassword;
+- (NSString*) getPassphrase;
 
--(BOOL) addTabs:(NSString *)json;
--(BOOL) addFavicons:(NSString *)json;
--(BOOL) addHistoryRecord:(NSString *)json;
--(BOOL) addBookmarkRecord:(NSString *)json;
+- (NSDictionary*)  getTabs;
+- (NSArray*)       getTabIndex;
+- (NSDictionary*)  getFavicons;
+- (NSArray*)       getHistory;
+- (NSArray*)       getBookmarks;
 
--(BOOL) loadUserToService:(Service *)svc;
--(BOOL) addUserWithService:(Service *)svc;
--(BOOL) setSyncTimeForUser:(NSString *)user;
--(double) getSyncTimeForUser:(NSString *)user;
+- (BOOL) addTab:(NSString *)JSONObject withID:(NSString*)theID;  //tabIndex computed
+- (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;
+- (BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID;
+- (BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID;
 
--(int) getUsers;
+
+- (BOOL) setSyncTimeToNow;
+- (double) getSyncTime;
 
 @end

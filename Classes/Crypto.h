@@ -25,24 +25,25 @@
 #import <Foundation/Foundation.h>
 #import "Responder.h"
 
-#define GOT_PRIV_KEY		0
-#define GOT_BULK_KEY		1
-
-#define CRYPTO_DONE_FAIL	0
-#define CRYPTO_DONE_INIT	1
-#define CRYPTO_DONE_LAST	2
+#define GOT_PUB_KEY			0
+#define GOT_PRIV_KEY		1
+#define GOT_BULK_KEY		2
 
 #define KEY_SIZE			2048
+#define PUB_KEY_NAME		@"public"
 #define PRIV_KEY_NAME		@"private"
 
 @class Connection, Service;
 
 @interface Crypto : NSObject <Responder> {
-	SEL select;
 	Service *serv;
 	NSString *curBulk;
 	NSMutableArray *wbos;
 	NSMutableDictionary *bulk;
+	
+	/* Key data */
+	NSData *pubkey;
+	NSData *privkey;
 }
 
 @property (nonatomic, retain) Service *serv;
@@ -50,7 +51,6 @@
 @property (nonatomic, retain) NSMutableArray *wbos;
 @property (nonatomic, retain) NSMutableDictionary *bulk;
 
--(void) setSelector:(SEL)selector;
 -(void) decryptWBO:(NSDictionary *)record;
 
 -(Crypto *) initWithService:(Service *)s;

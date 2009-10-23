@@ -25,12 +25,18 @@
 #import "ListController.h"
 #import "WeaveAppDelegate.h"
 #import "TabViewController.h"
-#import "Service.h"
+#import "Store.h"
 #import "Utility.h"
 
 @implementation ListController
 
 @synthesize tView, tabController;
+
+
+#define SEARCH_VIEW 0
+#define TAB_VIEW 1
+#define HISTORY_VIEW 2
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -38,28 +44,35 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {    
-	if (tabController.selectedIndex == 1) {
-		return [[[[app service] getTabs] allKeys] count];
+	if (tabController.selectedIndex == TAB_VIEW) {
+		return [[[Store getStore] getTabIndex] count];
 	} else {
 		return 1;
 	}
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-	if (tabController.selectedIndex == 1) {
-		return [[[[app service] getTabs] allKeys] objectAtIndex:section];
+	if (tabController.selectedIndex == TAB_VIEW) {
+		return [[[Store getStore] getTabIndex] objectAtIndex:section];
 	} else {
 		return @"History";
 	}
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	if (tabController.selectedIndex == 2) {
-		return ([[[app service] getHistory] count] > 20 ? 20 : [[[app service] getHistory] count]);
-	} else {
-		NSDictionary *t = [[app service] getTabs];
-		return [[t objectForKey:[[t allKeys] objectAtIndex:section]] count];
-	}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
+{
+	if (tabController.selectedIndex == HISTORY_VIEW) 
+  {
+		return ([[[Store getStore] getHistory] count] > 20 ? 20 : [[[Store getStore] getHistory] count]);
+	} 
+  else
+  {    
+    NSArray *tabIndex = [[Store getStore] getTabIndex];
+    NSDictionary *tabs = [[Store getStore] getTabs];
+    if (![tabIndex count]) return 0;  //empty tab list
+
+    return [[tabs objectForKey:[tabIndex objectAtIndex:section]] count];
+  }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -101,18 +114,24 @@
 	cell.accessoryView = nil;
 
 	NSArray *obj;
-	if (tabController.selectedIndex == 1) {
-		NSDictionary *tb = [[app service] getTabs];
-		obj = [[tb objectForKey:[[tb allKeys] objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
+	if (tabController.selectedIndex == TAB_VIEW) 
+  {
+		NSDictionary *tabs = [[Store getStore] getTabs];
+    NSArray* tabIndex = [[Store getStore] getTabIndex];
+    
+		obj = [[tabs objectForKey:[tabIndex objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
+    
 		title.text = [obj objectAtIndex:1];
 		uri.text = [obj objectAtIndex:0];
-	} else {
-		obj = [[[app service] getHistory] objectAtIndex:indexPath.row];
+	}
+  else 
+  {
+		obj = [[[Store getStore] getHistory] objectAtIndex:indexPath.row];
 		title.text = [obj objectAtIndex:1];
 		uri.text = [obj objectAtIndex:0];
 	}
 
-	NSDictionary *icons = [[app service] getIcons];
+	NSDictionary *icons = [[Store getStore] getFavicons];
 	if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
 		cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
 								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
@@ -124,12 +143,15 @@
 }
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (tabController.selectedIndex == 1) {
-		NSDictionary *tb = [[app service] getTabs];
-		NSArray *obj = [[tb objectForKey:[[tb allKeys] objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
+	if (tabController.selectedIndex == TAB_VIEW) {
+		NSDictionary *tabs = [[Store getStore] getTabs];
+    NSArray* tabIndex = [[Store getStore] getTabIndex];
+
+		NSArray *obj = [[tabs objectForKey:[tabIndex objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
+    
 		[app setUri:[obj objectAtIndex:0]];
 	} else {
-		[app setUri:[[[[app service] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
+		[app setUri:[[[[Store getStore] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	}
 	[app switchMainToWeb];
 }

@@ -24,7 +24,7 @@
 
 #import "TabViewController.h"
 #import "WeaveAppDelegate.h"
-#import "Service.h"
+#import "Stockboy.h"
 
 @implementation TabViewController
 
@@ -44,9 +44,10 @@
 	if (fabsf(acceleration.x) > 1.6 ||
 		fabsf(acceleration.y) > 1.6 ||
 		fabsf(acceleration.z) > 1.6) {
-		if (okToUpdate) {
+		if (okToUpdate) 
+    {
 			okToUpdate = NO;
-			[[(WeaveAppDelegate *)[[UIApplication sharedApplication] delegate] service] updateDataWithCallback:self];
+			[[Stockboy getStockboy] refreshStock];
 		}
 	}
 }
