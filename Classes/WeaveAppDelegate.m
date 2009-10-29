@@ -45,7 +45,7 @@
 	} 
   else 
   {
-		[[Stockboy getStockboy] refreshStock];
+		[Stockboy restock];
 		[window addSubview:tabController.view];
 	}
 	[window makeKeyAndVisible];
@@ -78,7 +78,7 @@
 }
 
 -(void) switchLoginToMain {
-	[[Stockboy getStockboy] refreshStock]; // TODO, really?
+	//[[Stockboy getStockboy] refreshStock]; // TODO, really?
 	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 

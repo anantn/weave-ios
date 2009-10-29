@@ -7,9 +7,27 @@
 //
 
 #import "CryptoUtils.h"
-
+#import "Store.h"
+#import "Fetcher.h"
+#import "NSString+SBJSON.h"
 
 @implementation CryptoUtils
+
++ (BOOL) fetchAndInstallPrivateKeyFor:passphrase
+{
+  //get the cluster
+	NSString *cl = [NSString stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave" /*[_networkPaths objectForKey:@"Node Query URL"]*/, 
+                  [[Store getStore] getUsername]];  
+	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl];
+  NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
+  
+  NSData* privKeyData = [Fetcher getURLSynchronous:@"storage/keys/privkey" /*[_networkPaths objectForKey:@"Private Key URL"]*/ fromCluster:cluster];
+  NSString* privKeyString = [[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding];
+  NSDictionary *privKeyJSON = [privKeyString JSONValue];
+
+  NSDictionary *payload = [[privKeyJSON valueForKey:@"payload"] JSONValue];
+  return [CryptoUtils decryptPrivateKey:payload withPassphrase:passphrase];
+}
 
 
 + (BOOL)_installKeyData:(NSData *)keyData name:(NSString *)keyName label:(NSData *)keyAppLabel private:(BOOL)isPrivate
@@ -164,7 +182,7 @@
 	}
 }
 
-+ (NSData *) unwrapSymmetricKey:(NSData *)symKey
++ (NSData *) unwrapSymmetricKey:(NSData *)symKey withPrivateKey:(SecKeyRef) privateKey
 {
 	OSStatus err = noErr;
 	size_t cipherBufferSize = 0;
@@ -172,7 +190,7 @@
 	
 	NSData *key = nil;
 	uint8_t *keyBuffer = NULL;
-	SecKeyRef privateKey = [self _getKeyNamed:PRIV_KEY_NAME];
+	//SecKeyRef privateKey = [self _getKeyNamed:PRIV_KEY_NAME];
 	
 	cipherBufferSize = SecKeyGetBlockSize(privateKey);
 	keyBufferSize = [symKey length];

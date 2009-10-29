@@ -28,7 +28,6 @@
 
 @interface SearchController : UIViewController <UIAccelerometerDelegate> {
 	BOOL searching;
-	BOOL okToUpdate;
 	
 	UISearchBar *searchBar;
 	UITableView *tableView;

@@ -34,7 +34,6 @@
     [super viewDidLoad];
 	[self setDelegate:self];
 
-	okToUpdate = NO;
 	UIAccelerometer *accel = [UIAccelerometer sharedAccelerometer];
 	accel.delegate = self;
 	accel.updateInterval = 1.0f/10.0f;
@@ -43,12 +42,9 @@
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
 	if (fabsf(acceleration.x) > 1.6 ||
 		fabsf(acceleration.y) > 1.6 ||
-		fabsf(acceleration.z) > 1.6) {
-		if (okToUpdate) 
-    {
-			okToUpdate = NO;
-			[[Stockboy getStockboy] refreshStock];
-		}
+		fabsf(acceleration.z) > 1.6) 
+  {
+    [Stockboy restock];
 	}
 }
 

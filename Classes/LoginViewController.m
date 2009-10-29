@@ -27,6 +27,7 @@
 #import "Stockboy.h"
 #import "Reachability.h"
 #import "Store.h"
+#import "CryptoUtils.h"
 
 @implementation LoginViewController
 
@@ -92,8 +93,9 @@
 			passphrase = pphField.text;
 
 			//WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-			[[Store getStore] setUser:username password:password passphrase:passphrase];
-			[[Stockboy getStockboy] refreshStock];
+			[[Store getStore] setUser:username password:password passphrase:nil];
+      [CryptoUtils fetchAndInstallPrivateKeyFor:passphrase];
+			[Stockboy restock];
 		}
 		
 		return YES;

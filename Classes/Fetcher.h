@@ -23,7 +23,8 @@
 }
 
 //class utility method for synchronous fetching, used for the cluster, which must be gotten before we can do anything else
-+ (NSData*) getAbsoluteURLSync:(NSString*)url;
++ (NSData*) getAbsoluteURLSynchronous:(NSString*)url;
++ (NSData*) getURLSynchronous:(NSString*)url fromCluster:(NSString*)cluster;
 
 // class method to create a fetcher for the given cluster and URL; if one is already underway,
 // does nothing.

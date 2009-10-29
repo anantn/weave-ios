@@ -7,43 +7,23 @@
 
 #import <Foundation/Foundation.h>
 
-//The stockboy, also a singleton, is responsible for checking to see if the user's data is fresh, and if not,
+//The stockboy, a singleton, is responsible for checking to see if the user's data is fresh, and if not,
 // downloading the latest info from the server and installing it in the Store.  
 
 @interface Stockboy : NSObject 
 {
   //location against which to make all weave requests for a particular user
-  NSString* cluster;
-
-  // list of pending decrypts (JSON objects)
-  NSMutableArray *pendingDecrypts;
-
-  // dictionary of Fetchers that are currently retrieving bulk keys
-  // keyed on key URL
-  NSMutableDictionary *pendingKeyFetchers;
-	
-	// The bulk keys we've already retrieved, keyed on URL
-  NSMutableDictionary *bulkKeys;
+  NSString* _cluster;
+  
+  //a reference to the users private key, so we don't have to keep getting it every time
+  SecKeyRef _privateKey;
   
   //a dictionary of important urls and relative paths needed to retrieve things
-  NSDictionary* networkPaths;
+  NSDictionary* _networkPaths;
 }
 
-//if the global is null, it makes a new singleton Stockboy
-+ (Stockboy*) getStockboy;
+//if the global is null, it makes a new Stockboy and runs him in a new thread
++ (void) restock;
 
-//called on startup, and thereafter as requested
-- (void) refreshStock;
 
-@end
-
-@interface PendingDecrypt : NSObject
-{
-	NSDictionary *encryptedObject;
-	SEL storeCompletion;
-}
-
--(PendingDecrypt*) initWithObject:(NSDictionary*)object storeCompletion:(SEL)store;
-- (NSDictionary *)getEncryptedObject;
-- (SEL )getStoreCompletion;
 @end

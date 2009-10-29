@@ -31,8 +31,6 @@
 	UILabel *pgStatus;
 	UITableView *tView;
 	UIProgressView *pgBar;
-	
-	BOOL okToUpdate;
 }
 
 @property (nonatomic, retain) IBOutlet UIView *overlay;

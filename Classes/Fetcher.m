@@ -66,7 +66,7 @@ static NSMutableDictionary* _gFetchersInFlight = nil;
 }
 
 //synchronous retrieval
-+ (NSData*) getAbsoluteURLSync:(NSString*)url
++ (NSData*) getAbsoluteURLSynchronous:(NSString*)url
 {
   NSURL* fullPath = [NSURL URLWithString:url];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:fullPath cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10];
@@ -79,6 +79,17 @@ static NSMutableDictionary* _gFetchersInFlight = nil;
 	return [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:NULL];
 }
 
++ (NSData*) getURLSynchronous:(NSString*)url fromCluster: (NSString*)cluster
+{
+	if (!cluster) 
+  {
+		NSLog(@"Error! No cluster set and getRelativeResource called");
+    return nil;
+	} 
+  
+  NSString *full = [NSString stringWithFormat:@"%@0.5/%@/%@", cluster, [[Store getStore] getUsername], url];
+  return [Fetcher getAbsoluteURLSynchronous: full];
+}
 
 
 
