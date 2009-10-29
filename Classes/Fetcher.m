@@ -13,17 +13,6 @@
 
 @implementation Fetcher
 
-// The dictionary of pending fetchers
-static NSMutableDictionary* _gFetchersInFlight = nil;
-
-
-+(NSMutableDictionary*)getFetchersInFlight
-{
-	if (_gFetchersInFlight == nil) {
-		_gFetchersInFlight = [[NSMutableDictionary alloc] init];
-	}
-	return _gFetchersInFlight;
-}
 
 -(Fetcher *) initWithCluster:(NSString*)clust observer:(id)obs completionMethod:(SEL)compl 
 {
@@ -50,20 +39,7 @@ static NSMutableDictionary* _gFetchersInFlight = nil;
 	[super dealloc];
 }
 
-+(void) ensureClusterRelativeFetcher:(NSString*)cluster forURL:(NSString*)url observer:(id)obs completionMethod:(SEL)compl
-{
-  NSString *full = [NSString stringWithFormat:@"%@0.5/%@/%@", cluster, [[Store getStore] getUsername], url];
-	NSDictionary *inFlight = [Fetcher getFetchersInFlight];
-	id alreadyRunning = [inFlight objectForKey:full];
-	if (alreadyRunning == nil) {
-		NSLog(@"Starting Fetcher for %@", full);
-		Fetcher *fetcher = [[Fetcher alloc] initWithCluster:cluster observer:obs completionMethod:compl]; 
-		[inFlight  setValue:fetcher forKey:full];
-		[fetcher getAbsoluteURLResource:full];
-	} else {
-		NSLog(@"Already have a Fetcher for %@", full);	
-	}
-}
+
 
 //synchronous retrieval
 + (NSData*) getAbsoluteURLSynchronous:(NSString*)url
@@ -153,9 +129,6 @@ static NSMutableDictionary* _gFetchersInFlight = nil;
   {
     [observer performSelector: completionMethod withObject: responseData withObject: requestURL];
   }
-	
-	NSMutableDictionary *inFlight = [Fetcher getFetchersInFlight];
-	[inFlight removeObjectForKey:requestURL];
 }
 
 
@@ -165,9 +138,6 @@ static NSMutableDictionary* _gFetchersInFlight = nil;
 -(void) connection:(NSURLConnection *)connection didFailWithError:(NSError *)error 
 {
   //call error handler on observer?
-	
-	NSMutableDictionary *inFlight = [Fetcher getFetchersInFlight];
-	[inFlight removeObjectForKey:requestURL];
 }
 
 

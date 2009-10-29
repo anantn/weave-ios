@@ -37,7 +37,6 @@
 	
   NSString *username;
   NSString *password;
-  NSString *passphrase;
   
   NSMutableDictionary *tabs;			// table from clientName -> array of [uri, title, favicon]
   NSMutableArray      *tabIndex;	// list of clientNames
@@ -50,12 +49,11 @@
 + (Store*) getStore;
 
 //for creating a user when there is none
-- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword passphrase:(NSString*) newPassphrase;
+- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword;
 
 //for now, these are stored in the db. obviously this is not secure at all.
 - (NSString*) getUsername;
 - (NSString*) getPassword;
-- (NSString*) getPassphrase;
 
 - (NSDictionary*)  getTabs;
 - (NSArray*)       getTabIndex;

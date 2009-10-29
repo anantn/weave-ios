@@ -18,7 +18,6 @@
 
 
 @interface Stockboy (PRIVATE)
-- (NSDictionary*) loadPaths;
 - (void) getCluster;
 - (NSDictionary*) extractBulkKeyFrom:(NSData*)bulkKeyData;
 
@@ -35,6 +34,9 @@
 
 // The singleton instance
 static Stockboy* _gStockboy = nil;
+
+//public resource, needed by more than one class
+static NSDictionary* _gNetworkPaths = nil;
 
 
 //CLASS METHODS////////
@@ -63,42 +65,44 @@ static Stockboy* _gStockboy = nil;
     //cache a copy of this for speed.  we were looking it up for every decrypt
     _privateKey = [CryptoUtils _getKeyNamed:PRIV_KEY_NAME];
     
-    _networkPaths = [[self loadPaths] retain];
-    if (!_networkPaths)
-    {
-      //bad, we won't be able to do anything
-      NSLog(@"Could not load url definitions! Missing plist file?");
-    }
 	}
 	return self;
 }
 
-
-- (NSDictionary*) loadPaths
++ (NSString*) urlForWeaveObject:(NSString*)name
 {
-  NSString *error = nil;
-  NSPropertyListFormat format;
-  NSString *pathtoPaths = [[NSBundle mainBundle] pathForResource:@"NetworkPaths" ofType:@"plist"];
-  NSData *pathsXML = [[NSFileManager defaultManager] contentsAtPath:pathtoPaths];
-  NSDictionary *thePaths = (NSDictionary *)[NSPropertyListSerialization
+  if (_gNetworkPaths == nil)
+  {
+    NSString *error = nil;
+    NSPropertyListFormat format;
+    NSString *pathtoPaths = [[NSBundle mainBundle] pathForResource:@"NetworkPaths" ofType:@"plist"];
+    NSData *pathsXML = [[NSFileManager defaultManager] contentsAtPath:pathtoPaths];
+    NSDictionary *thePaths = (NSDictionary *)[NSPropertyListSerialization
                                               propertyListFromData:pathsXML
                                               mutabilityOption:NSPropertyListMutableContainersAndLeaves
                                               format:&format errorDescription:&error];
-  if (!thePaths) 
-  {
-    NSLog(@"%@", error);
-    [error release];
-    return nil;
+    if (!thePaths) 
+    {
+      NSLog(@"%@", error);
+      [error release];
+      _gNetworkPaths = nil;
+      return nil;
+    }
+    else
+    {
+      _gNetworkPaths = [thePaths retain];
+    }
   }
   
-  return thePaths;
+  return [_gNetworkPaths objectForKey:name];
 }
+
 
 
 - (BOOL) hasConnectivity
 {
  	Reachability* rc = [Reachability sharedReachability];
-	[rc setHostName:[_networkPaths objectForKey:@"Service Base URL"]];
+	[rc setHostName:[Stockboy urlForWeaveObject:@"Service Base URL"]];
 	return ([rc remoteHostStatus] != NotReachable);
 }
 
@@ -108,7 +112,7 @@ static Stockboy* _gStockboy = nil;
 - (void) getCluster
 {
   // Get cluster
-	NSString *cl = [NSString stringWithFormat:[_networkPaths objectForKey:@"Node Query URL"], [[Store getStore] getUsername]];  
+	NSString *cl = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Node Query URL"], [[Store getStore] getUsername]];  
 	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl];
   _cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
 }  
@@ -119,11 +123,9 @@ static Stockboy* _gStockboy = nil;
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-  if ([self hasConnectivity] && _networkPaths && _privateKey)
+  if ([self hasConnectivity] && _privateKey)
   {
     [self getCluster];
-    
-    //MISSING: check for cluster and private key and bail if we don't have them
     [self updateTabs];
     [self updateBookmarks];
     [self updateHistory];
@@ -138,7 +140,7 @@ static Stockboy* _gStockboy = nil;
   //Don't need to check timestamp.  We always get all the tabs, regardless of any timestamp.  
   
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSData* tabs = [Fetcher getURLSynchronous:[_networkPaths objectForKey:@"Tabs URL"] fromCluster:_cluster];
+  NSData* tabs = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Tabs URL"] fromCluster:_cluster];
   if (tabs == nil) return; //better error handling
   
   //this will hold all the resultant decrypted tabs
@@ -186,7 +188,7 @@ static Stockboy* _gStockboy = nil;
 - (void) updateBookmarks
 {
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSString* bmarksURL = [NSString stringWithFormat:[_networkPaths objectForKey:@"Bookmarks Update URL"], [[Store getStore] getSyncTime]];
+  NSString* bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getSyncTime]];
                        
   NSData* bmarks = [Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster];
   if (bmarks == nil) return; //better error handling
@@ -250,7 +252,7 @@ static Stockboy* _gStockboy = nil;
 - (void) updateHistory
 {
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSString* historyURL = [NSString stringWithFormat:[_networkPaths objectForKey:@"History Update URL"], [[Store getStore] getSyncTime]];
+  NSString* historyURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"History Update URL"], [[Store getStore] getSyncTime]];
   
   NSData* history = [Fetcher getURLSynchronous:historyURL fromCluster:_cluster];
   if (history == nil) return; //better error handling
@@ -336,33 +338,5 @@ static Stockboy* _gStockboy = nil;
 }
 
  @end
-
-
-
-//    if ([CryptoUtils _getKeyNamed:PRIV_KEY_NAME] == nil)
-
-
-
-//  Fetcher* privateKeyFetcher = [[Fetcher alloc] initWithCluster:_cluster observer:self completionMethod:@selector(gotPrivateKey:from:)];
-//  [privateKeyFetcher getClusterRelativeURLResource:[_networkPaths objectForKey:@"Private Key URL"]];
-
-//  //convert to string here
-//  NSString* responseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
-//	NSDictionary *responseJSON = [responseString JSONValue];
-//	NSDictionary *payload = [[responseJSON valueForKey:@"payload"] JSONValue];
-//
-//	// once we have the private key...
-//	if ([CryptoUtils decryptPrivateKey:payload withPassphrase:[[Store getStore] getPassphrase]]) 
-//  {
-//		// we're good... retrieve tabs?
-//		NSLog(@"Success installing private key");
-//		WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-//		[app switchLoginToMain];
-//		[self refreshStock];
-//	} else {
-//		// things are bad... report error
-//		NSLog(@"Error while installing private key");
-//	}
-
 
 

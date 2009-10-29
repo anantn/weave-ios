@@ -25,7 +25,6 @@
 #import <UIKit/UIKit.h>
 
 @class Store;
-@class Service;
 @class TabViewController;
 @class WebViewController;
 @class LoginViewController;
@@ -34,13 +33,11 @@
 	NSString *uri;
 	UIWindow *window;
 	
-	Service *service;
 	TabViewController *tabController;
 	WebViewController *webController;
 	LoginViewController *loginController;
 }
 
-@property (retain) Service *service;
 @property (nonatomic, copy) NSString *uri;
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet TabViewController *tabController;

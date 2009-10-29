@@ -92,8 +92,7 @@
 			password = pwdField.text;
 			passphrase = pphField.text;
 
-			//WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-			[[Store getStore] setUser:username password:password passphrase:nil];
+			[[Store getStore] setUser:username password:password];
       [CryptoUtils fetchAndInstallPrivateKeyFor:passphrase];
 			[Stockboy restock];
 		}
@@ -129,7 +128,7 @@
 	[password release];
 	[passphrase release];
 	
-    [super dealloc];
+  [super dealloc];
 }
 
 @end

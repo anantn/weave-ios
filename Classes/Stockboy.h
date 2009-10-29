@@ -17,13 +17,13 @@
   
   //a reference to the users private key, so we don't have to keep getting it every time
   SecKeyRef _privateKey;
-  
-  //a dictionary of important urls and relative paths needed to retrieve things
-  NSDictionary* _networkPaths;
 }
 
 //if the global is null, it makes a new Stockboy and runs him in a new thread
 + (void) restock;
+
+//global dictionary for finding locations of canonical weave objects
++ (NSString*) urlForWeaveObject:(NSString*)name;
 
 
 @end

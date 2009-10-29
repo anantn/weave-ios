@@ -34,12 +34,12 @@
 
 @implementation WeaveAppDelegate
 
-@synthesize window, service, uri;
+@synthesize window, uri;
 @synthesize tabController, loginController, webController;
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application 
 {
-	if ([[Store getStore] getUsername] == nil) 
+	if ([[Store getStore] getUsername] == nil) //we should check for existence of the private key here
   {
 		[window addSubview:loginController.view];
 	} 
@@ -78,13 +78,11 @@
 }
 
 -(void) switchLoginToMain {
-	//[[Stockboy getStockboy] refreshStock]; // TODO, really?
 	[self switchToView:tabController.view From:loginController.view withDirection:kCATransitionFromRight];
 }
 
 -(void) dealloc {
 	[window release];
-	[service release];
 	[tabController release];
 	[webController release];
 	[loginController release];

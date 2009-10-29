@@ -3,11 +3,11 @@
 //  Weave
 //
 //  Created by Dan Walkowski on 10/22/09.
-//  Copyright 2009 ClownWare. All rights reserved.
 //
 
 #import "CryptoUtils.h"
 #import "Store.h"
+#import "Stockboy.h"
 #import "Fetcher.h"
 #import "NSString+SBJSON.h"
 
@@ -16,12 +16,12 @@
 + (BOOL) fetchAndInstallPrivateKeyFor:passphrase
 {
   //get the cluster
-	NSString *cl = [NSString stringWithFormat:@"https://auth.services.mozilla.com/user/1/%@/node/weave" /*[_networkPaths objectForKey:@"Node Query URL"]*/, 
+	NSString *cl = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Node Query URL"], 
                   [[Store getStore] getUsername]];  
 	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl];
   NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
   
-  NSData* privKeyData = [Fetcher getURLSynchronous:@"storage/keys/privkey" /*[_networkPaths objectForKey:@"Private Key URL"]*/ fromCluster:cluster];
+  NSData* privKeyData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Private Key URL"] fromCluster:cluster];
   NSString* privKeyString = [[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding];
   NSDictionary *privKeyJSON = [privKeyString JSONValue];
 

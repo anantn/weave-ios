@@ -31,7 +31,7 @@
 /* 
 CREATE TABLE moz_favicons (url LONGVARCHAR PRIMARY KEY, image LONGVARCHAR);
 CREATE TABLE moz_places (id INTEGER PRIMARY KEY, guid LONGVARCHAR, type LONGVARCHAR, url LONGVARCHAR, title LONGVARCHAR, client LONGVARCHAR, favicon LONGVARCHAR);
-CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, password LONGVARCHAR, passphrase LONGVARCHAR, last_sync INTEGER);
+CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, password LONGVARCHAR, last_sync INTEGER);
 */
 
 #define PLACES_ID_COLUMN      0
@@ -78,7 +78,6 @@ static Store* _gStore = nil;
 				
 		username = nil;
 		password = nil;
-		passphrase = nil;
 		tabIndex = [[NSMutableArray alloc] init];
 		
 		NSFileManager *fm = [NSFileManager defaultManager];
@@ -130,10 +129,10 @@ static Store* _gStore = nil;
 	return NULL;
 }
 
-- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword passphrase:(NSString*) newPassphrase 
+- (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword
 {
 	sqlite3_stmt *sqlStatement;
-	const char *insertUserSQL = "INSERT INTO users ('uid', 'password', 'passphrase') VALUES (?, ?, ?)";
+	const char *insertUserSQL = "INSERT INTO users ('uid', 'password') VALUES (?, ?)";
 
 	if (sqlite3_prepare_v2(sqlDatabase, insertUserSQL, -1, &sqlStatement, NULL) != SQLITE_OK) 
   {
@@ -144,7 +143,6 @@ static Store* _gStore = nil;
   {
 		sqlite3_bind_text(sqlStatement, 1, [newUser UTF8String], -1, SQLITE_TRANSIENT);
 		sqlite3_bind_text(sqlStatement, 2, [newPassword UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(sqlStatement, 3, [newPassphrase UTF8String], -1, SQLITE_TRANSIENT);
 		
 		if (sqlite3_step(sqlStatement) != SQLITE_DONE) 
     {
@@ -154,7 +152,6 @@ static Store* _gStore = nil;
 		}
 		username = newUser;
 		password = newPassword;
-		passphrase = newPassphrase;
 	}
 	
 	sqlite3_finalize(sqlStatement);
@@ -304,7 +301,6 @@ static Store* _gStore = nil;
     {
       username = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)] retain];
       password = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 2)] retain];
-      passphrase = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 3)] retain];
     } 
     sqlite3_finalize(dbStatement);
   } 
@@ -319,11 +315,6 @@ static Store* _gStore = nil;
 - (NSString*) getPassword
 {
   return password;
-}
-
-- (NSString*) getPassphrase
-{
-  return passphrase;
 }
 
 - (NSDictionary*)  getTabs
