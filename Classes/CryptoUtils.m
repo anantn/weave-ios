@@ -1,54 +1,113 @@
-//
-//  CryptoUtils.m
-//  Weave
-//
-//  Created by Dan Walkowski on 10/22/09.
-//
+/***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1
+ 
+ The contents of this file are subject to the Mozilla Public License Version 
+ 1.1 (the "License"); you may not use this file except in compliance with 
+ the License. You may obtain a copy of the License at 
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ for the specific language governing rights and limitations under the
+ License.
+ 
+ The Original Code is weave-iphone.
+ 
+ The Initial Developer of the Original Code is Mozilla Labs.
+ Portions created by the Initial Developer are Copyright (C) 2009
+ the Initial Developer. All Rights Reserved.
+ 
+ Contributor(s):
+	Anant Narayanan <anant@kix.in>
+	Dan Walkowski <dan.walkowski@gmail.com>
+
+ ***** END LICENSE BLOCK *****/
 
 #import "CryptoUtils.h"
 #import "Store.h"
 #import "Stockboy.h"
 #import "Fetcher.h"
+#import "NSObject+SBJSON.h"
 #import "NSString+SBJSON.h"
 
 @implementation CryptoUtils
 
 + (BOOL) fetchAndInstallPrivateKeyFor:passphrase
 {
-  //get the cluster
+	// get the cluster
 	NSString *cl = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Node Query URL"], 
                   [[Store getStore] getUsername]];  
 	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl];
-  NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
-  
-  NSData* privKeyData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Private Key URL"] fromCluster:cluster];
-  NSString* privKeyString = [[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding];
-  NSDictionary *privKeyJSON = [privKeyString JSONValue];
+	NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
 
-  NSDictionary *payload = [[privKeyJSON valueForKey:@"payload"] JSONValue];
-  return [CryptoUtils decryptPrivateKey:payload withPassphrase:passphrase];
+	NSData* privKeyData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Private Key URL"] fromCluster:cluster];
+	NSString* privKeyString = [[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding];
+	NSDictionary *privKeyJSON = [privKeyString JSONValue];
+
+	NSDictionary *payload = [[privKeyJSON valueForKey:@"payload"] JSONValue];
+	return [CryptoUtils decryptPrivateKey:payload withPassphrase:passphrase];
 }
 
+// FIXME: We shouldn't need to fetch the cluster twice for a first-run!
++ (BOOL) fetchAndUpdateClients
+{
+	//get the cluster
+	NSString *cl = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Node Query URL"], 
+					[[Store getStore] getUsername]];  
+	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl];
+	NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
+	
+	NSData* clientsData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Clients URL"] fromCluster:cluster];
+	NSString *clientsString = [[NSString alloc] initWithData:clientsData encoding:NSUTF8StringEncoding];
+	NSArray *clients = [clientsString JSONValue];
+
+	NSString *myID = [[UIDevice currentDevice] uniqueIdentifier];
+
+	// check if we're already in the list
+	BOOL present = NO;
+	NSDictionary *client;
+	NSEnumerator *iter = [clients objectEnumerator];
+	while (client = [iter nextObject]) {
+		if ([myID isEqualToString:[client valueForKey:@"id"]])
+			present = YES;
+	}
+	
+	// if not, add ourselves
+	if (!present) {
+		NSDictionary *myEntry = [NSDictionary dictionaryWithObjectsAndKeys:
+								 myID, @"id",
+								 [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]], @"modified",
+								 @"{\"name\":\"iPhone\",\"type\":\"mobile\"}", @"payload", nil];
+		NSString *newJSON = [myEntry JSONRepresentation];
+		NSLog(@"Didn't find client entry, adding it... %@", newJSON);
+		[Fetcher putURLSynchronous:[Stockboy urlForWeaveObject:@"Clients URL"] fromCluster:cluster
+									withData:[newJSON dataUsingEncoding:NSUTF8StringEncoding]];
+	} else {
+		NSLog(@"Existing client entry found, not adding!");
+	}
+	
+	return YES;
+}
 
 + (BOOL)_installKeyData:(NSData *)keyData name:(NSString *)keyName label:(NSData *)keyAppLabel private:(BOOL)isPrivate
 {
-  BOOL            result;
-  OSStatus        err;
-  NSData *        keyTagData;
-  CFTypeRef       keyClass;
-  CFBooleanRef    kBoolToCF[2] = { kCFBooleanFalse, kCFBooleanTrue };
+	BOOL            result;
+	OSStatus        err;
+	NSData *        keyTagData;
+	CFTypeRef       keyClass;
+	CFBooleanRef    kBoolToCF[2] = { kCFBooleanFalse, kCFBooleanTrue };
 	
-  result = NO;
-  keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
-  assert(keyTagData != nil);
-	
-  if (isPrivate) {
-    keyClass = kSecAttrKeyClassPrivate;
-  } else {
-    keyClass = kSecAttrKeyClassPublic;
-  }
+	result = NO;
+	keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
+	assert(keyTagData != nil);
+
+	if (isPrivate) {
+		keyClass = kSecAttrKeyClassPrivate;
+	} else {
+		keyClass = kSecAttrKeyClassPublic;
+	}
   
-  err = SecItemAdd((CFDictionaryRef)
+	err = SecItemAdd((CFDictionaryRef)
                    [NSDictionary dictionaryWithObjectsAndKeys:
                     (id)
                     kSecClassKey,                   kSecClass,
@@ -69,29 +128,29 @@
                     nil
                     ],
                    NULL
-                   );
-  if (err == noErr) {
-    NSLog(@"added key %@ with data %@", keyName, [keyData base64Encoding]);
-    result = YES;
-  } else {
-    NSLog(@"failed to add key %@", keyName);
-  }
-  
-  return result;
+	);
+
+	if (err == noErr) {
+		NSLog(@"added key %@ with data %@", keyName, [keyData base64Encoding]);
+		result = YES;
+	} else {
+		NSLog(@"failed to add key %@", keyName);
+	}
+	
+	return result;
 }
 
 + (SecKeyRef)_getKeyNamed:(NSString *)keyName
 {
-  OSStatus    err;
-  SecKeyRef   keyRef;
-  NSData *    keyTagData;
+	OSStatus    err;
+	SecKeyRef   keyRef;
+	NSData		*keyTagData;
+
+	keyRef = NULL;
+	keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
+	assert(keyTagData != nil);
   
-  keyRef = NULL;
-	
-  keyTagData = [keyName dataUsingEncoding:NSUTF8StringEncoding];
-  assert(keyTagData != nil);
-  
-  err = SecItemCopyMatching((CFDictionaryRef)
+	err = SecItemCopyMatching((CFDictionaryRef)
                             [NSDictionary dictionaryWithObjectsAndKeys:
                              (id)
                              kSecClassKey,           kSecClass,
@@ -100,15 +159,14 @@
                              nil
                              ],
                             (CFTypeRef *) &keyRef
-                            );
-  assert( (err == noErr) == (keyRef != NULL) );
-  
-  return keyRef;
+	);
+	assert( (err == noErr) == (keyRef != NULL) );
+	return keyRef;
 }
 
 
-/** Given a payload containing the user's private RSA key,
- * decrypt it and install it on the system. */
+// given a payload containing the user's private RSA key,
+// decrypt it and install it on the system.
 + (BOOL) decryptPrivateKey:(NSDictionary *)payload withPassphrase:(NSString*)passphrase
 {
 	/* Let's try to decrypt the user's private key */
@@ -223,14 +281,13 @@
 	NSData *bulkIV = [bulkKey objectForKey:@"iv"];
 	NSData *symKey = [bulkKey objectForKey:@"key"];
 	NSData *ciphertext = [[NSData alloc] initWithBase64EncodedString:[object objectForKey:@"ciphertext"]];
-  //	NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [ciphertext base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
+	// NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [ciphertext base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
   
 	// We need to null-terminate this string, since the ciphertext doesn't include a null
 	NSString *plainText = [[NSString alloc] initWithData:[ciphertext AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
 	// plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  
 	// NSLog(@"Got %@!", plainText);		
-  //	[[serv store] performSelector:select withObject:plainText];
+	// [[serv store] performSelector:select withObject:plainText];
 	return plainText;
 }
 
@@ -287,8 +344,7 @@
 
 @end
 
-
-
+// PBKDF2, password key derivation
 int PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen,
                            const unsigned char *salt, int saltlen, int iter,
                            int keylen, unsigned char *out) {

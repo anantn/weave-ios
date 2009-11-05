@@ -93,7 +93,8 @@
 			passphrase = pphField.text;
 
 			[[Store getStore] setUser:username password:password];
-      [CryptoUtils fetchAndInstallPrivateKeyFor:passphrase];
+			[CryptoUtils fetchAndInstallPrivateKeyFor:passphrase];
+			[CryptoUtils fetchAndUpdateClients];
 			[Stockboy restock];
 		}
 		

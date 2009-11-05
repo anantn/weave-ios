@@ -1,9 +1,27 @@
-//
-//  CryptoUtils.h
-//  Weave
-//
-//  Created by Dan Walkowski on 10/22/09.
-//
+/***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1
+ 
+ The contents of this file are subject to the Mozilla Public License Version 
+ 1.1 (the "License"); you may not use this file except in compliance with 
+ the License. You may obtain a copy of the License at 
+ http://www.mozilla.org/MPL/
+ 
+ Software distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ for the specific language governing rights and limitations under the
+ License.
+ 
+ The Original Code is weave-iphone.
+ 
+ The Initial Developer of the Original Code is Mozilla Labs.
+ Portions created by the Initial Developer are Copyright (C) 2009
+ the Initial Developer. All Rights Reserved.
+ 
+ Contributor(s):
+	Anant Narayanan <anant@kix.in>
+	Dan Walkowski <dan.walkowski@gmail.com>
+ 
+ ***** END LICENSE BLOCK *****/
 
 #import <Foundation/Foundation.h>
 
@@ -19,16 +37,17 @@
 
 
 @interface CryptoUtils : NSObject
-//returns true if succesful
-+ (BOOL) fetchAndInstallPrivateKeyFor:passphrase;
 
-+ (BOOL) decryptPrivateKey:(NSDictionary *)payload withPassphrase:(NSString*)passphrase;
-+ (NSData *) unwrapSymmetricKey:(NSData *)symKey withPrivateKey:(SecKeyRef)privateKey;
-+ (NSString*) decryptObject:(NSDictionary*)object withKey:(NSDictionary*)bulkKey;
+// returns true if succesful
++ (BOOL)fetchAndInstallPrivateKeyFor:passphrase;
++ (BOOL)fetchAndUpdateClients;
+
++ (BOOL)decryptPrivateKey:(NSDictionary *)payload withPassphrase:(NSString*)passphrase;
++ (NSData *)unwrapSymmetricKey:(NSData *)symKey withPrivateKey:(SecKeyRef)privateKey;
++ (NSString*)decryptObject:(NSDictionary*)object withKey:(NSDictionary*)bulkKey;
 + (SecKeyRef)_getKeyNamed:(NSString *)keyName;
 
 @end
-
 
 @interface NSData (AES)
 - (NSData *) AESencryptWithKey:(NSData *)key andIV:(NSData *)iv;
