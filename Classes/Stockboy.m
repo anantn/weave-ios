@@ -189,7 +189,7 @@ static NSDictionary* _gNetworkPaths = nil;
 {
   //synchronous request.  we are running in a separate thread, so it's ok to block.
   NSString* bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getSyncTime]];
-                       
+  
   NSData* bmarks = [[Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster] retain];
   if (bmarks == nil) return; //better error handling
   

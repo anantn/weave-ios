@@ -9,7 +9,7 @@
 	<key>Public Key URL</key>
 	<string>storage/keys/pubkey</string>
 	<key>Bookmarks Update URL</key>
-	<string>storage/bookmarks/?newer=%f</string>
+	<string>storage/bookmarks/?full=1&amp;newer=%f</string>
 	<key>Bookmarks URL</key>
 	<string>storage/bookmarks/?full=1</string>
 	<key>Favicons URL</key>

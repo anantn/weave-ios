@@ -61,6 +61,15 @@
 // synchronous retrieval
 + (NSData *)getAbsoluteURLSynchronous:(NSString *)url
 {
+	// FIXME: This method should never really be called with
+	// an empty url, but it does sometimes, so we check first.
+	if (!url) {
+		NSLog(@"Fetcher getAbsoluteURLSynchronous was called with nil URL!");
+		return nil;
+	} else {
+		NSLog(@"Fetching %@", url);
+	}
+	
 	NSURL *fullPath = [NSURL URLWithString:url];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:fullPath
 									cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10];
