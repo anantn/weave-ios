@@ -140,14 +140,14 @@ static NSDictionary* _gNetworkPaths = nil;
   //Don't need to check timestamp.  We always get all the tabs, regardless of any timestamp.  
   
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSData* tabs = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Tabs URL"] fromCluster:_cluster];
+  NSData* tabs = [[Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Tabs URL"] fromCluster:_cluster] retain];
   if (tabs == nil) return; //better error handling
   
   //this will hold all the resultant decrypted tabs
   NSMutableDictionary* userTabs = [NSMutableDictionary dictionary];
   
   //This bit of primitive parsing relies on the data coming as a dictionary of dictionaries. beware of 'does not understand' exceptions
-  NSString* tabsString = [[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding];
+  NSString* tabsString = [[[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding] retain];
 	NSDictionary* tabsDict = [tabsString JSONValue];
 	NSEnumerator* tabIterator = [tabsDict objectEnumerator];
   
@@ -155,9 +155,9 @@ static NSDictionary* _gNetworkPaths = nil;
 	while (tabBundle = [tabIterator nextObject]) 
   {
     //get the interesting bits out of the bundle    
-    NSDictionary *encryptedTab = [[tabBundle objectForKey:@"payload"] JSONValue];
-		NSString *keyURL = [tabBundle objectForKey:@"encryption"];
-    NSString *tabID = [encryptedTab objectForKey:@"id"];
+    NSDictionary *encryptedTab = [[[tabBundle objectForKey:@"payload"] JSONValue] retain];
+		NSString *keyURL = [encryptedTab objectForKey:@"encryption"];
+    NSString *tabID = [tabBundle objectForKey:@"id"];
     
     
 		//get the bulk key for this wbo    
@@ -190,7 +190,7 @@ static NSDictionary* _gNetworkPaths = nil;
   //synchronous request.  we are running in a separate thread, so it's ok to block.
   NSString* bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getSyncTime]];
                        
-  NSData* bmarks = [Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster];
+  NSData* bmarks = [[Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster] retain];
   if (bmarks == nil) return; //better error handling
   
   //this will hold all the resultant decrypted bookmarks that need to be added
@@ -200,16 +200,16 @@ static NSDictionary* _gNetworkPaths = nil;
   NSMutableDictionary* userDeadBmarks = [NSMutableDictionary dictionary];
 
   //unpack the bookmarks
-  NSString* bmarksString = [[NSString alloc] initWithData:bmarks encoding:NSUTF8StringEncoding];
+  NSString* bmarksString = [[[NSString alloc] initWithData:bmarks encoding:NSUTF8StringEncoding] retain];
   NSDictionary *bmarksDict = [bmarksString JSONValue];
   NSEnumerator *bmarkIterator = [bmarksDict objectEnumerator];
 	
   NSDictionary* bmarkBundle;
   while (bmarkBundle = [bmarkIterator nextObject]) 
   {
-    NSDictionary *encryptedBmark = [[bmarkBundle objectForKey:@"payload"] JSONValue];
-		NSString *keyURL = [bmarkBundle objectForKey:@"encryption"];
-    NSString *bmarkID = [encryptedBmark objectForKey:@"id"];
+    NSDictionary *encryptedBmark = [[[bmarkBundle objectForKey:@"payload"] JSONValue] retain];
+		NSString *keyURL = [encryptedBmark  objectForKey:@"encryption"];
+    NSString *bmarkID = [bmarkBundle objectForKey:@"id"];
     
     
     //get the bulk key for this wbo    
@@ -254,26 +254,26 @@ static NSDictionary* _gNetworkPaths = nil;
   //synchronous request.  we are running in a separate thread, so it's ok to block.
   NSString* historyURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"History Update URL"], [[Store getStore] getSyncTime]];
   
-  NSData* history = [Fetcher getURLSynchronous:historyURL fromCluster:_cluster];
+  NSData* history = [[Fetcher getURLSynchronous:historyURL fromCluster:_cluster] retain];
   if (history == nil) return; //better error handling
   
-  //this will hold all the resultant decrypted bookmarks that need to be added
+  //this will hold all the resultant decrypted history entries that need to be added
   NSMutableDictionary* userHistory = [NSMutableDictionary dictionary];
   
-  //this will hold all the resultant decrypted bookmarks that need to be deleted
+  //this will hold all the resultant decrypted history entries that need to be deleted
   NSMutableDictionary* userDeadHistory = [NSMutableDictionary dictionary];
   
-  //unpack the bookmarks
-  NSString* historyString = [[NSString alloc] initWithData:history encoding:NSUTF8StringEncoding];
+  //unpack the history entries
+  NSString* historyString = [[[NSString alloc] initWithData:history encoding:NSUTF8StringEncoding] retain];
   NSDictionary *historyDict = [historyString JSONValue];
   NSEnumerator *historyIterator = [historyDict objectEnumerator];
 	
   NSDictionary* historyBundle;
   while (historyBundle = [historyIterator nextObject]) 
   {
-    NSDictionary *encryptedHistory = [[historyBundle objectForKey:@"payload"] JSONValue];
-		NSString *keyURL = [historyBundle objectForKey:@"encryption"];
-    NSString *historyID = [encryptedHistory objectForKey:@"id"];
+    NSDictionary *encryptedHistory = [[[historyBundle objectForKey:@"payload"] JSONValue] retain];
+		NSString *keyURL = [encryptedHistory objectForKey:@"encryption"];
+    NSString *historyID = [historyBundle objectForKey:@"id"];
     
     
     //get the bulk key for this wbo    
