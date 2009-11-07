@@ -197,7 +197,7 @@ static NSDictionary* _gNetworkPaths = nil;
   NSMutableDictionary* userBmarks = [NSMutableDictionary dictionary];
 
   //this will hold all the resultant decrypted bookmarks that need to be deleted
-  NSMutableDictionary* userDeadBmarks = [NSMutableDictionary dictionary];
+  NSMutableArray* userDeadBmarks = [NSMutableArray array];
 
   //unpack the bookmarks
   NSString* bmarksString = [[[NSString alloc] initWithData:bmarks encoding:NSUTF8StringEncoding] retain];
@@ -207,23 +207,25 @@ static NSDictionary* _gNetworkPaths = nil;
   NSDictionary* bmarkBundle;
   while (bmarkBundle = [bmarkIterator nextObject]) 
   {
-    NSDictionary *encryptedBmark = [[[bmarkBundle objectForKey:@"payload"] JSONValue] retain];
-		NSString *keyURL = [encryptedBmark  objectForKey:@"encryption"];
     NSString *bmarkID = [bmarkBundle objectForKey:@"id"];
+    NSString *bmarkPayload = [bmarkBundle objectForKey:@"payload"];
     
-    
-    //get the bulk key for this wbo    
-    NSData* keyBundle = [Fetcher getAbsoluteURLSynchronous: keyURL];
-    NSDictionary* theKey = [self extractBulkKeyFrom:keyBundle];
-    
-    // Do the decrypt
-    NSString* plaintextBmark = [CryptoUtils decryptObject:encryptedBmark withKey:theKey];
-    if (plaintextBmark == nil || [plaintextBmark length] == 0)
+    if (bmarkPayload == nil || [bmarkPayload length] == 0)
     {
-      [userDeadBmarks setObject:plaintextBmark forKey:bmarkID];
+      [userDeadBmarks addObject:bmarkID];
     }
-    else
+    else 
     {
+      NSDictionary *encryptedBmark = [[bmarkPayload JSONValue] retain];
+      NSString *keyURL = [encryptedBmark  objectForKey:@"encryption"];
+      
+      
+      //get the bulk key for this wbo    
+      NSData* keyBundle = [Fetcher getAbsoluteURLSynchronous: keyURL];
+      NSDictionary* theKey = [self extractBulkKeyFrom:keyBundle];
+      
+      // Do the decrypt
+      NSString* plaintextBmark = [CryptoUtils decryptObject:encryptedBmark withKey:theKey];
       [userBmarks setObject:plaintextBmark forKey: bmarkID];
     }
   }
@@ -233,7 +235,7 @@ static NSDictionary* _gNetworkPaths = nil;
   //MISSING: OPEN SQL TRANSACTION IMMEDIATE
   
   //First, delete all the dead bookmarks.
-  for (NSString* anID in [userDeadBmarks allKeys])
+  for (NSString* anID in userDeadBmarks)
   {
     //MISSING: <some code goes here to delete the bookmark>
     //[Store getStore] deleteBookmarkID: anID]
@@ -261,7 +263,7 @@ static NSDictionary* _gNetworkPaths = nil;
   NSMutableDictionary* userHistory = [NSMutableDictionary dictionary];
   
   //this will hold all the resultant decrypted history entries that need to be deleted
-  NSMutableDictionary* userDeadHistory = [NSMutableDictionary dictionary];
+  NSMutableArray* userDeadHistory = [NSMutableArray array];
   
   //unpack the history entries
   NSString* historyString = [[[NSString alloc] initWithData:history encoding:NSUTF8StringEncoding] retain];
@@ -271,24 +273,28 @@ static NSDictionary* _gNetworkPaths = nil;
   NSDictionary* historyBundle;
   while (historyBundle = [historyIterator nextObject]) 
   {
-    NSDictionary *encryptedHistory = [[[historyBundle objectForKey:@"payload"] JSONValue] retain];
-		NSString *keyURL = [encryptedHistory objectForKey:@"encryption"];
     NSString *historyID = [historyBundle objectForKey:@"id"];
+    NSString *historyPayload = [historyBundle objectForKey:@"payload"];
     
-    
-    //get the bulk key for this wbo    
-    NSData* keyBundle = [Fetcher getAbsoluteURLSynchronous: keyURL];
-    NSDictionary* theKey = [self extractBulkKeyFrom:keyBundle];
-    
-    // Do the decrypt
-    NSString* plaintextHistory = [CryptoUtils decryptObject:encryptedHistory withKey:theKey];
-    if (plaintextHistory == nil || [plaintextHistory length] == 0)
+    //does the payload not exist for deleted history entries?
+    if (historyPayload ==  nil || [historyPayload length] == 0)
     {
-      [userDeadHistory setObject:plaintextHistory forKey:historyID];
+      [userDeadHistory addObject:historyID];
     }
-    else
+    else 
     {
+      NSDictionary *encryptedHistory = [[historyPayload JSONValue] retain];
+      NSString *keyURL = [encryptedHistory objectForKey:@"encryption"];
+      
+      
+      //get the bulk key for this wbo    
+      NSData* keyBundle = [Fetcher getAbsoluteURLSynchronous: keyURL];
+      NSDictionary* theKey = [self extractBulkKeyFrom:keyBundle];
+      
+      // Do the decrypt
+      NSString* plaintextHistory = [CryptoUtils decryptObject:encryptedHistory withKey:theKey];
       [userHistory setObject:plaintextHistory forKey: historyID];
+      
     }
   }
   
@@ -297,7 +303,7 @@ static NSDictionary* _gNetworkPaths = nil;
   //MISSING: OPEN SQL TRANSACTION IMMEDIATE
   
   //First, delete all the dead history entries.
-  for (NSString* anID in [userDeadHistory allKeys])
+  for (NSString* anID in userDeadHistory)
   {
     //MISSING: <some code goes here to delete the bookmark>
     //[Store getStore] deleteHistoryID: anID]
