@@ -30,7 +30,6 @@
 // setting new (encrypted) data flushes the cache, and overwrites the data on disk.  next read will cause a decrypt and cache.
 
 //Note: at the moment, everything is still plaintext in the database, until I get the crypto moved over here
-@class Service;
 
 @interface Store : NSObject {
 	sqlite3             *sqlDatabase;
@@ -61,13 +60,19 @@
 - (NSArray*)       getHistory;
 - (NSArray*)       getBookmarks;
 
+- (BOOL) beginTransaction;
+- (BOOL) endTransaction;
+
 - (BOOL) addTab:(NSString *)JSONObject withID:(NSString*)theID;  //tabIndex computed
 - (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;
 - (BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID;
 - (BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID;
 
+- (double) getBookmarksSyncTime;
+- (BOOL) updateBookmarksSyncTime;
 
-- (BOOL) setSyncTimeToNow;
-- (double) getSyncTime;
+- (double) getHistorySyncTime;
+- (BOOL) updateHistorySyncTime;
+
 
 @end

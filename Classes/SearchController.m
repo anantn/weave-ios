@@ -24,7 +24,6 @@
 
 #import "SearchController.h"
 #import "WeaveAppDelegate.h"
-//#import "Service.h"
 #import "Store.h"
 #import "Utility.h"
 #import <QuartzCore/QuartzCore.h>

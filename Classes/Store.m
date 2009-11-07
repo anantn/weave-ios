@@ -24,14 +24,13 @@
 
 #import "Store.h"
 #import "Utility.h"
-//#import "Service.h"
 #import "JSON.h"
 
 
 /* 
 CREATE TABLE moz_favicons (url LONGVARCHAR PRIMARY KEY, image LONGVARCHAR);
 CREATE TABLE moz_places (id INTEGER PRIMARY KEY, guid LONGVARCHAR, type LONGVARCHAR, url LONGVARCHAR, title LONGVARCHAR, client LONGVARCHAR, favicon LONGVARCHAR);
-CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, password LONGVARCHAR, last_sync INTEGER);
+CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, password LONGVARCHAR, last_bmarks_sync INTEGER, last_hist_sync INTEGER);
 */
 
 #define PLACES_ID_COLUMN      0
@@ -158,11 +157,11 @@ static Store* _gStore = nil;
 	return YES;
 }
 
--(double) getSyncTime
+-(double) getBookmarksSyncTime
 {
 	double time;
 	sqlite3_stmt *stmnt;
-	const char *sql = "SELECT last_sync FROM users WHERE uid = ?";
+	const char *sql = "SELECT last_bmarks_sync FROM users WHERE uid = ?";
 
 	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
   {
@@ -178,7 +177,36 @@ static Store* _gStore = nil;
 		} 
     else 
     {
-			NSLog(@"Could not execute SQL to load sync time!");
+			NSLog(@"Could not execute SQL to load bmarks sync time!");
+			sqlite3_finalize(stmnt);
+			return 0;
+		}		
+	}
+	
+	return time;
+}
+
+-(double) getHistorySyncTime
+{
+	double time;
+	sqlite3_stmt *stmnt;
+	const char *sql = "SELECT last_hist_sync FROM users WHERE uid = ?";
+  
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
+		NSLog(@"Could not prepare statement (load time)!");
+		return 0;
+	} 
+  else 
+  {
+		sqlite3_bind_text(stmnt, 1, [username UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) == SQLITE_ROW) 
+    {
+			time = sqlite3_column_double(stmnt, 0);
+		} 
+    else 
+    {
+			NSLog(@"Could not execute SQL to load bmarks sync time!");
 			sqlite3_finalize(stmnt);
 			return 0;
 		}		
@@ -188,10 +216,10 @@ static Store* _gStore = nil;
 }
 
 
--(BOOL) setSyncTimeToNow
+-(BOOL) updateBookmarksSyncTime
 {
 	sqlite3_stmt *stmnt;
-	const char *sql = "UPDATE users SET last_sync = ? WHERE uid = ?";
+	const char *sql = "UPDATE users SET last_bmarks_sync = ? WHERE uid = ?";
 	
 	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
   {
@@ -204,7 +232,7 @@ static Store* _gStore = nil;
 		sqlite3_bind_text(stmnt, 2, [username UTF8String], -1, SQLITE_TRANSIENT);
 		if (sqlite3_step(stmnt) != SQLITE_DONE) 
     {
-			NSLog(@"Could not execute SQL to update time for user!");
+			NSLog(@"Could not execute SQL to update bmarks sync time for user!");
 			sqlite3_finalize(stmnt);
 			return NO;
 		}
@@ -214,6 +242,79 @@ static Store* _gStore = nil;
 	return YES;	
 }
 
+-(BOOL) updateHistorySyncTime
+{
+	sqlite3_stmt *stmnt;
+	const char *sql = "UPDATE users SET last_hist_sync = ? WHERE uid = ?";
+	
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
+		NSLog(@"Could not prepare statement (set time)!");
+		return NO;
+	} 
+  else 
+  {
+		sqlite3_bind_double(stmnt, 1, [[NSDate date] timeIntervalSince1970]);
+		sqlite3_bind_text(stmnt, 2, [username UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) != SQLITE_DONE) 
+    {
+			NSLog(@"Could not execute SQL to update history sync time for user!");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+	}
+	
+	sqlite3_finalize(stmnt);
+	return YES;	
+}
+
+-(BOOL) beginTransaction
+{
+	sqlite3_stmt *stmnt;
+	const char *sql = "BEGIN IMMEDIATE TRANSACTION";
+	
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
+		NSLog(@"Could not prepare statement BEGIN IMMEDIATE TRANSACTION!");
+		return NO;
+	} 
+  else 
+  {
+		if (sqlite3_step(stmnt) != SQLITE_DONE) 
+    {
+			NSLog(@"Could not open transaction");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+	}
+	
+	sqlite3_finalize(stmnt);
+	return YES;	
+}
+
+-(BOOL) endTransaction
+{
+	sqlite3_stmt *stmnt;
+	const char *sql = "COMMIT TRANSACTION";
+	
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) 
+  {
+		NSLog(@"Could not prepare statement COMMIT TRANSACTION!");
+		return NO;
+	} 
+  else 
+  {
+		if (sqlite3_step(stmnt) != SQLITE_DONE) 
+    {
+			NSLog(@"Could not commit transaction");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+	}
+	
+	sqlite3_finalize(stmnt);
+	return YES;	
+}
 
 
 -(BOOL) storePlaceInDB:(NSString *)type withURI:(NSString *)uri title:(NSString *)title andFavicon:(NSString *)favicon andID:(NSString*)theID maybeClient:(NSString *)client {

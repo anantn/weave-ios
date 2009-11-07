@@ -170,7 +170,7 @@ static NSDictionary* _gNetworkPaths = nil;
   
   //ok, now we have all the tabs, decrypted.  use a transaction to put them in the database safely
   
-  //MISSING: OPEN SQL TRANSACTION IMMEDIATE
+  [[Store getStore] beginTransaction];
   
   //First, delete all the existing tabs.
   //MISSING: <some sql goes here to delete all the tabs>
@@ -181,14 +181,14 @@ static NSDictionary* _gNetworkPaths = nil;
     [[Store getStore] addTab:[userTabs objectForKey:anID] withID:anID];
   }
 
-  //MISSING: CLOSE SQL TRANSACTION IMMEDIATE
+  [[Store getStore] endTransaction];
 }
 
 
 - (void) updateBookmarks
 {
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSString* bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getSyncTime]];
+  NSString* bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getBookmarksSyncTime]];
   
   NSData* bmarks = [[Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster] retain];
   if (bmarks == nil) return; //better error handling
@@ -232,7 +232,7 @@ static NSDictionary* _gNetworkPaths = nil;
   
   //We have all the bookmarks, decrypted.  use a transaction to put them in the database safely
   
-  //MISSING: OPEN SQL TRANSACTION IMMEDIATE
+  [[Store getStore] beginTransaction];
   
   //First, delete all the dead bookmarks.
   for (NSString* anID in userDeadBmarks)
@@ -247,14 +247,16 @@ static NSDictionary* _gNetworkPaths = nil;
     [[Store getStore] addBookmarkRecord:[userBmarks objectForKey:anID] withID:anID];
   }
   
-  //MISSING: CLOSE SQL TRANSACTION IMMEDIATE
+  [[Store getStore] updateBookmarksSyncTime];
+  
+  [[Store getStore] endTransaction];
   
 }
 
 - (void) updateHistory
 {
   //synchronous request.  we are running in a separate thread, so it's ok to block.
-  NSString* historyURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"History Update URL"], [[Store getStore] getSyncTime]];
+  NSString* historyURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"History Update URL"], [[Store getStore] getHistorySyncTime]];
   
   NSData* history = [[Fetcher getURLSynchronous:historyURL fromCluster:_cluster] retain];
   if (history == nil) return; //better error handling
@@ -300,7 +302,7 @@ static NSDictionary* _gNetworkPaths = nil;
   
   //We have all the history entries, decrypted.  use a transaction to put them in the database safely
   
-  //MISSING: OPEN SQL TRANSACTION IMMEDIATE
+  [[Store getStore] beginTransaction];
   
   //First, delete all the dead history entries.
   for (NSString* anID in userDeadHistory)
@@ -315,7 +317,9 @@ static NSDictionary* _gNetworkPaths = nil;
     [[Store getStore] addHistoryRecord:[userHistory objectForKey:anID] withID:anID];
   }
   
-  //MISSING: CLOSE SQL TRANSACTION IMMEDIATE
+  [[Store getStore] updateHistorySyncTime];
+
+  [[Store getStore] endTransaction];
   
 }
 
