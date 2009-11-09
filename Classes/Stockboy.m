@@ -229,6 +229,11 @@ static NSDictionary *_gNetworkPaths = nil;
 
 			// Do the decrypt
 			NSString* plaintextBmark = [CryptoUtils decryptObject:encryptedBmark withKey:theKey];
+			
+			// Hmm, sometimes plaintext appears to be nil. Why?
+			if (plaintextBmark != nil) {
+				[userHistory setObject:plaintextHistory forKey:historyID];
+			}
 			[userBmarks setObject:plaintextBmark forKey: bmarkID];
 		}
 	}
@@ -291,7 +296,11 @@ static NSDictionary *_gNetworkPaths = nil;
 			
 			// Do the decrypt
 			NSString *plaintextHistory = [CryptoUtils decryptObject:encryptedHistory withKey:theKey];
-			[userHistory setObject:plaintextHistory forKey:historyID];
+			
+			// Hmm, sometimes plaintext appears to be nil. Why?
+			if (plaintextHistory != nil) {
+				[userHistory setObject:plaintextHistory forKey:historyID];
+			}
 		}
 	}
   
