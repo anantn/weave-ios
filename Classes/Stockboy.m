@@ -158,7 +158,7 @@ static NSDictionary* _gNetworkPaths = nil;
     NSDictionary *encryptedTab = [[[tabBundle objectForKey:@"payload"] JSONValue] retain];
 		NSString *keyURL = [encryptedTab objectForKey:@"encryption"];
     NSString *tabID = [tabBundle objectForKey:@"id"];
-    
+    NSLog(@"Got Tab ID:%@", tabID);
     
 		//get the bulk key for this wbo    
     NSData* keyBundle = [Fetcher getAbsoluteURLSynchronous: keyURL];
@@ -173,12 +173,12 @@ static NSDictionary* _gNetworkPaths = nil;
   [[Store getStore] beginTransaction];
   
   //First, delete all the existing tabs.
-  //MISSING: <some sql goes here to delete all the tabs>
+  [[Store getStore] clearTabs];  
   
   //Second, insert all the new tabs 
   for (NSString* anID in [userTabs allKeys])
   {
-    [[Store getStore] addTab:[userTabs objectForKey:anID] withID:anID];
+    [[Store getStore] addTabSet:[userTabs objectForKey:anID] withClientID:anID];
   }
 
   [[Store getStore] endTransaction];
@@ -209,7 +209,8 @@ static NSDictionary* _gNetworkPaths = nil;
   {
     NSString *bmarkID = [bmarkBundle objectForKey:@"id"];
     NSString *bmarkPayload = [bmarkBundle objectForKey:@"payload"];
-    
+    NSLog(@"Got Bookmark ID:%@", bmarkID);
+
     if (bmarkPayload == nil || [bmarkPayload length] == 0)
     {
       [userDeadBmarks addObject:bmarkID];
@@ -231,14 +232,14 @@ static NSDictionary* _gNetworkPaths = nil;
   }
   
   //We have all the bookmarks, decrypted.  use a transaction to put them in the database safely
+  //This can easily all be moved into the Store, and just pass in both lists
   
   [[Store getStore] beginTransaction];
   
   //First, delete all the dead bookmarks.
   for (NSString* anID in userDeadBmarks)
   {
-    //MISSING: <some code goes here to delete the bookmark>
-    //[Store getStore] deleteBookmarkID: anID]
+    [[Store getStore] removeRecord: anID];
   }
   
   //Second, insert all the new bookmarks 
@@ -277,6 +278,7 @@ static NSDictionary* _gNetworkPaths = nil;
   {
     NSString *historyID = [historyBundle objectForKey:@"id"];
     NSString *historyPayload = [historyBundle objectForKey:@"payload"];
+    NSLog(@"Got History ID:%@", historyID);
     
     //does the payload not exist for deleted history entries?
     if (historyPayload ==  nil || [historyPayload length] == 0)
@@ -301,14 +303,14 @@ static NSDictionary* _gNetworkPaths = nil;
   }
   
   //We have all the history entries, decrypted.  use a transaction to put them in the database safely
-  
+  //This can easily all be moved into the Store, and just pass in both lists
+
   [[Store getStore] beginTransaction];
   
   //First, delete all the dead history entries.
   for (NSString* anID in userDeadHistory)
   {
-    //MISSING: <some code goes here to delete the bookmark>
-    //[Store getStore] deleteHistoryID: anID]
+    [[Store getStore] removeRecord: anID];
   }
   
   //Second, insert all the new history entries 

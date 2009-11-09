@@ -55,7 +55,7 @@
 - (NSString*) getPassword;
 
 - (NSDictionary*)  getTabs;
-- (NSArray*)       getTabIndex;
+- (NSArray*)       getTabIndex;  //FIX, this is not correect for multiple client ID's
 - (NSDictionary*)  getFavicons;
 - (NSArray*)       getHistory;
 - (NSArray*)       getBookmarks;
@@ -63,10 +63,15 @@
 - (BOOL) beginTransaction;
 - (BOOL) endTransaction;
 
-- (BOOL) addTab:(NSString *)JSONObject withID:(NSString*)theID;  //tabIndex computed
+- (BOOL) addTabSet:(NSString *)JSONObject withClientID:(NSString*)theID;  //tabIndex computed
+- (BOOL) clearTabs;
+
 - (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;
 - (BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID;
 - (BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID;
+
+//This removes tabs, bookmarks, or history.  they are all in the same table, identified by unique guids
+- (BOOL) removeRecord:(NSString *)theID;
 
 - (double) getBookmarksSyncTime;
 - (BOOL) updateBookmarksSyncTime;

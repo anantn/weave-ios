@@ -382,11 +382,27 @@ static Store* _gStore = nil;
 	return YES;
 }
 
--(BOOL) removePlace:(NSString *)theID
+-(BOOL) removeTypeFromDB:(NSString *)theType
 {
-	// TODO remove from in-memory list
-	return [self removePlaceFromDB:theID];
+	const char *sql;
+	sqlite3_stmt *stmnt;
+	
+	sql = "DELETE FROM moz_places where type = ?";
+	if (sqlite3_prepare_v2(sqlDatabase, sql, -1, &stmnt, NULL) != SQLITE_OK) {
+		NSLog(@"Could not prepare statement!");
+		return NO;
+	} else {
+		sqlite3_bind_text(stmnt, 1, [theType UTF8String], -1, SQLITE_TRANSIENT);
+		if (sqlite3_step(stmnt) != SQLITE_DONE) {
+			NSLog(@"Could not remove the type from DB!");
+			sqlite3_finalize(stmnt);
+			return NO;
+		}
+	}
+	sqlite3_finalize(stmnt);
+	return YES;
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -635,15 +651,16 @@ static Store* _gStore = nil;
 
 
 ///////////////////////////////////////////////////////////////////////
--(BOOL) removeBookmarkRecord:(NSString *)json 
-{
-	NSDictionary *data = [json JSONValue];
-	NSString *theID = [data valueForKey:@"id"];
-	
-	[self removePlace:theID];
-	return YES;
+-(BOOL) removeRecord:(NSString *)theID 
+{	
+	return [self removePlaceFromDB:theID];
 }
 
+// removes all the tabs.  we need to do this before putting the new ones in
+- (BOOL) clearTabs
+{
+  return [self removeTypeFromDB:@"tab"];
+}
 
 ///////////////////////////////////////////////////////////////////////
 //Not sure, but I suspect we will be storing an entire history set, not one at a time.
@@ -675,7 +692,8 @@ static Store* _gStore = nil;
 //------------------------------------------------------------
 //------------------------------------------------------------
 
--(BOOL) addTab:(NSString *)json withID:(NSString*)theID {	
+- (BOOL) addTabSet:(NSString *)json withClientID:(NSString*)theID;  //tabIndex computed
+{	
 	// NSLog(@"addTab %@", json);
 	// curiously, the input is an array.
 
