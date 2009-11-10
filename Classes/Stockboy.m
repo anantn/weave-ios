@@ -232,7 +232,7 @@ static NSDictionary *_gNetworkPaths = nil;
 			
 			// Hmm, sometimes plaintext appears to be nil. Why?
 			if (plaintextBmark != nil) {
-				[userHistory setObject:plaintextHistory forKey:historyID];
+				[userBmarks setObject:plaintextBmark forKey:bmarkID];
 			}
 			[userBmarks setObject:plaintextBmark forKey: bmarkID];
 		}
