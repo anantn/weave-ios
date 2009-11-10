@@ -664,7 +664,7 @@ static Store* _gStore = nil;
 
 ///////////////////////////////////////////////////////////////////////
 //Not sure, but I suspect we will be storing an entire history set, not one at a time.
--(BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID {
+-(BOOL) addHistorySet:(NSString *)json withClientID:(NSString*)theID {
 	// NSLog(@"addHistory %@", json);
 	@try {
 		NSArray *historyArray = [json JSONValue];

@@ -315,7 +315,7 @@ static NSDictionary *_gNetworkPaths = nil;
 
 	// Second, insert all the new history entries 
 	for (NSString* anID in [userHistory allKeys]) {
-		[[Store getStore] addHistoryRecord:[userHistory objectForKey:anID] withID:anID];
+		[[Store getStore] addHistorySet:[userHistory objectForKey:anID] withClientID:anID];
 	}
 
 	[[Store getStore] updateHistorySyncTime];

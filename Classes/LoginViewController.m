@@ -97,7 +97,10 @@
 			[CryptoUtils fetchAndUpdateClients];
 			[Stockboy restock];
 		}
-		
+    
+    WeaveAppDelegate *app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+		[app switchLoginToMain];
+
 		return YES;
 	}
 }

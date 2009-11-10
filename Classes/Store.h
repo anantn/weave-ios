@@ -68,7 +68,7 @@
 
 - (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;
 - (BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID;
-- (BOOL) addHistoryRecord:(NSString *)json withID:(NSString*)theID;
+- (BOOL) addHistorySet:(NSString *)JSONObject withClientID:(NSString*)theID;
 
 //This removes tabs, bookmarks, or history.  they are all in the same table, identified by unique guids
 - (BOOL) removeRecord:(NSString *)theID;
