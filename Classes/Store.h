@@ -37,8 +37,7 @@
   NSString *username;
   NSString *password;
   
-  NSMutableDictionary *tabs;			// table from clientName -> array of [uri, title, favicon]
-  NSMutableArray      *tabIndex;	// list of clientNames
+  NSMutableArray      *tabs;
 	NSMutableDictionary *favicons;
   NSMutableArray      *history;
 	NSMutableArray      *bookmarks;
@@ -54,8 +53,7 @@
 - (NSString*) getUsername;
 - (NSString*) getPassword;
 
-- (NSDictionary*)  getTabs;
-- (NSArray*)       getTabIndex;  //FIX, this is not correect for multiple client ID's
+- (NSArray*)       getTabs;
 - (NSDictionary*)  getFavicons;
 - (NSArray*)       getHistory;
 - (NSArray*)       getBookmarks;
@@ -63,7 +61,8 @@
 - (BOOL) beginTransaction;
 - (BOOL) endTransaction;
 
-- (BOOL) addTabSet:(NSString *)JSONObject withClientID:(NSString*)theID;  //tabIndex computed
+
+- (BOOL) installTabSetDictionary:(NSDictionary*)tabSetDict;
 - (BOOL) clearTabs;
 
 - (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;

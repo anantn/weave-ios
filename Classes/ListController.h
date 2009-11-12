@@ -31,6 +31,7 @@
 	UITableView *tView;
 	WeaveAppDelegate *app;
 	TabViewController *tabController;
+  NSArray* theTabs;
 }
 
 @property (nonatomic, retain) IBOutlet UITableView *tView;

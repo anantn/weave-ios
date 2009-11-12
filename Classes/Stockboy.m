@@ -148,7 +148,7 @@ static NSDictionary *_gNetworkPaths = nil;
 	if (tabs == nil) return; //better error handling
   
 	// this will hold all the resultant decrypted tabs
-	NSMutableDictionary *userTabs = [NSMutableDictionary dictionary];
+	NSMutableDictionary *userTabSets = [[NSMutableDictionary dictionary] retain];
   
 	// This bit of primitive parsing relies on the data coming as a dictionary of dictionaries.
 	// beware of 'does not understand' exceptions
@@ -161,8 +161,8 @@ static NSDictionary *_gNetworkPaths = nil;
 		// get the interesting bits out of the bundle    
 		NSDictionary *encryptedTab = [[[tabBundle objectForKey:@"payload"] JSONValue] retain];
 		NSString *keyURL = [encryptedTab objectForKey:@"encryption"];
-		NSString *tabID = [tabBundle objectForKey:@"id"];
-		NSLog(@"Got Tab ID:%@", tabID);
+		NSString *tabSetID = [tabBundle objectForKey:@"id"];
+		NSLog(@"Got Tab Set ID:%@", tabSetID);
     
 		// check if we have the bulk key, if not fetch it again
 		NSDictionary *theKey;
@@ -173,21 +173,13 @@ static NSDictionary *_gNetworkPaths = nil;
 		}
 
 		// Do the decrypt and save the result keyed by id
-		[userTabs setObject:[CryptoUtils decryptObject:encryptedTab withKey:theKey] forKey:tabID];
+    // a Tab set is a dictionary of properties for a tab
+    NSArray* tabSet = [[CryptoUtils decryptObject:encryptedTab withKey:theKey] JSONValue];
+		[userTabSets setObject:tabSet forKey:tabSetID];
 	}
 	
-	// Ok, now we have all the tabs, decrypted.
-	// Use a transaction to put them in the database safely
-	[[Store getStore] beginTransaction];
-  
-	// First, delete all the existing tabs.
-	[[Store getStore] clearTabs];  
-  
-	// Second, insert all the new tabs 
-	for (NSString* anID in [userTabs allKeys]) {
-		[[Store getStore] addTabSet:[userTabs objectForKey:anID] withClientID:anID];
-	}
-	[[Store getStore] endTransaction];
+	// Ok, now we have all the tabs, decrypted, so tell the Store
+  [[Store getStore] installTabSetDictionary:userTabSets];
 }
 
 

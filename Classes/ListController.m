@@ -38,14 +38,15 @@
 #define HISTORY_VIEW 2
 
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-	app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+- (void)viewDidLoad 
+{
+  app = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+  [super viewDidLoad];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {    
 	if (tabController.selectedIndex == TAB_VIEW) {
-		return [[[Store getStore] getTabIndex] count];
+		return [[[Store getStore] getTabs] count];
 	} else {
 		return 1;
 	}
@@ -53,7 +54,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 	if (tabController.selectedIndex == TAB_VIEW) {
-		return [[[Store getStore] getTabIndex] objectAtIndex:section];
+    return [[[[Store getStore] getTabs] objectAtIndex:section] objectForKey:@"client"];
 	} else {
 		return @"History";
 	}
@@ -67,11 +68,7 @@
 	} 
   else
   {    
-    NSArray *tabIndex = [[Store getStore] getTabIndex];
-    NSDictionary *tabs = [[Store getStore] getTabs];
-    if (![tabIndex count]) return 0;  //empty tab list
-
-    return [[tabs objectForKey:[tabIndex objectAtIndex:section]] count];
+    return [[[[[Store getStore] getTabs] objectAtIndex:section] objectForKey:@"tabs"] count];
   }
 }
 
@@ -113,28 +110,28 @@
 	cell.imageView.image = nil;
 	cell.accessoryView = nil;
 
-	NSArray *obj;
+	NSString* theIcon = @"";
 	if (tabController.selectedIndex == TAB_VIEW) 
-  {
-		NSDictionary *tabs = [[Store getStore] getTabs];
-    NSArray* tabIndex = [[Store getStore] getTabIndex];
+  {    
+    NSDictionary* tabItem = [[[[[Store getStore] getTabs] objectAtIndex:indexPath.section] objectForKey:@"tabs"] objectAtIndex:indexPath.row];
     
-		obj = [[tabs objectForKey:[tabIndex objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
-    
-		title.text = [obj objectAtIndex:1];
-		uri.text = [obj objectAtIndex:0];
+		title.text = [tabItem objectForKey:@"title"];
+		uri.text = [tabItem objectForKey:@"uri"];
+    theIcon = [tabItem objectForKey:@"icon"];
 	}
   else 
   {
+    NSArray *obj;
 		obj = [[[Store getStore] getHistory] objectAtIndex:indexPath.row];
 		title.text = [obj objectAtIndex:1];
 		uri.text = [obj objectAtIndex:0];
+    theIcon = [obj objectAtIndex:2];
 	}
 
 	NSDictionary *icons = [[Store getStore] getFavicons];
-	if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
+	if ([icons objectForKey:theIcon] != nil) {
 		cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
-								initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
+								initWithBase64EncodedString:[icons objectForKey:theIcon]] autorelease]];
 	} else {
 		cell.imageView.image = [UIImage imageNamed:@"Document.png"];
 	}
@@ -142,27 +139,17 @@
 	return cell;
 }
 
-- (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)theTable didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (tabController.selectedIndex == TAB_VIEW) {
-		NSDictionary *tabs = [[Store getStore] getTabs];
-    NSArray* tabIndex = [[Store getStore] getTabIndex];
-
-		NSArray *obj = [[tabs objectForKey:[tabIndex objectAtIndex:indexPath.section]] objectAtIndex:indexPath.row];
-    
-		[app setUri:[obj objectAtIndex:0]];
+    NSDictionary* tabItem = [[[[[Store getStore] getTabs] objectAtIndex:indexPath.section] objectForKey:@"tabs"] objectAtIndex:indexPath.row];
+		[app setUri:[tabItem objectForKey:@"uri"]];
 	} else {
 		[app setUri:[[[[Store getStore] getHistory] objectAtIndex:indexPath.row] objectAtIndex:0]];
 	}
+  
 	[app switchMainToWeb];
 }
 
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.

@@ -45,10 +45,10 @@ CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, uid LONGVARCHAR, passw
 @interface Store (Private)
 -(Store *) initWithDBFile:(NSString *)filePath;
 - (void) loadUserInfo;
-- (void) loadExistingTabs;
-- (void) loadExistingHistory;
-- (void) loadExistingBookmarks;
-- (void) loadExistingFavicons;
+- (void) loadTabsFromDB;
+- (void) loadHistoryFromDB;
+- (void) loadBookmarksFromDB;
+- (void) loadFaviconsFromDB;
 @end
 
 @implementation Store
@@ -77,25 +77,24 @@ static Store* _gStore = nil;
 				
 		username = nil;
 		password = nil;
-		tabIndex = [[NSMutableArray alloc] init];
 		
-		NSFileManager *fm = [NSFileManager defaultManager];
+		NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 		NSString *documentsDir = [paths objectAtIndex:0];
 		NSString *writablePath = [documentsDir stringByAppendingString:filePath];
 		
 		/* DB already exists */
-		success = [fm fileExistsAtPath:writablePath];
+		success = [fileManager fileExistsAtPath:writablePath];
 		if (success) 
 		{
 			NSLog(@"Existing DB found, using");
 			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) 
 			{
 				[self loadUserInfo];
-				[self loadExistingTabs];
-				[self loadExistingHistory];
-				[self loadExistingBookmarks];
-				[self loadExistingFavicons];
+				[self loadTabsFromDB];
+				[self loadHistoryFromDB];
+				[self loadBookmarksFromDB];
+				[self loadFaviconsFromDB];
 				return self;
 			} 
 			else 
@@ -109,13 +108,13 @@ static Store* _gStore = nil;
 		/* DB doesn't exist, copy from resource bundle */
 		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filePath];
 		
-		success = [fm copyItemAtPath:defaultDB toPath:writablePath error:&error];
+		success = [fileManager copyItemAtPath:defaultDB toPath:writablePath error:&error];
 		if (success) {
 			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) {
-				tabs = [[NSMutableDictionary alloc] init];
-				history = [[NSMutableArray alloc] init];
-				bookmarks = [[NSMutableArray alloc] init];
-				favicons = [[NSMutableDictionary alloc] init];
+				tabs = [[NSMutableArray array] retain];
+				history = [[NSMutableArray array] retain];
+				bookmarks = [[NSMutableArray array] retain];
+				favicons = [[NSMutableDictionary dictionary] retain];
 				return self;
 			} else {
 				NSLog(@"Could not open database!");
@@ -434,14 +433,9 @@ static Store* _gStore = nil;
   return password;
 }
 
-- (NSDictionary*)  getTabs
+- (NSArray*)  getTabs
 {
 	return tabs;
-}
-
-- (NSArray*) getTabIndex
-{
-  return tabIndex;
 }
 
 - (NSDictionary*) getFavicons
@@ -462,78 +456,102 @@ static Store* _gStore = nil;
 
 ///////////////////////////////////////////////////////////////////////
 
--(void)loadExistingTabs
+-(void)loadTabsFromDB
 {
+  //ok, for easier use with the UI code, we're going to load the tabs into a structure with the following shape:
+  // * Array, one slot for each client, which is a:
+  //   * Dictionary, containing:
+  //     * String (the client guid) with key 'guid'
+  //     * String (the client name) with key 'client'
+  //     * Array (the tabs) with key 'tabs', containing:
+  //       * Dictionary (the tab properties) containing:
+  //         * String (the title) with key 'title'
+  //         * String (the uri) with key 'uri'
+  //         * String (the icon) with key 'icon'
+  
 	sqlite3_stmt *dbStatement;
 	const char *tabQuery = "SELECT * FROM moz_places WHERE type = 'tab'";
 	NSString* icon;
-	
-	tabs = [[NSMutableDictionary alloc] init];
-	
+		
+  //ok, this is a temporary dictionary to build our data structure.
+  NSMutableDictionary* temporaryTabIndex = [NSMutableDictionary dictionary];
+  
 	if (sqlite3_prepare_v2(sqlDatabase, tabQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
 	{
 		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
 		{
-			if ((char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)) 
-			{
+			if ((char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)) {
 				icon = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_FAVICON_COLUMN)];
-			} 
-			else 
-			{
-				icon = @"";
-			}
+			} else {
+        icon = @"";
+      }
+      
 			
+      NSString *guid = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_GUID_COLUMN)];
 			NSString *client = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_CLIENT_COLUMN)];
-			NSMutableArray *thisTab = [tabs objectForKey:client];
-			if (thisTab != nil) 
+      
+      NSMutableDictionary* thisClient = [temporaryTabIndex objectForKey:guid];
+      
+			if (thisClient == nil)
 			{
-				[thisTab addObject:[NSArray arrayWithObjects:
-											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
-											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
-											 icon, nil]];
-			} 
-			else 
-			{
-				NSMutableArray *thisTab = [[NSMutableArray alloc] init];
-				[thisTab addObject:[NSArray arrayWithObjects:
-											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
-											 [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
-											 icon, nil]];
-				[tabs setObject:thisTab forKey:client];
-				[tabIndex addObject:client];
+				thisClient = [NSMutableDictionary dictionary];
+        [thisClient setObject:guid forKey:@"guid"];
+        [thisClient setObject:client forKey:@"client"];
+        [thisClient setObject:[NSMutableArray array] forKey:@"tabs"];
+        [temporaryTabIndex setObject:thisClient forKey:guid];
 			}
+      
+      [[thisClient objectForKey:@"tabs"] addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+                           [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)], @"title",
+                           [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)], @"uri",
+                           icon, @"icon",
+                           nil]];
+      
+      NSLog(@"tab: %@", thisClient);
+      
 		}
 		sqlite3_finalize(dbStatement);
+    
+    [tabs release];
+    tabs = [[NSMutableArray array] retain];
+    
+    id key;
+    NSEnumerator *enumerator = [temporaryTabIndex keyEnumerator];
+    
+    while ((key = [enumerator nextObject])) {
+      [tabs addObject:[temporaryTabIndex objectForKey:key]];
+    }
 	} 
 }
 
--(void) loadExistingFavicons
+
+
+-(void) loadFaviconsFromDB
 {
-	if (favicons == nil)
-	{
-		sqlite3_stmt *dbStatement;
-		const char *faviconQuery = "SELECT * FROM moz_favicons";
-		
-		favicons = [[NSMutableDictionary alloc] init];
-		
-		if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
-		{
-			while (sqlite3_step(dbStatement) == SQLITE_ROW) 
-			{
-				[favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)]
-										 forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
-			}
-		} 
-		sqlite3_finalize(dbStatement);
-	}
+  sqlite3_stmt *dbStatement;
+  const char *faviconQuery = "SELECT * FROM moz_favicons";
+  
+  [favicons release];
+  favicons = [[NSMutableDictionary dictionary] retain];
+  
+  if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+  {
+    while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+    {
+      [favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)]
+                   forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
+    }
+  } 
+  sqlite3_finalize(dbStatement);
 }
 
-- (void) loadExistingHistory
+- (void) loadHistoryFromDB
 {
- sqlite3_stmt *dbStatement;
+  sqlite3_stmt *dbStatement;
 	const char *historyQuery = "SELECT * FROM moz_places WHERE type = 'history'";
 	NSString* icon;
 	
+  [history release];
 	history = [[NSMutableArray array] retain];
 	
 	/* Load existing history */
@@ -559,12 +577,13 @@ static Store* _gStore = nil;
 	} 
 }
 
--(void) loadExistingBookmarks
+-(void) loadBookmarksFromDB
 {
 	sqlite3_stmt *dbStatement;
 	const char *bookmarkQuery = "SELECT * FROM moz_places WHERE type = 'bookmark'";
 	NSString* icon;
 	
+  [bookmarks release];
 	bookmarks = [[NSMutableArray array] retain];
 	
 	//load any bookmarks we can find in the db
@@ -692,14 +711,9 @@ static Store* _gStore = nil;
 //------------------------------------------------------------
 //------------------------------------------------------------
 
-- (BOOL) addTabSet:(NSString *)json withClientID:(NSString*)theID;  //tabIndex computed
+- (BOOL) addTabSet:(NSArray *)tabSetDict withClientID:(NSString*)theID;  //tabIndex computed
 {	
-	// NSLog(@"addTab %@", json);
-	// curiously, the input is an array.
-
-	tabs = [[NSMutableDictionary alloc] init];
-	NSArray *data = [json JSONValue];
-	NSDictionary *tabRecord = [data objectAtIndex:0];
+	NSDictionary *tabRecord = [tabSetDict objectAtIndex:0];
 	NSDictionary *clientDict = [[NSMutableDictionary alloc] init];
 	
 	@try {
@@ -715,31 +729,34 @@ static Store* _gStore = nil;
 			
 			if (title && uri) {
 				NSString *favicon = [[NSURL URLWithString:uri] host];
-				if (favicon == nil)
-					favicon = @"";
-				
-				NSMutableArray *tb = [tabs objectForKey:client];
-				if (tb != nil) {
-					[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-				} else {
-					NSMutableArray *tb = [[NSMutableArray alloc] init];
-					[tb addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
-					[tabs setObject:tb forKey:client];
-				}
-				[self storePlaceInDB:@"tab" withURI:uri title:title andFavicon:favicon andID:theID maybeClient:client ];
+				if (favicon == nil) favicon = @"";
+        [self storePlaceInDB:@"tab" withURI:uri title:title andFavicon:favicon andID:theID maybeClient:client];
 			}
 		}
 	} @catch (id theException) {
 		NSLog(@"Threw %@", theException);
 	}
-	// TODO leak?
-	NSEnumerator *iter = [clientDict keyEnumerator];
-	NSString *key;
-	tabIndex = [[NSMutableArray alloc] init];
-	while (key = [iter nextObject]) {
-		[tabIndex addObject:key];
-	}
+
 	return YES;
+}
+
+
+- (BOOL) installTabSetDictionary:(NSDictionary *)tabSetDict
+{
+  // Use a transaction to put them in the database safely
+  [self beginTransaction];
+
+  // First, delete all the existing tabs.
+  [self clearTabs];  
+
+  // Second, insert all the new tabs 
+  for (NSString* anID in [tabSetDict allKeys]) {
+    [self addTabSet:[tabSetDict objectForKey:anID] withClientID:anID];
+  }
+  [self endTransaction];
+  
+  [self loadTabsFromDB];
+  return YES;
 }
 
 
