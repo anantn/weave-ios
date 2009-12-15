@@ -7,6 +7,8 @@
 //
 
 #import "TabBrowserController.h"
+#import "WebPageController.h"
+#import "WeaveAppDelegate.h"
 #import "Store.h"
 
 @implementation TabBrowserController
@@ -128,6 +130,19 @@
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
   [[UIApplication sharedApplication] openURL:[NSURL URLWithString:cell.detailTextLabel.text]];
+}
+
+
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+  UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+  NSURL* destination = [NSURL URLWithString:cell.detailTextLabel.text];
+  
+  WebPageController* webPage = [[WebPageController alloc] initWithURL:destination];
+  WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+  
+  [[appDelegate rootController] presentModalViewController: webPage animated:YES];
+  [webPage release];
 }
 
 

@@ -25,6 +25,7 @@
 
 - (void)done:(id)sender 
 {
+  [webView stopLoading];
   WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
   [[appDelegate rootController] dismissModalViewControllerAnimated: YES];
 }

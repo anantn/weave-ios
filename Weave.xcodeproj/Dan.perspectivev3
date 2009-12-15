@@ -346,7 +346,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>9</integer>
+									<integer>22</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
@@ -387,7 +387,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>37A67203109418F000D1227F</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>SearchResultsController.h</string>
+								<string>WebPageController.m</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -395,11 +395,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>37A67204109418F000D1227F</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>SearchResultsController.h</string>
+										<string>WebPageController.m</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>371597B010D82E1C00F28263</string>
+										<string>371597D910D8304100F28263</string>
 										<key>history</key>
 										<array>
 											<string>3732128A1098396000CBB572</string>
@@ -427,7 +427,13 @@
 											<string>371597AC10D82E1C00F28263</string>
 											<string>371597AD10D82E1C00F28263</string>
 											<string>371597AE10D82E1C00F28263</string>
-											<string>371597AF10D82E1C00F28263</string>
+											<string>371597C310D82FD600F28263</string>
+											<string>371597C410D82FD600F28263</string>
+											<string>371597C510D82FD600F28263</string>
+											<string>371597C610D82FD600F28263</string>
+											<string>371597C710D82FD600F28263</string>
+											<string>371597D710D8304100F28263</string>
+											<string>371597D810D8304100F28263</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -441,18 +447,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {1064, 723}}</string>
+								<string>{{0, 0}, {1064, 504}}</string>
 								<key>RubberWindowFrame</key>
 								<string>1 109 1439 769 0 0 1440 878 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>723pt</string>
+							<string>504pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>0pt</string>
+							<string>219pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -483,8 +489,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {1064, -27}}</string>
-										<key>RubberWindowFrame</key>
-										<string>1 109 1439 769 0 0 1440 878 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -523,6 +527,8 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {1064, 192}}</string>
+										<key>RubberWindowFrame</key>
+										<string>1 109 1439 769 0 0 1440 878 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -727,7 +733,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>282603036.350178</real>
+	<real>282603585.15191901</real>
 	<key>ToolbarConfigUserDefaultsMinorVersion</key>
 	<string>2</string>
 	<key>ToolbarDisplayMode</key>
@@ -744,7 +750,7 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>371597B110D82E1C00F28263</string>
+		<string>371597DA10D8304100F28263</string>
 		<string>371597B210D82E1C00F28263</string>
 		<string>3715977410D82D6B00F28263</string>
 		<string>/Users/Dan/Development/weave-iphone/Weave.xcodeproj</string>
