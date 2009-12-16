@@ -162,6 +162,7 @@
   NSURL* destination = [NSURL URLWithString:cell.detailTextLabel.text];
   
   WebPageController* webPage = [[WebPageController alloc] initWithURL:destination];
+  webPage.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
   WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
   
   [[appDelegate rootController] presentModalViewController: webPage animated:YES];

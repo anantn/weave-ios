@@ -507,7 +507,7 @@ static Store* _gStore = nil;
                            icon, @"icon",
                            nil]];
       
-      NSLog(@"tab: %@", thisClient);
+      //NSLog(@"tab: %@", thisClient);
       
 		}
 		sqlite3_finalize(dbStatement);
