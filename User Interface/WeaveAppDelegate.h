@@ -38,12 +38,19 @@
   UIView*                   headerView;
   UIActivityIndicatorView*  spinner;
   UILabel*                  spinMessage;
+  UIButton*                 syncButton;
   UILabel*                  userNameDisplay;
   UITabBarController*       browserPage;
   SearchResultsController*  searchResults;
   TabBrowserController*     tabBrowser;
   BookmarkBrowserController*bookmarkBrowser;
 }
+
+- (IBAction) resync:(id)sender;
+- (void) startSpinner;
+- (void) stopSpinner;
+- (void) refreshViews;
+
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet UIViewController *rootController;
@@ -52,6 +59,7 @@
 @property (nonatomic, retain) IBOutlet UIView* headerView;
 @property (nonatomic, retain) IBOutlet UIActivityIndicatorView* spinner;
 @property (nonatomic, retain) IBOutlet UILabel* spinMessage;
+@property (nonatomic, retain) IBOutlet UIButton* syncButton;
 @property (nonatomic, retain) IBOutlet UILabel* userNameDisplay;
 @property (nonatomic, retain) IBOutlet UITabBarController *browserPage;
 @property (nonatomic, retain) IBOutlet SearchResultsController *searchResults;

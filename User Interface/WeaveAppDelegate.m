@@ -39,6 +39,7 @@
 @synthesize headerView;
 @synthesize spinner;
 @synthesize spinMessage;
+@synthesize syncButton;
 @synthesize userNameDisplay;
 @synthesize browserPage;
 @synthesize searchResults;
@@ -84,6 +85,37 @@
 	}
 }
 
+
+- (IBAction) resync:(id)sender
+{
+  [Stockboy restock];
+}
+
+- (void) startSpinner
+{
+  //hide the button, show the label, animate the spinner
+  [self.syncButton setHidden:YES];
+  [self.spinner startAnimating];
+  [self.spinMessage setHidden:NO];
+
+}
+
+
+- (void) stopSpinner
+{
+  //hide the label, show the button, stop the spinner
+  [self.syncButton setHidden:NO];
+  [self.spinner stopAnimating];
+  [self.spinMessage setHidden:YES];
+}
+
+
+- (void) refreshViews
+{
+  [searchResults refresh];
+  [tabBrowser refresh];
+  [bookmarkBrowser refresh];
+}
 
 -(void) dealloc {
   [browserPage release];

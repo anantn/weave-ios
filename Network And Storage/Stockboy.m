@@ -60,9 +60,8 @@ static NSDictionary *_gNetworkPaths = nil;
 		_gStockboy = [[Stockboy alloc] init];
 
     WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    [[delegate spinner] startAnimating];
-    [[delegate spinMessage] setHidden:NO];
-
+    [delegate startSpinner];
+    
 		NSThread* keyThread = [[NSThread alloc] initWithTarget:_gStockboy selector:@selector(restockEverything) object:nil];
 		[keyThread start];
 	}
@@ -139,8 +138,8 @@ static NSDictionary *_gNetworkPaths = nil;
 	}
 
   WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-  [[delegate spinner] stopAnimating];
-  [[delegate spinMessage] setHidden:YES];
+  [delegate stopSpinner];
+  [delegate refreshViews];
   
 	_gStockboy = nil;
 	[pool drain];

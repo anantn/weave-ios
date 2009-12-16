@@ -118,7 +118,6 @@
 		378FC16B10D82BEA0010D3C9 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		378FC16D10D82BEA0010D3C9 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		378FC16E10D82BEA0010D3C9 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		378FC16F10D82BEA0010D3C9 /* Responder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Responder.h; path = "Network And Storage/Responder.h"; sourceTree = SOURCE_ROOT; };
 		378FC17010D82BEA0010D3C9 /* Stockboy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stockboy.h; path = "Network And Storage/Stockboy.h"; sourceTree = SOURCE_ROOT; };
 		378FC17110D82BEA0010D3C9 /* Stockboy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Stockboy.m; path = "Network And Storage/Stockboy.m"; sourceTree = SOURCE_ROOT; };
 		378FC17210D82BEA0010D3C9 /* Store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Store.h; path = "Network And Storage/Store.h"; sourceTree = SOURCE_ROOT; };
@@ -171,7 +170,6 @@
 				378FC15D10D82BEA0010D3C9 /* Fetcher.m */,
 				378FC15E10D82BEA0010D3C9 /* JSON */,
 				378FC16C10D82BEA0010D3C9 /* Reachability */,
-				378FC16F10D82BEA0010D3C9 /* Responder.h */,
 				378FC17010D82BEA0010D3C9 /* Stockboy.h */,
 				378FC17110D82BEA0010D3C9 /* Stockboy.m */,
 				378FC17210D82BEA0010D3C9 /* Store.h */,
@@ -248,7 +246,6 @@
 				3715977F10D82DD800F28263 /* LoginController.h */,
 				3715978010D82DD800F28263 /* LoginController.m */,
 				3715978110D82DD800F28263 /* LoginController.xib */,
-				3715978210D82DD800F28263 /* MainWindow.xib */,
 				3715978310D82DD800F28263 /* SearchResultsController.h */,
 				3715978410D82DD800F28263 /* SearchResultsController.m */,
 				3715978510D82DD800F28263 /* SearchResultsController.xib */,
@@ -261,6 +258,7 @@
 				3715978C10D82DD800F28263 /* TabCell.xib */,
 				3715978D10D82DD800F28263 /* WeaveAppDelegate.h */,
 				3715978E10D82DD800F28263 /* WeaveAppDelegate.m */,
+				3715978210D82DD800F28263 /* MainWindow.xib */,
 				3715978F10D82DD800F28263 /* WebPageController.h */,
 				3715979010D82DD800F28263 /* WebPageController.m */,
 				3715979110D82DD800F28263 /* WebPageController.xib */,
