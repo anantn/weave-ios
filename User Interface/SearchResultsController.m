@@ -103,6 +103,7 @@
     return 3;
   }
     
+  [fancyGraphic setHidden:NO];
   return 0;
 }
 
@@ -185,13 +186,22 @@
 }
 
 
+- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
+{
+  [fancyGraphic setHidden:YES];
+  return YES;
+}
+
+
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText 
 {
+  [fancyGraphic setHidden:YES];
 	[resultsTable reloadData];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
+  [fancyGraphic setHidden:NO];
   self.searchDisplayController.searchBar.text = nil;
   [resultsTable reloadData];
 }
