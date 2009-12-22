@@ -23,6 +23,7 @@
  ***** END LICENSE BLOCK *****/
 
 #import "Store.h"
+#import "Fetcher.h"
 #import "Utility.h"
 #import "JSON.h"
 
@@ -65,6 +66,21 @@ static Store* _gStore = nil;
   return _gStore;
 }
 
++ (void) deleteStore
+{
+  [_gStore release];
+  _gStore = nil;
+  
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString *documentsDir = [paths objectAtIndex:0];
+  NSString *databasePath = [documentsDir stringByAppendingString:@"/store.sq3"];
+  
+  NSError* err;
+  [fileManager removeItemAtPath:databasePath error:&err];
+  if (err != nil)
+    NSLog(@"database delete failed: %@", err);
+}
 
 -(Store *) initWithDBFile:(NSString *)filePath 
 {
@@ -81,14 +97,14 @@ static Store* _gStore = nil;
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 		NSString *documentsDir = [paths objectAtIndex:0];
-		NSString *writablePath = [documentsDir stringByAppendingString:filePath];
+		NSString *databasePath = [documentsDir stringByAppendingString:filePath];
 		
 		/* DB already exists */
-		success = [fileManager fileExistsAtPath:writablePath];
+		success = [fileManager fileExistsAtPath:databasePath];
 		if (success) 
 		{
 			NSLog(@"Existing DB found, using");
-			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) 
+			if (sqlite3_open([databasePath UTF8String], &sqlDatabase) == SQLITE_OK) 
 			{
 				[self loadUserInfo];
 				[self loadTabsFromDB];
@@ -108,9 +124,9 @@ static Store* _gStore = nil;
 		/* DB doesn't exist, copy from resource bundle */
 		NSString *defaultDB = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filePath];
 		
-		success = [fileManager copyItemAtPath:defaultDB toPath:writablePath error:&error];
+		success = [fileManager copyItemAtPath:defaultDB toPath:databasePath error:&error];
 		if (success) {
-			if (sqlite3_open([writablePath UTF8String], &sqlDatabase) == SQLITE_OK) {
+			if (sqlite3_open([databasePath UTF8String], &sqlDatabase) == SQLITE_OK) {
 				tabs = [[NSMutableArray array] retain];
 				history = [[NSMutableArray array] retain];
 				bookmarks = [[NSMutableArray array] retain];
@@ -524,7 +540,15 @@ static Store* _gStore = nil;
 	} 
 }
 
-
+- (UIImage *)scale:(UIImage *)image toSize:(CGSize)size 
+{ 
+  UIGraphicsBeginImageContext(size); 
+  [image drawInRect:CGRectMake(0, 0, size.width, size.height)]; 
+  UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext 
+  (); 
+  UIGraphicsEndImageContext(); 
+  return scaledImage; 
+}
 
 -(void) loadFaviconsFromDB
 {
@@ -534,12 +558,28 @@ static Store* _gStore = nil;
   [favicons release];
   favicons = [[NSMutableDictionary dictionary] retain];
   
+  //default
+  [favicons setObject:[UIImage imageNamed:@"blankfavicon.ico"] forKey:@"blankfavicon.ico"];
+
   if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
   {
     while (sqlite3_step(dbStatement) == SQLITE_ROW) 
     {
-      [favicons setObject:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)]
-                   forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
+      NSString* imgStr = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)];
+      NSData* imgData = [[NSData alloc] initWithBase64EncodedString:imgStr];  
+      UIImage* img = [UIImage imageWithData:imgData];
+      if (img)
+      {
+        //resize it to 32x32 if it isn't
+        if (img.size.width == 16)
+        {
+          CGSize size32;
+          size32.width = 32;
+          size32.height = 32;
+          img = [self scale:img toSize: size32];
+        }
+        [favicons setObject:img forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
+      }
     }
   } 
   sqlite3_finalize(dbStatement);
@@ -568,14 +608,23 @@ static Store* _gStore = nil;
 				icon = @"";
 			}
 			
-			[history addObject:[NSArray arrayWithObjects:
-													[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
-													[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
-													icon, nil]];
+      [history addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+                             [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)], @"title",
+                             [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)], @"uri",
+                             icon, @"icon",
+                             nil]];
 		}
 		sqlite3_finalize(dbStatement);
 	} 
 }
+
+
+
+static int compareBookmarks(id left,  id right, void* ctx)
+{
+  return [[left objectForKey:@"title"] localizedCompare: [right objectForKey:@"title"]]; //ascending
+}
+
 
 -(void) loadBookmarksFromDB
 {
@@ -599,43 +648,136 @@ static Store* _gStore = nil;
 			{
 				icon = @"";
 			}
-			[bookmarks addObject:[NSArray arrayWithObjects:
-														[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)],
-														[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)],
-														icon, nil]];
+      
+      [bookmarks addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+                                                     [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)], @"title",
+                                                     [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)], @"uri",
+                                                     icon, @"icon",
+                                                     nil]];
+      }
+		sqlite3_finalize(dbStatement);
+	} 
+  
+  [bookmarks sortUsingFunction:compareBookmarks context:nil];
+
+}
+
+
+//computes and returns the path to the favicon for a given url.  for now, it's the old path http://<host>/favicon.ico
+- (NSString*) faviconPathForURL:(NSString*)url
+{
+  NSMutableString* favpath = [NSMutableString string];
+  NSString* host = [[NSURL URLWithString:url] host];
+  if (host && [host length] > 0)
+      [favpath appendFormat:@"http://%@/favicon.ico",host , nil];
+  return favpath;
+}
+
+///////////////////////////////////////
+//check to see if we already have an icon for this url
+//- (BOOL) hasFavicon:(NSString*)url
+//{
+//  sqlite3_stmt *dbStatement;
+//  const char *iconQuery = "SELECT * FROM moz_favicons WHERE url = ?";
+//
+//  if (sqlite3_prepare_v2(sqlDatabase, iconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+//  {
+//    sqlite3_bind_text(dbStatement, 1, [url UTF8String], -1, SQLITE_TRANSIENT);
+//
+//    if (sqlite3_step(dbStatement) == SQLITE_ROW) 
+//    {
+//      sqlite3_finalize(dbStatement);
+//      return YES;
+//    } 
+//    sqlite3_finalize(dbStatement);
+//  } 
+//  return NO;
+//}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//this inserts a single [url, icon] pair into the database, which can be called by anyone
+- (BOOL) cacheFavicon:(NSString*)icon forURL:(NSString*)url
+{
+  sqlite3_stmt *stmnt;
+	const char *fsql = "INSERT INTO moz_favicons VALUES(?, ?)";
+  
+  if (sqlite3_prepare_v2(sqlDatabase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
+    NSLog(@"Could not prepare favicon statement!");
+    return NO;
+  }
+  
+  sqlite3_bind_text(stmnt, 1, [url UTF8String], -1, SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmnt, 2, [icon UTF8String], -1, SQLITE_TRANSIENT);
+  
+  if (sqlite3_step(stmnt) != SQLITE_DONE) {
+    NSLog(@"%@ unsaved", url);
+    return NO;
+  }
+  
+  sqlite3_finalize(stmnt);		
+  return YES;
+}
+
+
+- (void) refreshFavicons
+{
+  sqlite3_stmt *dbStatement;
+  //this query should give us all favicon paths that are not already in the favicon table
+	const char *faviconQuery = "SELECT DISTINCT favicon FROM moz_places EXCEPT SELECT url FROM moz_favicons";
+		
+	if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
+	{
+		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
+		{
+      //now go get the icon, and save it in the db
+      char* column = (char*)sqlite3_column_text(dbStatement, 0);
+      if (column == nil) continue;
+      
+			NSString* url = [NSString stringWithCString:column encoding:NSUTF8StringEncoding];
+      NSData* iconbytes = [Fetcher getPublicURL:url];
+      
+      NSString* iconstring;
+      if (iconbytes && [iconbytes length] > 0) {
+         iconstring = [iconbytes base64Encoding];
+      }
+      else {
+        iconstring = @"";
+      }
+
+      //NSLog(@"url: %@   icon: %@", url, iconstring);
+      //now store the iconstring in the moz_favicons table, with the specified url.
+      // we're storing empty strings for the ones we couldn't get, so we don't keep trying to look them up
+      [self cacheFavicon:iconstring forURL:url];
+
 		}
 		sqlite3_finalize(dbStatement);
 	} 
+  
+  [self loadFaviconsFromDB];
 }
 
-//////////////////////////////////////////////////////////////////////////////
 
--(BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID {
+
+
+
+//this one unwraps a JSON list and walks the [url, icon] pairs inside, inserting each into the database
+// this is called if we use the favicon proxy
+- (BOOL) cacheFaviconsFromJSON:(NSString *)JSONObject withID:(NSString*)theID
+{
 	NSString *key;
 	NSString *value;
 	NSEnumerator *iter;
 	
-	sqlite3_stmt *stmnt;
-	const char *fsql = "INSERT INTO moz_favicons VALUES(?, ?)";
 	
 	/* Store favicons */
 	NSDictionary *resp = [JSONObject JSONValue];
 	iter = [resp keyEnumerator];
-	while (key = [iter nextObject]) {
+	while (key = [iter nextObject])
+  {
 		value = [resp valueForKey:key];
-		
-		if (sqlite3_prepare_v2(sqlDatabase, fsql, -1, &stmnt, NULL) != SQLITE_OK) {
-			NSLog(@"Could not prepare favicon statement!");
-			return NO;
-		}
-		
-		sqlite3_bind_text(stmnt, 1, [key UTF8String], -1, SQLITE_TRANSIENT);
-		sqlite3_bind_text(stmnt, 2, [value UTF8String], -1, SQLITE_TRANSIENT);
-		
-		if (sqlite3_step(stmnt) != SQLITE_DONE) {
-			NSLog(@"%@ unsaved", key);
-		}
-		sqlite3_finalize(stmnt);		
+		[self cacheFavicon:value forURL:key];
 	}
 	
 	return YES;
@@ -653,8 +795,7 @@ static Store* _gStore = nil;
 				
 			NSRange r = NSMakeRange(0, 6);
 			if (title && uri && ![[uri substringWithRange:r] isEqualToString:@"place:"]) {
-				NSString *favicon = [[NSURL URLWithString:uri] host];
-				[bookmarks addObject:[NSArray arrayWithObjects:uri, title, favicon, nil]];
+				NSString *favicon = [self faviconPathForURL:uri];
 				[self storePlaceInDB:@"bookmark" withURI:uri title:title andFavicon:favicon andID:theID];
 				//NSLog(@"Added bookmark %@", uri);
 			}
@@ -664,6 +805,8 @@ static Store* _gStore = nil;
 		return NO;
 	}
 	
+  [self loadBookmarksFromDB];
+
 	return YES;
 }
 
@@ -694,8 +837,7 @@ static Store* _gStore = nil;
 			NSString *title = [hist valueForKey:@"title"];
 				
 			if (title && uri) {
-				NSString *favicon = [[NSURL URLWithString:uri] host];
-				[history addObject:[NSArray arrayWithObjects:[uri retain], [title retain], [favicon retain], nil]];
+				NSString *favicon = [self faviconPathForURL:uri];
 				[self storePlaceInDB:@"history" withURI:uri title:title andFavicon:favicon andID:theID ];
 			}
 		}
@@ -703,6 +845,8 @@ static Store* _gStore = nil;
 		NSLog(@"threw %@", theException);
 		return NO;
 	}
+
+  [self loadHistoryFromDB];
 
 	return YES;
 }
@@ -728,8 +872,7 @@ static Store* _gStore = nil;
 			NSString *title = [tab valueForKey:@"title"];
 			
 			if (title && uri) {
-				NSString *favicon = [[NSURL URLWithString:uri] host];
-				if (favicon == nil) favicon = @"";
+				NSString *favicon = [self faviconPathForURL:uri];
         [self storePlaceInDB:@"tab" withURI:uri title:title andFavicon:favicon andID:theID maybeClient:client];
 			}
 		}
@@ -763,6 +906,19 @@ static Store* _gStore = nil;
 ///////////////////////////////////////////////////////////////////////
 -(void) dealloc {
 	sqlite3_close(sqlDatabase);
+  [tabs release];
+  tabs = nil;
+  [bookmarks release];
+  bookmarks = nil;
+  [history release];
+  history = nil;
+  [favicons release];
+  favicons = nil;
+  [username release];
+  username = nil;
+  [password release];
+  password = nil;
+    
 	[super dealloc];
 }
 

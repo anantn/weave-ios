@@ -29,6 +29,9 @@
 @interface Fetcher : NSObject 
 {
 }
+  //synchronous wrapper for public uri data retrieval with timeout, not requiring basic auth or cluster.
++ (NSData *)getPublicURL:(NSString *)url;
+
 
 // class utility method for synchronous fetching (and PUT),
 // used for the cluster, which must be gotten before we can do anything else

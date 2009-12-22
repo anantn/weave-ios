@@ -47,10 +47,12 @@
 }
 
 - (IBAction) resync:(id)sender;
+
 - (void) startSpinner;
 - (void) stopSpinner;
 - (void) refreshViews;
-
+- (void) signIn;
+- (void) signOut;
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet UIViewController *rootController;

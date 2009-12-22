@@ -25,8 +25,8 @@
 
 #import "TabBrowserController.h"
 #import "WebPageController.h"
-#import "WeaveAppDelegate.h"
 #import "Store.h"
+#import "TapActionController.h"
 
 @implementation TabBrowserController
 
@@ -57,8 +57,8 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
-  UITableView* theTable = (UITableView*)self.view;
-	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
+//  UITableView* theTable = (UITableView*)self.view;
+//	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
 }
 
 - (void) refresh
@@ -116,10 +116,11 @@
 }
 
 
-// Customize the appearance of table view cells.
+//Note: this table cell code is nearly identical to the same method in searchresults and bookmarks,
+// but we want to be able to easily make them display differently, so it is replicated
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
       
-//NOT USING THIS FOR NOW, IB-specified cell.  we can use it later to make them pretty :)
+//NOT USING THIS FOR NOW, IB-specified cell.  we can use it later to make them pretty
 //  UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"tabCell"];
 //  if (cell == nil) {
 //    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"TabCell" owner:self options:nil];
@@ -134,16 +135,26 @@
   }
   
   NSDictionary* tabItem = [[[[[Store getStore] getTabs] objectAtIndex:indexPath.section] objectForKey:@"tabs"] objectAtIndex:indexPath.row];
-  
-  //FIX need to fill in the other field
-//  theIcon = [tabItem objectForKey:@"icon"];
-  
+    
+  cell.textLabel.adjustsFontSizeToFitWidth = YES;
+  cell.textLabel.minimumFontSize = 13;
   cell.textLabel.text = [tabItem objectForKey:@"title"];
   cell.detailTextLabel.text = [tabItem objectForKey:@"uri"];
-  cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-  //this should really be the icon from the db
-  //  theIcon = [tabItem objectForKey:@"icon"];
-  cell.imageView.image = [UIImage imageNamed:@"Star.png"];
+  //cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+
+  //set it to the default to start
+  cell.imageView.image = [[[Store getStore] getFavicons] objectForKey:@"blankfavicon.ico"];
+  NSString* iconPath = [tabItem objectForKey:@"icon"];
+  
+  if (iconPath != nil && [iconPath length] > 0)
+  {
+    UIImage* favicon = [[[Store getStore] getFavicons] objectForKey:iconPath];
+    if (favicon != nil) 
+    {
+      cell.imageView.image = favicon;
+    }    
+  }
+  
   
   return cell;
 }
@@ -152,21 +163,8 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:cell.detailTextLabel.text]];
-}
-
-
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
-{
-  UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  NSURL* destination = [NSURL URLWithString:cell.detailTextLabel.text];
-  
-  WebPageController* webPage = [[WebPageController alloc] initWithURL:destination];
-  webPage.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
-  WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-  
-  [[appDelegate rootController] presentModalViewController: webPage animated:YES];
-  [webPage release];
+  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
+  [tap chooseAction];
 }
 
 

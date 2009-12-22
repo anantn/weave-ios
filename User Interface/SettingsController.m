@@ -24,9 +24,15 @@
  ***** END LICENSE BLOCK *****/
 
 #import "SettingsController.h"
-
+#import "WeaveAppDelegate.h"
 
 @implementation SettingsController
+
+- (IBAction) signOut:(id)sender
+{
+  WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+  [appDelegate signOut];
+}
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.

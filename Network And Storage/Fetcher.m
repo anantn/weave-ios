@@ -32,6 +32,30 @@
 
 // TODO: Add logging information to methods
 
+//synchronous public get
++ (NSData *)getPublicURL:(NSString *)url
+{
+  if (!url) {
+		NSLog(@"Fetcher was called with nil URL!");
+		return nil;
+	} else {
+		NSLog(@"Fetching %@", url);
+	}
+	
+	NSURL *fullPath = [NSURL URLWithString:url];
+	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:fullPath
+                                                         cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10];  
+	NSHTTPURLResponse *urlResponse;
+  NSError* err;
+	NSData* responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&err];
+  
+  if (urlResponse.statusCode != 200) return nil;
+  if (err != nil) return nil;
+  return responseData;
+}
+
+
+
 // synchronous GET
 + (NSData *)getAbsoluteURLSynchronous:(NSString *)url withUser:(NSString*)user andPassword:(NSString*)password
 {

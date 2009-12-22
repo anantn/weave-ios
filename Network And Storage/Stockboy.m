@@ -42,6 +42,7 @@
 - (void) updateTabs;
 - (void) updateBookmarks;
 - (void) updateHistory;
+- (void) updateFavicons;
 @end
 
 @implementation Stockboy
@@ -60,7 +61,7 @@ static NSDictionary *_gNetworkPaths = nil;
 		_gStockboy = [[Stockboy alloc] init];
 
     WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    [delegate startSpinner];
+    [delegate performSelectorOnMainThread:@selector(startSpinner) withObject:nil waitUntilDone:NO];
     
 		NSThread* keyThread = [[NSThread alloc] initWithTarget:_gStockboy selector:@selector(restockEverything) object:nil];
 		[keyThread start];
@@ -135,11 +136,12 @@ static NSDictionary *_gNetworkPaths = nil;
 		[self updateTabs];
 		[self updateBookmarks];
 		[self updateHistory];
+    [self updateFavicons];
 	}
 
   WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-  [delegate stopSpinner];
-  [delegate refreshViews];
+  [delegate performSelectorOnMainThread:@selector(stopSpinner) withObject:nil waitUntilDone:NO];
+  [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
   
 	_gStockboy = nil;
 	[pool drain];
@@ -155,11 +157,11 @@ static NSDictionary *_gNetworkPaths = nil;
 	if (tabs == nil) return; //better error handling
   
 	// this will hold all the resultant decrypted tabs
-	NSMutableDictionary *userTabSets = [[NSMutableDictionary dictionary] retain];
+	NSMutableDictionary *userTabSets = [NSMutableDictionary dictionary];
   
 	// This bit of primitive parsing relies on the data coming as a dictionary of dictionaries.
 	// beware of 'does not understand' exceptions
-	NSString *tabsString = [[[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding] retain];
+	NSString *tabsString = [[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding];
 	NSDictionary *tabsDict = [tabsString JSONValue];
 	NSEnumerator *tabIterator = [tabsDict objectEnumerator];
   
@@ -320,6 +322,16 @@ static NSDictionary *_gNetworkPaths = nil;
 	[[Store getStore] updateHistorySyncTime];
 	[[Store getStore] endTransaction];
 }
+
+
+- (void) updateFavicons
+{
+  [[Store getStore] beginTransaction];
+  [[Store getStore] refreshFavicons];
+  [[Store getStore] endTransaction];
+
+}
+
 
 -(NSDictionary *) extractBulkKeyFrom:(NSData*)bulkKeyData
 {

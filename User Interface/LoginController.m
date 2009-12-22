@@ -68,7 +68,6 @@
   }
   
   WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-  
   appDelegate.userNameDisplay.text = userNameField.text;
 
   [[Store getStore] setUser:userNameField.text password:passwordField.text];

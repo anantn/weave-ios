@@ -25,8 +25,9 @@
 
 #import "SearchResultsController.h"
 #import "WebPageController.h"
-#import "WeaveAppDelegate.h"
 #import "Store.h"
+#import "TapActionController.h"
+
 
 @interface SearchResultsController (private)
 - (void)refreshHits;
@@ -52,6 +53,7 @@
 - (void) refresh
 {
   [resultsTable reloadData];
+  [self.searchDisplayController.searchResultsTableView reloadData];
 }
 
 /*
@@ -61,10 +63,9 @@
 }
  */
 
-- (void)viewDidAppear:(BOOL)animated
-{
-	[resultsTable deselectRowAtIndexPath:[resultsTable indexPathForSelectedRow] animated: YES];
-}
+//- (void)viewDidAppear:(BOOL)animated
+//{
+//}
 
 /*
 - (void)viewWillDisappear:(BOOL)animated {
@@ -143,7 +144,8 @@
 }
 
 
-// Customize the appearance of table view cells.
+//Note: this table cell code is nearly identical to the same method in bookmarks and tabs,
+// but we want to be able to easily make them display differently, so it is replicated
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     static NSString *CellIdentifier = @"search_results";
@@ -155,34 +157,35 @@
     
     NSDictionary* matchItem = [[searchHits objectAtIndex:[indexPath section]] objectAtIndex:[indexPath row]];
     // Set up the cell...
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.minimumFontSize = 13;
     cell.textLabel.text = [matchItem objectForKey:@"title"];
     cell.detailTextLabel.text = [matchItem objectForKey:@"uri"];
-    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-    //this should really be the icon from the db, I've left the code down below for later use
-    //  theIcon = [tabItem objectForKey:@"icon"];
-    cell.imageView.image = [UIImage imageNamed:@"Star.png"];
-	
+//    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+
+    //set it to the default to start
+    cell.imageView.image = [[[Store getStore] getFavicons] objectForKey:@"blankfavicon.ico"];
+    NSString* iconPath = [matchItem objectForKey:@"icon"];
+    
+    if (iconPath != nil && [iconPath length] > 0)
+    {
+      UIImage* favicon = [[[Store getStore] getFavicons] objectForKey:iconPath];
+      if (favicon != nil) 
+      {
+        cell.imageView.image = favicon;
+      }    
+    }
+  
     return cell;
 }
+
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:cell.detailTextLabel.text]];
-}
-
-- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
-{
-  UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  NSURL* destination = [NSURL URLWithString:cell.detailTextLabel.text];
-
-  WebPageController* webPage = [[WebPageController alloc] initWithURL:destination];
-  webPage.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
-  WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-  
-  [[appDelegate rootController] presentModalViewController: webPage animated:YES];
-  [webPage release];
+  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
+  [tap chooseAction];
 }
 
 
@@ -239,28 +242,23 @@
   
   
   //I want to make these keyed dictionaries like the tabs
-  for (NSArray* bmk in bookmarks)
+  for (NSDictionary* bmk in bookmarks)
   {
-    NSString* title = [bmk objectAtIndex:1];
-    NSString* uri = [bmk objectAtIndex:0];
-    
-    NSRange uriRange = [uri rangeOfString:searchText options:NSCaseInsensitiveSearch];
-    NSRange titleRange = [title rangeOfString:searchText options:NSCaseInsensitiveSearch];
+    NSRange uriRange = [[bmk objectForKey:@"uri"] rangeOfString:searchText options:NSCaseInsensitiveSearch];
+    NSRange titleRange = [[bmk objectForKey:@"title"]  rangeOfString:searchText options:NSCaseInsensitiveSearch];
     
     if (titleRange.location != NSNotFound || uriRange.location != NSNotFound)
-      [[searchHits objectAtIndex:1] addObject:[NSDictionary dictionaryWithObjectsAndKeys:title, @"title", uri, @"uri", nil]];
+      [[searchHits objectAtIndex:1] addObject:bmk];
   }
   
-  for (NSArray* hist in history)
+  
+  for (NSDictionary* hist in history)
   {
-    NSString* title = [hist objectAtIndex:1];
-    NSString* uri = [hist objectAtIndex:0];
-
-    NSRange uriRange = [[hist objectAtIndex:0] rangeOfString:searchText options:NSCaseInsensitiveSearch];
-    NSRange titleRange = [[hist objectAtIndex:1] rangeOfString:searchText options:NSCaseInsensitiveSearch];
+    NSRange uriRange = [[hist objectForKey:@"uri"] rangeOfString:searchText options:NSCaseInsensitiveSearch];
+    NSRange titleRange = [[hist objectForKey:@"title"] rangeOfString:searchText options:NSCaseInsensitiveSearch];
     
     if (titleRange.location != NSNotFound || uriRange.location != NSNotFound)
-      [[searchHits objectAtIndex:2] addObject:[NSDictionary dictionaryWithObjectsAndKeys:title, @"title", uri, @"uri", nil]];
+      [[searchHits objectAtIndex:2] addObject:hist];
   }
   
   [tabs release];
@@ -272,30 +270,6 @@
 - (void)dealloc {
     [super dealloc];
 }
-
-
-
-
-
-//get the correct icon 
-//NSArray *obj;
-//    NSDictionary *icons = [[Store getStore] getFavicons];
-//    if (indexPath.row >= [bmkList count]) {
-//      obj = [histList objectAtIndex:(indexPath.row - [bmkList count])];
-//      title.text = [obj objectAtIndex:0];
-//      uri.text = [obj objectAtIndex:1];
-//      if ([icons objectForKey:[obj objectAtIndex:2]] != nil) {
-//        cell.imageView.image = [UIImage imageWithData:[[[NSData alloc]
-//                                                        initWithBase64EncodedString:[icons objectForKey:[obj objectAtIndex:2]]] autorelease]];
-//      } else {
-//        cell.imageView.image = [UIImage imageNamed:@"Document.png"];
-//      }
-//    } else {
-//      obj = [bmkList objectAtIndex:indexPath.row];
-//      title.text = [obj objectAtIndex:0];
-//      uri.text = [obj objectAtIndex:1];
-//      cell.imageView.image = [UIImage imageNamed:@"Star.png"];
-//    }
 
 @end
 

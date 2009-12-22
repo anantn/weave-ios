@@ -46,6 +46,7 @@
 + (NSData *)unwrapSymmetricKey:(NSData *)symKey withPrivateKey:(SecKeyRef)privateKey;
 + (NSString*)decryptObject:(NSDictionary*)object withKey:(NSDictionary*)bulkKey;
 + (SecKeyRef)_getKeyNamed:(NSString *)keyName;
++ (void)deletePrivateKey;
 
 @end
 

@@ -45,6 +45,7 @@
 
 //if the global is null, it loads the default store
 + (Store*) getStore;
++ (void) deleteStore;
 
 //for creating a user when there is none
 - (BOOL) setUser:(NSString*) newUser password:(NSString*) newPassword;
@@ -65,9 +66,13 @@
 - (BOOL) installTabSetDictionary:(NSDictionary*)tabSetDict;
 - (BOOL) clearTabs;
 
-- (BOOL) setFavicons:(NSString *)JSONObject withID:(NSString*)theID;
 - (BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID;
 - (BOOL) addHistorySet:(NSString *)JSONObject withClientID:(NSString*)theID;
+
+//cacheFavicon checks and prevents duplicates
+- (void) refreshFavicons;
+- (BOOL) cacheFavicon:(NSString*)icon forURL:(NSString*)url;
+- (BOOL) cacheFaviconsFromJSON:(NSString *)JSONObject withID:(NSString*)theID;
 
 //This removes tabs, bookmarks, or history.  they are all in the same table, identified by unique guids
 - (BOOL) removeRecord:(NSString *)theID;

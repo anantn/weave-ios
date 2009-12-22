@@ -27,6 +27,7 @@
 #import "WeaveAppDelegate.h"
 #import "LoginController.h"
 #import "Reachability.h"
+#import "CryptoUtils.h"
 
 #import <QuartzCore/QuartzCore.h>
 
@@ -70,6 +71,17 @@
   [window addSubview:rootController.view];
 	[window makeKeyAndVisible];
   
+  [self signIn];
+}
+
+
+- (IBAction) resync:(id)sender
+{
+  [Stockboy restock];
+}
+
+- (void) signIn
+{
   NSString* user = [[Store getStore] getUsername];
   
 	if (user == nil) //we should check for existence of the private key here
@@ -82,14 +94,25 @@
   {
     userNameDisplay.text = user;
     [Stockboy restock];
-	}
+	}  
 }
 
 
-- (IBAction) resync:(id)sender
+- (void) signOut
 {
-  [Stockboy restock];
+  //remove the username and password fmor the database, or perhaps just delete the database
+  // also must remove the private key from the keychain
+  
+  //WARNING!  We most likely need to be able to cancel the Stockboy if he is currently updating,
+  // or bad stuff might happen.  This requires adding a 'pleaseQuit' flag to the Stockboy,
+  // and a method to set it.  The Stockboy need to check that often, at least after every network request.
+
+  [Store deleteStore];
+  [CryptoUtils deletePrivateKey];
+  [self refreshViews];  //make them all ditch their data
+  [self signIn];
 }
+
 
 - (void) startSpinner
 {
@@ -122,7 +145,6 @@
   [window release];
 	[super dealloc];
 }
-
 
 
 @end

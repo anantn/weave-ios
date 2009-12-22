@@ -169,6 +169,25 @@
 	return keyRef;
 }
 
++ (void)deletePrivateKey
+{
+	OSStatus  err;
+	NSData		*keyTagData;
+  
+	keyTagData = [PRIV_KEY_NAME dataUsingEncoding:NSUTF8StringEncoding];
+	assert(keyTagData != nil);
+  
+	err = SecItemDelete((CFDictionaryRef)
+                            [NSDictionary dictionaryWithObjectsAndKeys:
+                             (id)
+                             kSecClassKey,           kSecClass,
+                             keyTagData,             kSecAttrApplicationTag,
+                             nil
+                             ]);
+  
+	return;
+}
+
 
 // given a payload containing the user's private RSA key,
 // decrypt it and install it on the system.
@@ -192,6 +211,8 @@
 	NSData *aesKey = [[NSData alloc] initWithBytes:final length:32];
 	NSData *rawKey = [[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"keyData"]];
 	NSData *rsaKey = [rawKey AESdecryptWithKey:aesKey andIV:iv];
+  if (!rsaKey || [rsaKey length] < 1) return NO;  //probably wrong password
+  
 	[iv release]; [rawKey release]; [aesKey release];
 	
 	/* Hmm, some ASN.1 parsing. YUCK */

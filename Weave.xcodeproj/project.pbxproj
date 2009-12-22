@@ -45,6 +45,8 @@
 		378FC18110D82BEA0010D3C9 /* Stockboy.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17110D82BEA0010D3C9 /* Stockboy.m */; };
 		378FC18210D82BEA0010D3C9 /* Store.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17310D82BEA0010D3C9 /* Store.m */; };
 		378FC18310D82BEA0010D3C9 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17510D82BEA0010D3C9 /* Utility.m */; };
+		37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */ = {isa = PBXBuildFile; fileRef = 37A680EB10DB5B06008005DC /* blankfavicon.ico */; };
+		37A682B310E148BC008005DC /* TapActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37A682B210E148BC008005DC /* TapActionController.m */; };
 		4A275D8E10925B740021DCB4 /* NetworkPaths.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4A275D8D10925B740021DCB4 /* NetworkPaths.plist */; };
 		4A275DB4109263080021DCB4 /* Firefox.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A275DB3109263080021DCB4 /* Firefox.png */; };
 		4AFBD419108BC64700C4FD32 /* About.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD412108BC64700C4FD32 /* About.png */; };
@@ -124,6 +126,9 @@
 		378FC17310D82BEA0010D3C9 /* Store.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Store.m; path = "Network And Storage/Store.m"; sourceTree = SOURCE_ROOT; };
 		378FC17410D82BEA0010D3C9 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utility.h; path = "Network And Storage/Utility.h"; sourceTree = SOURCE_ROOT; };
 		378FC17510D82BEA0010D3C9 /* Utility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utility.m; path = "Network And Storage/Utility.m"; sourceTree = SOURCE_ROOT; };
+		37A680EB10DB5B06008005DC /* blankfavicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = blankfavicon.ico; sourceTree = "<group>"; };
+		37A682B110E148BC008005DC /* TapActionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapActionController.h; sourceTree = "<group>"; };
+		37A682B210E148BC008005DC /* TapActionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapActionController.m; sourceTree = "<group>"; };
 		4A275D8D10925B740021DCB4 /* NetworkPaths.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = NetworkPaths.plist; sourceTree = "<group>"; };
 		4A275DB3109263080021DCB4 /* Firefox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Firefox.png; sourceTree = "<group>"; };
 		4AFBD412108BC64700C4FD32 /* About.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = About.png; sourceTree = "<group>"; };
@@ -240,6 +245,8 @@
 		376EA60110D037CF00D37DD3 /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
+				37A682B110E148BC008005DC /* TapActionController.h */,
+				37A682B210E148BC008005DC /* TapActionController.m */,
 				3715977C10D82DD800F28263 /* BookmarkBrowserController.h */,
 				3715977D10D82DD800F28263 /* BookmarkBrowserController.m */,
 				3715977E10D82DD800F28263 /* BookmarkBrowserController.xib */,
@@ -300,6 +307,7 @@
 		4AFBD411108BC64700C4FD32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				37A680EB10DB5B06008005DC /* blankfavicon.ico */,
 				370E33D810D82B590001D066 /* button.png */,
 				370E33D910D82B590001D066 /* header.png */,
 				370E33DA10D82B590001D066 /* settings.opacity */,
@@ -388,6 +396,7 @@
 				3715979C10D82DD800F28263 /* TabBrowserController.xib in Resources */,
 				3715979D10D82DD800F28263 /* TabCell.xib in Resources */,
 				371597A010D82DD800F28263 /* WebPageController.xib in Resources */,
+				37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,6 +427,7 @@
 				3715979B10D82DD800F28263 /* TabBrowserController.m in Sources */,
 				3715979E10D82DD800F28263 /* WeaveAppDelegate.m in Sources */,
 				3715979F10D82DD800F28263 /* WebPageController.m in Sources */,
+				37A682B310E148BC008005DC /* TapActionController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

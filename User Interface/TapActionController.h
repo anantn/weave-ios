@@ -26,11 +26,13 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SettingsController : UIViewController {
-
+@interface TapActionController : UIViewController <UIActionSheetDelegate>
+{
+  NSString* description;
+  NSString* location;
 }
 
-- (IBAction) signOut:(id)sender;
-
+- (id) initWithDescription:(NSString*)desc andLocation:(NSString*)loc;
+- (void) chooseAction;
 
 @end
