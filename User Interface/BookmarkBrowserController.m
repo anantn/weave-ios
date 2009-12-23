@@ -150,6 +150,7 @@
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
   TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
   [tap chooseAction];
+  [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 

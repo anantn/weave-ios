@@ -35,6 +35,7 @@
 @synthesize userNameField;
 @synthesize passwordField;
 @synthesize secretPhraseField;
+@synthesize spinner;
 
 -(BOOL) textFieldShouldReturn:(UITextField *)field 
 {
@@ -57,10 +58,25 @@
     return NO;
   }
     
-  
-  if (![CryptoUtils fetchAndInstallPrivateKeyForUser:userNameField.text andPassword:passwordField.text andSecret:secretPhraseField.text])
+  //the stockboy knows about the network
+  if (![Stockboy hasConnectivity])
   {
-      UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Login Failed" message:@"One or more fields are incorrect."
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Login Failed" message:@"There is no network access"
+                                                   delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+    [alert show];
+    [alert release];    
+    return NO;    
+  }
+  
+  //start spinner
+  [spinner startAnimating];
+  BOOL gotKey = [CryptoUtils fetchAndInstallPrivateKeyForUser:userNameField.text andPassword:passwordField.text andSecret:secretPhraseField.text];
+  //stop spinner
+  [spinner stopAnimating];
+  
+  if (!gotKey)
+  {
+      UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Login Failed" message:@"One or more fields are incorrect"
                                                      delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
       [alert show];
       [alert release];    

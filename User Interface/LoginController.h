@@ -31,10 +31,12 @@
   UITextField *userNameField;
 	UITextField *passwordField;
 	UITextField *secretPhraseField;
+  UIActivityIndicatorView* spinner;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *userNameField;
 @property (nonatomic, retain) IBOutlet UITextField *passwordField;
 @property (nonatomic, retain) IBOutlet UITextField *secretPhraseField;
+@property (nonatomic, retain) IBOutlet UIActivityIndicatorView *spinner;
 
 @end

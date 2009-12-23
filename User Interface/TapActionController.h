@@ -26,7 +26,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface TapActionController : UIViewController <UIActionSheetDelegate>
+@interface TapActionController : UIViewController <UIActionSheetDelegate, UIAlertViewDelegate>
 {
   NSString* description;
   NSString* location;

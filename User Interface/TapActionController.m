@@ -26,7 +26,7 @@
 #import "TapActionController.h"
 #import "WeaveAppDelegate.h"
 #import "WebPageController.h"
-
+#import "Stockboy.h"
 
 @implementation TapActionController
 
@@ -43,14 +43,24 @@
 //this presents the 'what do you want to do now?' sheet that slides up when you choose a web destination from any of the lists
 - (void) chooseAction
 {
-  UIActionSheet *action = [[UIActionSheet alloc]initWithTitle:_title delegate:self cancelButtonTitle:@"Cancel" 
-                                       destructiveButtonTitle:nil 
-                                            otherButtonTitles:@"View in Safari", @"Email URL", @"Preview", nil];
-  
+  if ([Stockboy hasConnectivity])
+  {
+    UIActionSheet *action = [[UIActionSheet alloc]initWithTitle:description delegate:self cancelButtonTitle:@"Cancel" 
+                                         destructiveButtonTitle:nil 
+                                              otherButtonTitles:@"View in Safari", @"Email URL", @"Preview", nil];
+    
 
-  WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
-  [action showFromTabBar:appDelegate.browserPage.tabBar];
-  [action release];    
+    WeaveAppDelegate* appDelegate = (WeaveAppDelegate *)[[UIApplication sharedApplication] delegate];
+    [action showFromTabBar:appDelegate.browserPage.tabBar];
+    [action release];
+  }
+  else //no network
+  {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"There is no network access"
+                                                   delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+    [alert show];
+    [alert release];    
+  }
 }
 
 

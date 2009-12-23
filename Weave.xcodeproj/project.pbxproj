@@ -33,6 +33,7 @@
 		3715979E10D82DD800F28263 /* WeaveAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715978E10D82DD800F28263 /* WeaveAppDelegate.m */; };
 		3715979F10D82DD800F28263 /* WebPageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715979010D82DD800F28263 /* WebPageController.m */; };
 		371597A010D82DD800F28263 /* WebPageController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715979110D82DD800F28263 /* WebPageController.xib */; };
+		377ACCD210E2D9CD00445EE1 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 377ACCD110E2D9CD00445EE1 /* Reachability.m */; };
 		378FC17810D82BEA0010D3C9 /* CryptoUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC15B10D82BEA0010D3C9 /* CryptoUtils.m */; };
 		378FC17910D82BEA0010D3C9 /* Fetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC15D10D82BEA0010D3C9 /* Fetcher.m */; };
 		378FC17A10D82BEA0010D3C9 /* NSObject+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC16110D82BEA0010D3C9 /* NSObject+SBJSON.m */; };
@@ -41,7 +42,6 @@
 		378FC17D10D82BEA0010D3C9 /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC16710D82BEA0010D3C9 /* SBJsonBase.m */; };
 		378FC17E10D82BEA0010D3C9 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC16910D82BEA0010D3C9 /* SBJsonParser.m */; };
 		378FC17F10D82BEA0010D3C9 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC16B10D82BEA0010D3C9 /* SBJsonWriter.m */; };
-		378FC18010D82BEA0010D3C9 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC16E10D82BEA0010D3C9 /* Reachability.m */; };
 		378FC18110D82BEA0010D3C9 /* Stockboy.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17110D82BEA0010D3C9 /* Stockboy.m */; };
 		378FC18210D82BEA0010D3C9 /* Store.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17310D82BEA0010D3C9 /* Store.m */; };
 		378FC18310D82BEA0010D3C9 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17510D82BEA0010D3C9 /* Utility.m */; };
@@ -101,6 +101,8 @@
 		3715978F10D82DD800F28263 /* WebPageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPageController.h; sourceTree = "<group>"; };
 		3715979010D82DD800F28263 /* WebPageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebPageController.m; sourceTree = "<group>"; };
 		3715979110D82DD800F28263 /* WebPageController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebPageController.xib; sourceTree = "<group>"; };
+		377ACCD010E2D9CD00445EE1 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		377ACCD110E2D9CD00445EE1 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		378FC15A10D82BEA0010D3C9 /* CryptoUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CryptoUtils.h; path = "Network And Storage/CryptoUtils.h"; sourceTree = SOURCE_ROOT; };
 		378FC15B10D82BEA0010D3C9 /* CryptoUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CryptoUtils.m; path = "Network And Storage/CryptoUtils.m"; sourceTree = SOURCE_ROOT; };
 		378FC15C10D82BEA0010D3C9 /* Fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Fetcher.h; path = "Network And Storage/Fetcher.h"; sourceTree = SOURCE_ROOT; };
@@ -118,8 +120,6 @@
 		378FC16910D82BEA0010D3C9 /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
 		378FC16A10D82BEA0010D3C9 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
 		378FC16B10D82BEA0010D3C9 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
-		378FC16D10D82BEA0010D3C9 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		378FC16E10D82BEA0010D3C9 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		378FC17010D82BEA0010D3C9 /* Stockboy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Stockboy.h; path = "Network And Storage/Stockboy.h"; sourceTree = SOURCE_ROOT; };
 		378FC17110D82BEA0010D3C9 /* Stockboy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Stockboy.m; path = "Network And Storage/Stockboy.m"; sourceTree = SOURCE_ROOT; };
 		378FC17210D82BEA0010D3C9 /* Store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Store.h; path = "Network And Storage/Store.h"; sourceTree = SOURCE_ROOT; };
@@ -297,8 +297,8 @@
 		378FC16C10D82BEA0010D3C9 /* Reachability */ = {
 			isa = PBXGroup;
 			children = (
-				378FC16D10D82BEA0010D3C9 /* Reachability.h */,
-				378FC16E10D82BEA0010D3C9 /* Reachability.m */,
+				377ACCD010E2D9CD00445EE1 /* Reachability.h */,
+				377ACCD110E2D9CD00445EE1 /* Reachability.m */,
 			);
 			name = Reachability;
 			path = "Network And Storage/Reachability";
@@ -416,7 +416,6 @@
 				378FC17D10D82BEA0010D3C9 /* SBJsonBase.m in Sources */,
 				378FC17E10D82BEA0010D3C9 /* SBJsonParser.m in Sources */,
 				378FC17F10D82BEA0010D3C9 /* SBJsonWriter.m in Sources */,
-				378FC18010D82BEA0010D3C9 /* Reachability.m in Sources */,
 				378FC18110D82BEA0010D3C9 /* Stockboy.m in Sources */,
 				378FC18210D82BEA0010D3C9 /* Store.m in Sources */,
 				378FC18310D82BEA0010D3C9 /* Utility.m in Sources */,
@@ -428,6 +427,7 @@
 				3715979E10D82DD800F28263 /* WeaveAppDelegate.m in Sources */,
 				3715979F10D82DD800F28263 /* WebPageController.m in Sources */,
 				37A682B310E148BC008005DC /* TapActionController.m in Sources */,
+				377ACCD210E2D9CD00445EE1 /* Reachability.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

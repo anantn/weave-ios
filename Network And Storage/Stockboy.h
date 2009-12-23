@@ -45,9 +45,13 @@
 
 // if the global is null, it makes a new Stockboy and
 // runs him in a new thread
-+(void) restock;
++ (void) restock;
 
 // global dictionary for finding locations of canonical weave objects
-+(NSString *) urlForWeaveObject:(NSString*)name;
++ (NSString *) urlForWeaveObject:(NSString*)name;
+
+
+// possibly not the best place for this, but we need a single call to check for network connectivity
++ (BOOL) hasConnectivity;
 
 @end

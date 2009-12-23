@@ -110,11 +110,10 @@ static NSDictionary *_gNetworkPaths = nil;
 }
 
 
--(BOOL) hasConnectivity
++ (BOOL) hasConnectivity
 {
-	Reachability *rc = [Reachability sharedReachability];
-	[rc setHostName:[Stockboy urlForWeaveObject:@"Service Base URL"]];
-	return ([rc remoteHostStatus] != NotReachable);
+  Reachability* reach = [Reachability reachabilityWithHostName: [Stockboy urlForWeaveObject:@"Service Base URL"]];
+	return ([reach currentReachabilityStatus] != NotReachable);
 }
 
 // Get the cluster
@@ -130,18 +129,21 @@ static NSDictionary *_gNetworkPaths = nil;
 -(void) restockEverything
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
-	if ([self hasConnectivity] && _privateKey) {
+  WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
+
+	if ([Stockboy hasConnectivity] && _privateKey) {
 		[self getCluster];
 		[self updateTabs];
+    [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
 		[self updateBookmarks];
+    [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
 		[self updateHistory];
+    [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
     [self updateFavicons];
+    [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
 	}
 
-  WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
   [delegate performSelectorOnMainThread:@selector(stopSpinner) withObject:nil waitUntilDone:NO];
-  [delegate performSelectorOnMainThread:@selector(refreshViews) withObject:nil waitUntilDone:NO];
   
 	_gStockboy = nil;
 	[pool drain];
