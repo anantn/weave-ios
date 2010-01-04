@@ -54,6 +54,11 @@
 - (void) signIn;
 - (void) signOut;
 
+//ugh.  this is to prevent the views form being updated and the animation from starting until after the login page
+// goes away, if it was a first time user
+- (void) installTabBar;
+
+
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet UIViewController *rootController;
 

@@ -58,18 +58,20 @@
     return NO;
   }
     
+  //start spinner
+  [spinner startAnimating];
+
   //the stockboy knows about the network
   if (![Stockboy hasConnectivity])
   {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Login Failed" message:@"There is no network access"
                                                    delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
     [alert show];
-    [alert release];    
+    [alert release];  
+    [spinner stopAnimating];
     return NO;    
   }
   
-  //start spinner
-  [spinner startAnimating];
   BOOL gotKey = [CryptoUtils fetchAndInstallPrivateKeyForUser:userNameField.text andPassword:passwordField.text andSecret:secretPhraseField.text];
   //stop spinner
   [spinner stopAnimating];
@@ -92,6 +94,8 @@
   
   [[appDelegate rootController] dismissModalViewControllerAnimated: YES];
   
+  [appDelegate installTabBar];
+
   return YES;
 }
   

@@ -48,6 +48,21 @@
 
 
 
+- (void) installTabBar
+{
+  // Start on search page every time   
+  UIView* tabContentView = [browserPage view];
+	[contentView addSubview:tabContentView];
+  
+  CGRect frame = tabContentView.frame;
+  frame.size.height -= headerView.frame.size.height + 20;  //status bar height
+  tabContentView.frame = frame;
+  
+  //I need to do this to at least get my hierarchy of viewControllers to get the viewWillAppear method.
+  // unexpectedly, this seems to wire everything up, and all my subviews get the viewDidAppear methods as well.
+  [browserPage viewWillAppear:YES];    
+}
+
 
 
 -(void) applicationDidFinishLaunching:(UIApplication *)application 
@@ -58,22 +73,13 @@
   tabBrowser = [[browserPage viewControllers] objectAtIndex:1];
   bookmarkBrowser = [[browserPage viewControllers] objectAtIndex:2];
   
-  // Start on search page every time   
-  UIView* tabContentView = [browserPage view];
-	[contentView addSubview:tabContentView];
-  //I need to do this to at least get my hierarchy of viewControllers to get the viewWillAppear method.
-  // unexpectedly, this seems to wire everything up, and all my subviews get the viewDidAppear methods as well.
-  [browserPage viewWillAppear:YES];
-  
-  CGRect frame = tabContentView.frame;
-  frame.size.height -= headerView.frame.size.height + 20;  //status bar height
-  tabContentView.frame = frame;
-  
 	// Show window
   [window addSubview:rootController.view];
-	[window makeKeyAndVisible];
+  [window makeKeyAndVisible];
   
   [self signIn];
+
+  
 }
 
 
@@ -86,8 +92,9 @@
 {
   NSString* user = [[Store getStore] getUsername];
   
-	if (user == nil) //we should check for existence of the private key here
-  {    
+	if (user == nil)
+  {   
+    [CryptoUtils deletePrivateKey];
     LoginController *loginController = [[LoginController alloc] init];
     [rootController presentModalViewController: loginController animated:YES];
 	  [loginController release];
@@ -96,6 +103,7 @@
   {
     userNameDisplay.text = user;
     [Stockboy restock];
+    [self installTabBar];
 	}  
 }
 

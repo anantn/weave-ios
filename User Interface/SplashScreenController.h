@@ -47,10 +47,13 @@
   CGPoint bmkHelpPos, bmkHelpHidden;
 
   Animator* animationController;
+  BOOL animationHasBeenPlayed;
   
 //  AVAudioPlayer *popPlayer;
 
 }
+
+- (void) playAnimation;
 
 @property (nonatomic, retain) IBOutlet UIImageView *bigLogo;
 @property (nonatomic, retain) IBOutlet UIImageView *title1;

@@ -57,6 +57,7 @@ CGRect zoomRect(CGRect inRect, CGFloat scale)
 //  [popPlayer prepareToPlay];
   
   //hide everything, and get ready to do the animation sequence
+  animationHasBeenPlayed = NO;
   
   //hide search help, but remember where it was
   srchHelpPos = srchHelp.center;
@@ -114,7 +115,6 @@ CGRect zoomRect(CGRect inRect, CGFloat scale)
   
   
   animationController = [[[Animator alloc] initWithSteps:steps andID:@"help_animation"] autorelease];
-  [animationController play];
 
 }
 
@@ -224,7 +224,17 @@ CGRect zoomRect(CGRect inRect, CGFloat scale)
 
 
 - (void)viewDidAppear:(BOOL)animated
-{        
+{
+  [self playAnimation];
+}
+
+- (void) playAnimation
+{  
+  if (!animationHasBeenPlayed)
+  {
+    animationHasBeenPlayed = YES;
+    [animationController play];
+  }
 }
 
 
