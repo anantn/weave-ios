@@ -28,6 +28,9 @@
 
 @interface TabBrowserController : UITableViewController <UITableViewDelegate>
 {
+  NSArray* retainedTabs;
+  NSDictionary* retainedFavicons;
+
 }
 
 - (void) refresh;

@@ -23,21 +23,23 @@
  
  ***** END LICENSE BLOCK *****/
 
-#import <UIKit/UIKit.h>
-#import "SplashScreenController.h"
+#import <Foundation/Foundation.h>
 
-@interface SearchResultsController : UIViewController <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate>
+
+//plays a sequence of CA animations one after the other, checking for successful completion or cancelling
+// between the steps.  Takes an array of steps, each of which is a dictionary of properties, with at least
+// 'actor', which is the object that will perform the animation, and 'action', which is the method to call on actor.
+
+@interface Animator : NSObject 
 {
-  UITableView* resultsTable;  
-  NSArray* searchHits;
-  
-  //splash screen only shows on the search page, and only when not actively searching
-  SplashScreenController* splashScreen;
+  NSString* animationID;
+  NSArray* animationSteps;
+  unsigned int currentStep;
+  BOOL cancelled;
 }
 
-- (void) refresh;
-
-@property (nonatomic, retain) IBOutlet UITableView *resultsTable;
-@property (nonatomic, retain) IBOutlet SplashScreenController *splashScreen;
+//each step has an actor (id) and an action (nsstring)
+- (id) initWithSteps:(NSArray*)steps andID:(NSString*)id;
+- (void) play;
 
 @end

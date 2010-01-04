@@ -29,7 +29,6 @@
 #import "Reachability.h"
 #import "CryptoUtils.h"
 
-#import <QuartzCore/QuartzCore.h>
 
 @implementation WeaveAppDelegate
 
@@ -61,7 +60,10 @@
   
   // Start on search page every time   
   UIView* tabContentView = [browserPage view];
-	[contentView addSubview:tabContentView]; 
+	[contentView addSubview:tabContentView];
+  //I need to do this to at least get my hierarchy of viewControllers to get the viewWillAppear method.
+  // unexpectedly, this seems to wire everything up, and all my subviews get the viewDidAppear methods as well.
+  [browserPage viewWillAppear:YES];
   
   CGRect frame = tabContentView.frame;
   frame.size.height -= headerView.frame.size.height + 20;  //status bar height
@@ -145,6 +147,7 @@
   [window release];
 	[super dealloc];
 }
+
 
 
 @end

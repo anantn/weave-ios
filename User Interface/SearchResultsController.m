@@ -37,17 +37,18 @@
 @implementation SearchResultsController
 
 @synthesize resultsTable;
-@synthesize fancyGraphic;
-
-
+@synthesize splashScreen;
 
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  self.searchDisplayController.searchBar.barStyle = UIBarStyleBlack;
-  self.searchDisplayController.searchBar.translucent = YES;
-
-  self.searchDisplayController.searchBar.showsCancelButton = NO;
+  
+  [self.view addSubview:splashScreen.view];
+  CGRect frame = splashScreen.view.frame;
+  frame.origin.y +=  24;  //status bar height.  this is a temporary kludge
+  frame.size.height = 345;  //more kludge, this view sits on top, and not inside, so it must be told how big to be, it cannot ask its parent
+  splashScreen.view.frame = frame;
+  
  }
 
 - (void) refresh
@@ -56,16 +57,17 @@
   [self.searchDisplayController.searchResultsTableView reloadData];
 }
 
-/*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-  
-}
- */
 
-//- (void)viewDidAppear:(BOOL)animated
-//{
-//}
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  [splashScreen viewWillAppear:animated];
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{  
+  [splashScreen viewDidAppear:animated];
+}
 
 /*
 - (void)viewWillDisappear:(BOOL)animated {
@@ -94,6 +96,7 @@
 
 #pragma mark Table view methods
 
+//from experience, this is the first delegate method called when the table refreshes its data, so we'll regenerate our dataset now
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView 
 {
   //sadly works by side-effect, caching the matches in the searchHits array, for use by the other table layout functions
@@ -101,10 +104,11 @@
   
   if (self.searchDisplayController.searchBar.text != nil && self.searchDisplayController.searchBar.text.length != 0)
   {
+    [splashScreen.view setHidden:YES];
     return 3;
   }
     
-  [fancyGraphic setHidden:NO];
+  [splashScreen.view setHidden:NO];
   return 0;
 }
 
@@ -190,22 +194,16 @@
 }
 
 
-- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
-{
-  [fancyGraphic setHidden:YES];
-  return YES;
-}
-
 
 - (void)searchBar:(UISearchBar *)theSearchBar textDidChange:(NSString *)searchText 
 {
-  [fancyGraphic setHidden:YES];
+  [splashScreen.view setHidden:YES];
 	[resultsTable reloadData];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
-  [fancyGraphic setHidden:NO];
+  [splashScreen.view setHidden:NO];
   self.searchDisplayController.searchBar.text = nil;
   [resultsTable reloadData];
 }

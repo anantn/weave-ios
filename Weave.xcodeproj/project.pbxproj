@@ -13,10 +13,8 @@
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
 		370E33DF10D82B590001D066 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33D810D82B590001D066 /* button.png */; };
 		370E33E010D82B590001D066 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33D910D82B590001D066 /* header.png */; };
-		370E33E110D82B590001D066 /* settings.opacity in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DA10D82B590001D066 /* settings.opacity */; };
 		370E33E210D82B590001D066 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DB10D82B590001D066 /* settings.png */; };
 		370E33E310D82B590001D066 /* tab.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DC10D82B590001D066 /* tab.png */; };
-		370E33E410D82B590001D066 /* tabicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DD10D82B590001D066 /* tabicon.png */; };
 		370E33E510D82B590001D066 /* tiny-weave.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DE10D82B590001D066 /* tiny-weave.png */; };
 		3715979210D82DD800F28263 /* BookmarkBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715977D10D82DD800F28263 /* BookmarkBrowserController.m */; };
 		3715979310D82DD800F28263 /* BookmarkBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715977E10D82DD800F28263 /* BookmarkBrowserController.xib */; };
@@ -33,6 +31,10 @@
 		3715979E10D82DD800F28263 /* WeaveAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715978E10D82DD800F28263 /* WeaveAppDelegate.m */; };
 		3715979F10D82DD800F28263 /* WebPageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715979010D82DD800F28263 /* WebPageController.m */; };
 		371597A010D82DD800F28263 /* WebPageController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715979110D82DD800F28263 /* WebPageController.xib */; };
+		3751507210EDD7DE00FDBA14 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3751507110EDD7DE00FDBA14 /* AVFoundation.framework */; };
+		3758E96410F15A3900C2C760 /* Firefox-title.png in Resources */ = {isa = PBXBuildFile; fileRef = 3758E96210F15A3900C2C760 /* Firefox-title.png */; };
+		3758E96510F15A3900C2C760 /* Flashback-title.png in Resources */ = {isa = PBXBuildFile; fileRef = 3758E96310F15A3900C2C760 /* Flashback-title.png */; };
+		3758E9A610F1C03B00C2C760 /* back-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3758E9A510F1C03B00C2C760 /* back-arrow.png */; };
 		377ACCD210E2D9CD00445EE1 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 377ACCD110E2D9CD00445EE1 /* Reachability.m */; };
 		378FC17810D82BEA0010D3C9 /* CryptoUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC15B10D82BEA0010D3C9 /* CryptoUtils.m */; };
 		378FC17910D82BEA0010D3C9 /* Fetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC15D10D82BEA0010D3C9 /* Fetcher.m */; };
@@ -47,8 +49,16 @@
 		378FC18310D82BEA0010D3C9 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17510D82BEA0010D3C9 /* Utility.m */; };
 		37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */ = {isa = PBXBuildFile; fileRef = 37A680EB10DB5B06008005DC /* blankfavicon.ico */; };
 		37A682B310E148BC008005DC /* TapActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37A682B210E148BC008005DC /* TapActionController.m */; };
+		37C9083910EDE11400BDBA56 /* pop.aif in Resources */ = {isa = PBXBuildFile; fileRef = 37C9083810EDE11400BDBA56 /* pop.aif */; };
+		37C9087C10EEBAC300BDBA56 /* Animator.m in Sources */ = {isa = PBXBuildFile; fileRef = 37C9087B10EEBAC300BDBA56 /* Animator.m */; };
+		37F1A67610E81EB6001F4C90 /* ff-logo-medium.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */; };
+		37F1A67A10E81FCD001F4C90 /* bmkhelp.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67710E81FCD001F4C90 /* bmkhelp.png */; };
+		37F1A67B10E81FCD001F4C90 /* srchhelp.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67810E81FCD001F4C90 /* srchhelp.png */; };
+		37F1A67C10E81FCD001F4C90 /* tabhelp.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67910E81FCD001F4C90 /* tabhelp.png */; };
+		37F1A72310E88FE5001F4C90 /* ff-logo-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A72210E88FE5001F4C90 /* ff-logo-small.png */; };
+		37F1A78810E9759C001F4C90 /* SplashScreenController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37F1A78610E9759C001F4C90 /* SplashScreenController.m */; };
+		37F1A78910E9759C001F4C90 /* SplashScreenController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A78710E9759C001F4C90 /* SplashScreenController.xib */; };
 		4A275D8E10925B740021DCB4 /* NetworkPaths.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4A275D8D10925B740021DCB4 /* NetworkPaths.plist */; };
-		4A275DB4109263080021DCB4 /* Firefox.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A275DB3109263080021DCB4 /* Firefox.png */; };
 		4AFBD419108BC64700C4FD32 /* About.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD412108BC64700C4FD32 /* About.png */; };
 		4AFBD41A108BC64700C4FD32 /* Box.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD413108BC64700C4FD32 /* Box.png */; };
 		4AFBD41B108BC64700C4FD32 /* Document.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD414108BC64700C4FD32 /* Document.png */; };
@@ -74,10 +84,8 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		370E33D810D82B590001D066 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		370E33D910D82B590001D066 /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
-		370E33DA10D82B590001D066 /* settings.opacity */ = {isa = PBXFileReference; lastKnownFileType = file; path = settings.opacity; sourceTree = "<group>"; };
 		370E33DB10D82B590001D066 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = settings.png; sourceTree = "<group>"; };
 		370E33DC10D82B590001D066 /* tab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.png; sourceTree = "<group>"; };
-		370E33DD10D82B590001D066 /* tabicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabicon.png; sourceTree = "<group>"; };
 		370E33DE10D82B590001D066 /* tiny-weave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tiny-weave.png"; sourceTree = "<group>"; };
 		3715977C10D82DD800F28263 /* BookmarkBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookmarkBrowserController.h; sourceTree = "<group>"; };
 		3715977D10D82DD800F28263 /* BookmarkBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookmarkBrowserController.m; sourceTree = "<group>"; };
@@ -101,6 +109,10 @@
 		3715978F10D82DD800F28263 /* WebPageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPageController.h; sourceTree = "<group>"; };
 		3715979010D82DD800F28263 /* WebPageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebPageController.m; sourceTree = "<group>"; };
 		3715979110D82DD800F28263 /* WebPageController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebPageController.xib; sourceTree = "<group>"; };
+		3751507110EDD7DE00FDBA14 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3758E96210F15A3900C2C760 /* Firefox-title.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Firefox-title.png"; sourceTree = "<group>"; };
+		3758E96310F15A3900C2C760 /* Flashback-title.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Flashback-title.png"; sourceTree = "<group>"; };
+		3758E9A510F1C03B00C2C760 /* back-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "back-arrow.png"; sourceTree = "<group>"; };
 		377ACCD010E2D9CD00445EE1 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		377ACCD110E2D9CD00445EE1 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		378FC15A10D82BEA0010D3C9 /* CryptoUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CryptoUtils.h; path = "Network And Storage/CryptoUtils.h"; sourceTree = SOURCE_ROOT; };
@@ -129,8 +141,18 @@
 		37A680EB10DB5B06008005DC /* blankfavicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = blankfavicon.ico; sourceTree = "<group>"; };
 		37A682B110E148BC008005DC /* TapActionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapActionController.h; sourceTree = "<group>"; };
 		37A682B210E148BC008005DC /* TapActionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapActionController.m; sourceTree = "<group>"; };
+		37C9083810EDE11400BDBA56 /* pop.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = pop.aif; sourceTree = "<group>"; };
+		37C9087A10EEBAC300BDBA56 /* Animator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animator.h; sourceTree = "<group>"; };
+		37C9087B10EEBAC300BDBA56 /* Animator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Animator.m; sourceTree = "<group>"; };
+		37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ff-logo-medium.png"; sourceTree = "<group>"; };
+		37F1A67710E81FCD001F4C90 /* bmkhelp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bmkhelp.png; sourceTree = "<group>"; };
+		37F1A67810E81FCD001F4C90 /* srchhelp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = srchhelp.png; sourceTree = "<group>"; };
+		37F1A67910E81FCD001F4C90 /* tabhelp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabhelp.png; sourceTree = "<group>"; };
+		37F1A72210E88FE5001F4C90 /* ff-logo-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ff-logo-small.png"; sourceTree = "<group>"; };
+		37F1A78510E9759C001F4C90 /* SplashScreenController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplashScreenController.h; sourceTree = "<group>"; };
+		37F1A78610E9759C001F4C90 /* SplashScreenController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplashScreenController.m; sourceTree = "<group>"; };
+		37F1A78710E9759C001F4C90 /* SplashScreenController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SplashScreenController.xib; sourceTree = "<group>"; };
 		4A275D8D10925B740021DCB4 /* NetworkPaths.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = NetworkPaths.plist; sourceTree = "<group>"; };
-		4A275DB3109263080021DCB4 /* Firefox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Firefox.png; sourceTree = "<group>"; };
 		4AFBD412108BC64700C4FD32 /* About.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = About.png; sourceTree = "<group>"; };
 		4AFBD413108BC64700C4FD32 /* Box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Box.png; sourceTree = "<group>"; };
 		4AFBD414108BC64700C4FD32 /* Document.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Document.png; sourceTree = "<group>"; };
@@ -160,6 +182,7 @@
 				4AFBD47A108BC68500C4FD32 /* libsqlite3.0.dylib in Frameworks */,
 				4AFBD47C108BC68A00C4FD32 /* QuartzCore.framework in Frameworks */,
 				4AFBD480108BC68F00C4FD32 /* SystemConfiguration.framework in Frameworks */,
+				3751507210EDD7DE00FDBA14 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,6 +241,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				375150EE10EDDF0F00FDBA14 /* Sounds */,
 				4AFBD411108BC64700C4FD32 /* Images */,
 				4AFBD424108BC65D00C4FD32 /* Default.png */,
 				4AFBD420108BC64E00C4FD32 /* store.sq3 */,
@@ -231,6 +255,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3751507110EDD7DE00FDBA14 /* AVFoundation.framework */,
 				4AFBD435108BC67500C4FD32 /* Security.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
@@ -240,6 +265,14 @@
 				4AFBD47F108BC68F00C4FD32 /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		375150EE10EDDF0F00FDBA14 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				37C9083810EDE11400BDBA56 /* pop.aif */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 		376EA60110D037CF00D37DD3 /* User Interface */ = {
@@ -269,6 +302,11 @@
 				3715978F10D82DD800F28263 /* WebPageController.h */,
 				3715979010D82DD800F28263 /* WebPageController.m */,
 				3715979110D82DD800F28263 /* WebPageController.xib */,
+				37F1A78510E9759C001F4C90 /* SplashScreenController.h */,
+				37F1A78610E9759C001F4C90 /* SplashScreenController.m */,
+				37F1A78710E9759C001F4C90 /* SplashScreenController.xib */,
+				37C9087A10EEBAC300BDBA56 /* Animator.h */,
+				37C9087B10EEBAC300BDBA56 /* Animator.m */,
 			);
 			path = "User Interface";
 			sourceTree = "<group>";
@@ -307,18 +345,23 @@
 		4AFBD411108BC64700C4FD32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				3758E9A510F1C03B00C2C760 /* back-arrow.png */,
+				3758E96210F15A3900C2C760 /* Firefox-title.png */,
+				3758E96310F15A3900C2C760 /* Flashback-title.png */,
+				37F1A72210E88FE5001F4C90 /* ff-logo-small.png */,
+				37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */,
+				37F1A67710E81FCD001F4C90 /* bmkhelp.png */,
+				37F1A67810E81FCD001F4C90 /* srchhelp.png */,
+				37F1A67910E81FCD001F4C90 /* tabhelp.png */,
 				37A680EB10DB5B06008005DC /* blankfavicon.ico */,
 				370E33D810D82B590001D066 /* button.png */,
 				370E33D910D82B590001D066 /* header.png */,
-				370E33DA10D82B590001D066 /* settings.opacity */,
 				370E33DB10D82B590001D066 /* settings.png */,
 				370E33DC10D82B590001D066 /* tab.png */,
-				370E33DD10D82B590001D066 /* tabicon.png */,
 				370E33DE10D82B590001D066 /* tiny-weave.png */,
 				4AFBD412108BC64700C4FD32 /* About.png */,
 				4AFBD413108BC64700C4FD32 /* Box.png */,
 				4AFBD414108BC64700C4FD32 /* Document.png */,
-				4A275DB3109263080021DCB4 /* Firefox.png */,
 				4AFBD415108BC64700C4FD32 /* Icon.png */,
 				4AFBD416108BC64700C4FD32 /* Logo.png */,
 				4AFBD417108BC64700C4FD32 /* Star.png */,
@@ -380,13 +423,10 @@
 				4AFBD423108BC65500C4FD32 /* Entitlements.plist in Resources */,
 				4AFBD425108BC65D00C4FD32 /* Default.png in Resources */,
 				4A275D8E10925B740021DCB4 /* NetworkPaths.plist in Resources */,
-				4A275DB4109263080021DCB4 /* Firefox.png in Resources */,
 				370E33DF10D82B590001D066 /* button.png in Resources */,
 				370E33E010D82B590001D066 /* header.png in Resources */,
-				370E33E110D82B590001D066 /* settings.opacity in Resources */,
 				370E33E210D82B590001D066 /* settings.png in Resources */,
 				370E33E310D82B590001D066 /* tab.png in Resources */,
-				370E33E410D82B590001D066 /* tabicon.png in Resources */,
 				370E33E510D82B590001D066 /* tiny-weave.png in Resources */,
 				3715979310D82DD800F28263 /* BookmarkBrowserController.xib in Resources */,
 				3715979510D82DD800F28263 /* LoginController.xib in Resources */,
@@ -397,6 +437,16 @@
 				3715979D10D82DD800F28263 /* TabCell.xib in Resources */,
 				371597A010D82DD800F28263 /* WebPageController.xib in Resources */,
 				37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */,
+				37F1A67610E81EB6001F4C90 /* ff-logo-medium.png in Resources */,
+				37F1A67A10E81FCD001F4C90 /* bmkhelp.png in Resources */,
+				37F1A67B10E81FCD001F4C90 /* srchhelp.png in Resources */,
+				37F1A67C10E81FCD001F4C90 /* tabhelp.png in Resources */,
+				37F1A72310E88FE5001F4C90 /* ff-logo-small.png in Resources */,
+				37F1A78910E9759C001F4C90 /* SplashScreenController.xib in Resources */,
+				37C9083910EDE11400BDBA56 /* pop.aif in Resources */,
+				3758E96410F15A3900C2C760 /* Firefox-title.png in Resources */,
+				3758E96510F15A3900C2C760 /* Flashback-title.png in Resources */,
+				3758E9A610F1C03B00C2C760 /* back-arrow.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,6 +478,8 @@
 				3715979F10D82DD800F28263 /* WebPageController.m in Sources */,
 				37A682B310E148BC008005DC /* TapActionController.m in Sources */,
 				377ACCD210E2D9CD00445EE1 /* Reachability.m in Sources */,
+				37F1A78810E9759C001F4C90 /* SplashScreenController.m in Sources */,
+				37C9087C10EEBAC300BDBA56 /* Animator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

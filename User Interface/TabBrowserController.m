@@ -102,17 +102,23 @@
 #pragma mark Table view methods
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return [[[[Store getStore] getTabs] objectAtIndex:section] objectForKey:@"client"];
+    return [[retainedTabs objectAtIndex:section] objectForKey:@"client"];
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-  return [[[Store getStore] getTabs] count];
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView 
+{
+  [retainedTabs release];
+  retainedTabs = [[[Store getStore] getTabs] retain];
+  [retainedFavicons release];
+  retainedFavicons = [[[Store getStore] getFavicons] retain];
+
+  return [retainedTabs count];
 }
 
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return [[[[[Store getStore] getTabs] objectAtIndex:section] objectForKey:@"tabs"] count];
+  return [[[retainedTabs objectAtIndex:section] objectForKey:@"tabs"] count];
 }
 
 
@@ -134,7 +140,7 @@
     cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
   }
   
-  NSDictionary* tabItem = [[[[[Store getStore] getTabs] objectAtIndex:indexPath.section] objectForKey:@"tabs"] objectAtIndex:indexPath.row];
+  NSDictionary* tabItem = [[[retainedTabs objectAtIndex:indexPath.section] objectForKey:@"tabs"] objectAtIndex:indexPath.row];
     
   cell.textLabel.adjustsFontSizeToFitWidth = YES;
   cell.textLabel.minimumFontSize = 13;
@@ -143,14 +149,15 @@
   //cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
 
   //set it to the default to start
-  cell.imageView.image = [[[Store getStore] getFavicons] objectForKey:@"blankfavicon.ico"];
+  cell.imageView.image = [retainedFavicons objectForKey:@"blankfavicon.ico"];
   NSString* iconPath = [tabItem objectForKey:@"icon"];
   
   if (iconPath != nil && [iconPath length] > 0)
   {
-    UIImage* favicon = [[[Store getStore] getFavicons] objectForKey:iconPath];
+    UIImage* favicon = [retainedFavicons objectForKey:iconPath];
     if (favicon != nil) 
     {
+      cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
       cell.imageView.image = favicon;
     }    
   }

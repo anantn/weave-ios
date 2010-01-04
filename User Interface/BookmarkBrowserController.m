@@ -48,16 +48,16 @@
 }
 */
 
-/*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-*/
-- (void)viewDidAppear:(BOOL)animated
-{
-  UITableView* theTable = (UITableView*)self.view;
-	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
-}
+
+//- (void)viewWillAppear:(BOOL)animated {
+//    [super viewWillAppear:animated];
+//}
+
+//- (void)viewDidAppear:(BOOL)animated
+//{
+//  UITableView* theTable = (UITableView*)self.view;
+//	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
+//}
 
 - (void) refresh
 { 
@@ -105,8 +105,17 @@
 
 
 // Customize the number of rows in the table view.
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return [[[Store getStore] getBookmarks] count];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
+{
+  //temporary caching, until we are done redrawing our table. 
+  // no copying, just bumping the refcount
+
+  [retainedBookmarks release];
+  retainedBookmarks = [[[Store getStore] getBookmarks] retain];
+  [retainedFavicons release];
+  retainedFavicons = [[[Store getStore] getFavicons] retain];
+
+  return [retainedBookmarks count];
 }
 
 
@@ -121,7 +130,7 @@
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
     }
     
-  NSDictionary* bookmarkItem = [[[Store getStore] getBookmarks] objectAtIndex:indexPath.row];
+  NSDictionary* bookmarkItem = [retainedBookmarks objectAtIndex:indexPath.row];
   
   cell.textLabel.adjustsFontSizeToFitWidth = YES;
   cell.textLabel.minimumFontSize = 13;
@@ -129,12 +138,12 @@
   cell.detailTextLabel.text = [bookmarkItem objectForKey:@"uri"];
   
   //set it to the default to start
-  cell.imageView.image = [[[Store getStore] getFavicons] objectForKey:@"blankfavicon.ico"];
+  cell.imageView.image = [retainedFavicons objectForKey:@"blankfavicon.ico"];
   NSString* iconPath = [bookmarkItem objectForKey:@"icon"];
   
   if (iconPath != nil && [iconPath length] > 0)
   {
-    UIImage* favicon = [[[Store getStore] getFavicons] objectForKey:iconPath];
+    UIImage* favicon = [retainedFavicons objectForKey:iconPath];
     if (favicon != nil) 
     {
       cell.imageView.image = favicon;

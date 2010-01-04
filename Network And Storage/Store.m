@@ -528,38 +528,68 @@ static Store* _gStore = nil;
 		}
 		sqlite3_finalize(dbStatement);
     
-    [tabs release];
-    tabs = [[NSMutableArray array] retain];
+    NSMutableArray* newTabs = [[NSMutableArray array] retain];
     
     id key;
     NSEnumerator *enumerator = [temporaryTabIndex keyEnumerator];
     
     while ((key = [enumerator nextObject])) {
-      [tabs addObject:[temporaryTabIndex objectForKey:key]];
+      [newTabs addObject:[temporaryTabIndex objectForKey:key]];
     }
+    
+    NSMutableArray* temp = tabs;
+    tabs = newTabs;
+    [temp release];
+
 	} 
 }
 
-- (UIImage *)scale:(UIImage *)image toSize:(CGSize)size 
+- (UIImage *)make32x32imageFrom:(UIImage *)oldImage 
 { 
-  UIGraphicsBeginImageContext(size); 
-  [image drawInRect:CGRectMake(0, 0, size.width, size.height)]; 
-  UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext 
-  (); 
-  UIGraphicsEndImageContext(); 
-  return scaledImage; 
+  
+  CGSize imageSize = CGSizeMake(32, 32);
+  
+  void *data = malloc(imageSize.width * imageSize.height * 4);
+  
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  CGContextRef ctx = CGBitmapContextCreate(data, 
+                                           imageSize.width, 
+                                           imageSize.height, 8, 
+                                           imageSize.width*4, 
+                                           colorSpace, 
+                                           kCGImageAlphaPremultipliedLast
+                                           );
+  CGColorSpaceRelease(colorSpace);
+  
+  float white[4] = {1, 1, 1, 1};
+  CGContextSetFillColor(ctx, white);
+
+  // now actually draw the image into the larger frame
+  CGRect newFrame = CGRectMake(0, 0, 32, 32);
+  CGContextFillRect(ctx, newFrame);
+  CGContextDrawImage(ctx, newFrame, [oldImage CGImage]);
+
+  
+  CGImageRef image = CGBitmapContextCreateImage(ctx);
+  UIImage *returnImage = [UIImage imageWithCGImage:image];
+  CGImageRelease(image);
+  CGContextRelease(ctx);
+  free(data);
+  
+  return returnImage;
 }
+
+
 
 -(void) loadFaviconsFromDB
 {
   sqlite3_stmt *dbStatement;
   const char *faviconQuery = "SELECT * FROM moz_favicons";
   
-  [favicons release];
-  favicons = [[NSMutableDictionary dictionary] retain];
+  NSMutableDictionary* newFavicons = [[NSMutableDictionary dictionary] retain];
   
   //default
-  [favicons setObject:[UIImage imageNamed:@"blankfavicon.ico"] forKey:@"blankfavicon.ico"];
+  [newFavicons setObject:[UIImage imageNamed:@"blankfavicon.ico"] forKey:@"blankfavicon.ico"];
 
   if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
   {
@@ -571,17 +601,24 @@ static Store* _gStore = nil;
       if (img)
       {
         //resize it to 32x32 if it isn't
-        if (img.size.width == 16)
+        if (img.size.width != 32)
         {
           CGSize size32;
           size32.width = 32;
           size32.height = 32;
-          img = [self scale:img toSize: size32];
+          UIImage* scaledImg = [self make32x32imageFrom:img ];
+          //[img release];
+          img = scaledImg;
         }
-        [favicons setObject:img forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
+        
+        [newFavicons setObject:img forKey:[NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 0)]];
       }
     }
   } 
+  NSMutableDictionary* temp = favicons;
+  favicons = newFavicons;
+  [temp release];
+
   sqlite3_finalize(dbStatement);
 }
 
@@ -591,8 +628,7 @@ static Store* _gStore = nil;
 	const char *historyQuery = "SELECT * FROM moz_places WHERE type = 'history'";
 	NSString* icon;
 	
-  [history release];
-	history = [[NSMutableArray array] retain];
+	NSMutableArray* newHistory = [[NSMutableArray array] retain];
 	
 	/* Load existing history */
 	if (sqlite3_prepare_v2(sqlDatabase, historyQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
@@ -608,7 +644,7 @@ static Store* _gStore = nil;
 				icon = @"";
 			}
 			
-      [history addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+      [newHistory addObject: [NSDictionary dictionaryWithObjectsAndKeys:
                              [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)], @"title",
                              [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)], @"uri",
                              icon, @"icon",
@@ -616,6 +652,10 @@ static Store* _gStore = nil;
 		}
 		sqlite3_finalize(dbStatement);
 	} 
+  NSMutableArray* temp = history;
+  history = newHistory;
+  [temp release];
+
 }
 
 
@@ -632,8 +672,7 @@ static int compareBookmarks(id left,  id right, void* ctx)
 	const char *bookmarkQuery = "SELECT * FROM moz_places WHERE type = 'bookmark'";
 	NSString* icon;
 	
-  [bookmarks release];
-	bookmarks = [[NSMutableArray array] retain];
+	NSMutableArray* newBookmarks = [[NSMutableArray array] retain];
 	
 	//load any bookmarks we can find in the db
 	if (sqlite3_prepare_v2(sqlDatabase, bookmarkQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
@@ -649,7 +688,7 @@ static int compareBookmarks(id left,  id right, void* ctx)
 				icon = @"";
 			}
       
-      [bookmarks addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+      [newBookmarks addObject: [NSDictionary dictionaryWithObjectsAndKeys:
                                                      [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_TITLE_COLUMN)], @"title",
                                                      [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, PLACES_URL_COLUMN)], @"uri",
                                                      icon, @"icon",
@@ -657,7 +696,10 @@ static int compareBookmarks(id left,  id right, void* ctx)
       }
 		sqlite3_finalize(dbStatement);
 	} 
-  
+  NSMutableArray* temp = bookmarks;
+  bookmarks = newBookmarks;
+  [temp release];
+
   [bookmarks sortUsingFunction:compareBookmarks context:nil];
 
 }
@@ -672,27 +714,6 @@ static int compareBookmarks(id left,  id right, void* ctx)
       [favpath appendFormat:@"http://%@/favicon.ico",host , nil];
   return favpath;
 }
-
-///////////////////////////////////////
-//check to see if we already have an icon for this url
-//- (BOOL) hasFavicon:(NSString*)url
-//{
-//  sqlite3_stmt *dbStatement;
-//  const char *iconQuery = "SELECT * FROM moz_favicons WHERE url = ?";
-//
-//  if (sqlite3_prepare_v2(sqlDatabase, iconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
-//  {
-//    sqlite3_bind_text(dbStatement, 1, [url UTF8String], -1, SQLITE_TRANSIENT);
-//
-//    if (sqlite3_step(dbStatement) == SQLITE_ROW) 
-//    {
-//      sqlite3_finalize(dbStatement);
-//      return YES;
-//    } 
-//    sqlite3_finalize(dbStatement);
-//  } 
-//  return NO;
-//}
 
 
 
@@ -761,7 +782,6 @@ static int compareBookmarks(id left,  id right, void* ctx)
 
 
 
-
 //this one unwraps a JSON list and walks the [url, icon] pairs inside, inserting each into the database
 // this is called if we use the favicon proxy
 - (BOOL) cacheFaviconsFromJSON:(NSString *)JSONObject withID:(NSString*)theID
@@ -782,6 +802,7 @@ static int compareBookmarks(id left,  id right, void* ctx)
 	
 	return YES;
 }
+
 
 ///////////////////////////////////////////////////////////////////////
 -(BOOL) addBookmarkRecord:(NSString *)json withID:(NSString*)theID {

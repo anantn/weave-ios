@@ -30,8 +30,8 @@
 #import "TabBrowserController.h"
 #import "BookmarkBrowserController.h"
 
-@interface WeaveAppDelegate : NSObject <UIApplicationDelegate> {
-
+@interface WeaveAppDelegate : NSObject <UIApplicationDelegate> 
+{
   UIWindow*                 window;
   UIViewController*         rootController;
   UIView*                   contentView;

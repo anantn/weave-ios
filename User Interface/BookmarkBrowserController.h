@@ -28,7 +28,8 @@
 
 @interface BookmarkBrowserController : UITableViewController <UITableViewDelegate>
 {
-
+  NSArray* retainedBookmarks;
+  NSDictionary* retainedFavicons;
 }
 
 - (void) refresh;
