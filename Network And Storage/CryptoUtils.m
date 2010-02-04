@@ -19,7 +19,7 @@
  
  Contributor(s):
 	Anant Narayanan <anant@kix.in>
-	Dan Walkowski <dan.walkowski@gmail.com>
+	Dan Walkowski <dan.walkowski@mozilla.com>
 
  ***** END LICENSE BLOCK *****/
 
@@ -38,12 +38,12 @@
 	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl withUser:userName andPassword:password];
   if (!clusterData) return NO;
   
-	NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
+	NSString* cluster = [[[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding] autorelease];
 
 	NSData* privKeyData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Private Key URL"] fromCluster:cluster withUser:userName andPassword:password];
   if (!privKeyData) return NO;
   
-	NSString* privKeyString = [[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding];
+	NSString* privKeyString = [[[NSString alloc] initWithData:privKeyData encoding:NSUTF8StringEncoding] autorelease];
 	NSDictionary *privKeyJSON = [privKeyString JSONValue];
   if (!privKeyJSON) return NO;
 
@@ -59,10 +59,10 @@
 	//get the cluster
 	NSString *cl = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Node Query URL"], user];  
 	NSData* clusterData = [Fetcher getAbsoluteURLSynchronous:cl withUser:user andPassword:password];
-	NSString* cluster = [[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding];
+	NSString* cluster = [[[NSString alloc] initWithData:clusterData encoding:NSUTF8StringEncoding] autorelease];
 	
 	NSData* clientsData = [Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Clients URL"] fromCluster:cluster withUser:user andPassword:password];
-	NSString *clientsString = [[NSString alloc] initWithData:clientsData encoding:NSUTF8StringEncoding];
+	NSString *clientsString = [[[NSString alloc] initWithData:clientsData encoding:NSUTF8StringEncoding] autorelease];
 	NSArray *clients = [clientsString JSONValue];
 
 	NSString *myID = [[UIDevice currentDevice] uniqueIdentifier];
@@ -207,13 +207,12 @@
 	
 	[salt release];
 	
-	NSData *iv = [[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"iv"]];
-	NSData *aesKey = [[NSData alloc] initWithBytes:final length:32];
-	NSData *rawKey = [[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"keyData"]];
+	NSData *iv = [[[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"iv"]] autorelease];
+	NSData *aesKey = [[[NSData alloc] initWithBytes:final length:32] autorelease];
+	NSData *rawKey = [[[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"keyData"]] autorelease];
 	NSData *rsaKey = [rawKey AESdecryptWithKey:aesKey andIV:iv];
   if (!rsaKey || [rsaKey length] < 1) return NO;  //probably wrong password
   
-	[iv release]; [rawKey release]; [aesKey release];
 	
 	/* Hmm, some ASN.1 parsing. YUCK */
 	char *rsaKeyBytes = (char *)[rsaKey bytes];
@@ -306,14 +305,12 @@
 {
 	NSData *bulkIV = [bulkKey objectForKey:@"iv"];
 	NSData *symKey = [bulkKey objectForKey:@"key"];
-	NSData *ciphertext = [[NSData alloc] initWithBase64EncodedString:[object objectForKey:@"ciphertext"]];
+	NSData *ciphertext = [[[NSData alloc] initWithBase64EncodedString:[object objectForKey:@"ciphertext"]] autorelease];
 	// NSLog(@"Decrypting ciphertext %@, with key %@ and iv %@", [ciphertext base64Encoding], [symKey base64Encoding], [bulkIV base64Encoding]);
   
 	// We need to null-terminate this string, since the ciphertext doesn't include a null
-	NSString *plainText = [[NSString alloc] initWithData:[ciphertext AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding];
-	// plainText = [plainText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	NSString *plainText = [[[NSString alloc] initWithData:[ciphertext AESdecryptWithKey:symKey andIV:bulkIV] encoding:NSUTF8StringEncoding] autorelease];
 	// NSLog(@"Got %@!", plainText);		
-	// [[serv store] performSelector:select withObject:plainText];
 	return plainText;
 }
 

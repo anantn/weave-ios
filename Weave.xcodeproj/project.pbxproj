@@ -14,7 +14,6 @@
 		370E33DF10D82B590001D066 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33D810D82B590001D066 /* button.png */; };
 		370E33E010D82B590001D066 /* header.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33D910D82B590001D066 /* header.png */; };
 		370E33E210D82B590001D066 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DB10D82B590001D066 /* settings.png */; };
-		370E33E310D82B590001D066 /* tab.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DC10D82B590001D066 /* tab.png */; };
 		370E33E510D82B590001D066 /* tiny-weave.png in Resources */ = {isa = PBXBuildFile; fileRef = 370E33DE10D82B590001D066 /* tiny-weave.png */; };
 		3715979210D82DD800F28263 /* BookmarkBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715977D10D82DD800F28263 /* BookmarkBrowserController.m */; };
 		3715979310D82DD800F28263 /* BookmarkBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715977E10D82DD800F28263 /* BookmarkBrowserController.xib */; };
@@ -27,7 +26,6 @@
 		3715979A10D82DD800F28263 /* SettingsController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715978810D82DD800F28263 /* SettingsController.xib */; };
 		3715979B10D82DD800F28263 /* TabBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715978A10D82DD800F28263 /* TabBrowserController.m */; };
 		3715979C10D82DD800F28263 /* TabBrowserController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715978B10D82DD800F28263 /* TabBrowserController.xib */; };
-		3715979D10D82DD800F28263 /* TabCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715978C10D82DD800F28263 /* TabCell.xib */; };
 		3715979E10D82DD800F28263 /* WeaveAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715978E10D82DD800F28263 /* WeaveAppDelegate.m */; };
 		3715979F10D82DD800F28263 /* WebPageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3715979010D82DD800F28263 /* WebPageController.m */; };
 		371597A010D82DD800F28263 /* WebPageController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3715979110D82DD800F28263 /* WebPageController.xib */; };
@@ -49,7 +47,6 @@
 		378FC18310D82BEA0010D3C9 /* Utility.m in Sources */ = {isa = PBXBuildFile; fileRef = 378FC17510D82BEA0010D3C9 /* Utility.m */; };
 		37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */ = {isa = PBXBuildFile; fileRef = 37A680EB10DB5B06008005DC /* blankfavicon.ico */; };
 		37A682B310E148BC008005DC /* TapActionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37A682B210E148BC008005DC /* TapActionController.m */; };
-		37C9083910EDE11400BDBA56 /* pop.aif in Resources */ = {isa = PBXBuildFile; fileRef = 37C9083810EDE11400BDBA56 /* pop.aif */; };
 		37C9087C10EEBAC300BDBA56 /* Animator.m in Sources */ = {isa = PBXBuildFile; fileRef = 37C9087B10EEBAC300BDBA56 /* Animator.m */; };
 		37F1A67610E81EB6001F4C90 /* ff-logo-medium.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */; };
 		37F1A67A10E81FCD001F4C90 /* bmkhelp.png in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A67710E81FCD001F4C90 /* bmkhelp.png */; };
@@ -85,7 +82,6 @@
 		370E33D810D82B590001D066 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		370E33D910D82B590001D066 /* header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = header.png; sourceTree = "<group>"; };
 		370E33DB10D82B590001D066 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = settings.png; sourceTree = "<group>"; };
-		370E33DC10D82B590001D066 /* tab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tab.png; sourceTree = "<group>"; };
 		370E33DE10D82B590001D066 /* tiny-weave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tiny-weave.png"; sourceTree = "<group>"; };
 		3715977C10D82DD800F28263 /* BookmarkBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookmarkBrowserController.h; sourceTree = "<group>"; };
 		3715977D10D82DD800F28263 /* BookmarkBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookmarkBrowserController.m; sourceTree = "<group>"; };
@@ -103,7 +99,6 @@
 		3715978910D82DD800F28263 /* TabBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TabBrowserController.h; sourceTree = "<group>"; };
 		3715978A10D82DD800F28263 /* TabBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TabBrowserController.m; sourceTree = "<group>"; };
 		3715978B10D82DD800F28263 /* TabBrowserController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TabBrowserController.xib; sourceTree = "<group>"; };
-		3715978C10D82DD800F28263 /* TabCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TabCell.xib; sourceTree = "<group>"; };
 		3715978D10D82DD800F28263 /* WeaveAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaveAppDelegate.h; sourceTree = "<group>"; };
 		3715978E10D82DD800F28263 /* WeaveAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeaveAppDelegate.m; sourceTree = "<group>"; };
 		3715978F10D82DD800F28263 /* WebPageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPageController.h; sourceTree = "<group>"; };
@@ -141,7 +136,6 @@
 		37A680EB10DB5B06008005DC /* blankfavicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = blankfavicon.ico; sourceTree = "<group>"; };
 		37A682B110E148BC008005DC /* TapActionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapActionController.h; sourceTree = "<group>"; };
 		37A682B210E148BC008005DC /* TapActionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TapActionController.m; sourceTree = "<group>"; };
-		37C9083810EDE11400BDBA56 /* pop.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = pop.aif; sourceTree = "<group>"; };
 		37C9087A10EEBAC300BDBA56 /* Animator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animator.h; sourceTree = "<group>"; };
 		37C9087B10EEBAC300BDBA56 /* Animator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Animator.m; sourceTree = "<group>"; };
 		37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ff-logo-medium.png"; sourceTree = "<group>"; };
@@ -241,7 +235,6 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				375150EE10EDDF0F00FDBA14 /* Sounds */,
 				4AFBD411108BC64700C4FD32 /* Images */,
 				4AFBD424108BC65D00C4FD32 /* Default.png */,
 				4AFBD420108BC64E00C4FD32 /* store.sq3 */,
@@ -267,14 +260,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		375150EE10EDDF0F00FDBA14 /* Sounds */ = {
-			isa = PBXGroup;
-			children = (
-				37C9083810EDE11400BDBA56 /* pop.aif */,
-			);
-			path = Sounds;
-			sourceTree = "<group>";
-		};
 		376EA60110D037CF00D37DD3 /* User Interface */ = {
 			isa = PBXGroup;
 			children = (
@@ -295,7 +280,6 @@
 				3715978910D82DD800F28263 /* TabBrowserController.h */,
 				3715978A10D82DD800F28263 /* TabBrowserController.m */,
 				3715978B10D82DD800F28263 /* TabBrowserController.xib */,
-				3715978C10D82DD800F28263 /* TabCell.xib */,
 				3715978D10D82DD800F28263 /* WeaveAppDelegate.h */,
 				3715978E10D82DD800F28263 /* WeaveAppDelegate.m */,
 				3715978210D82DD800F28263 /* MainWindow.xib */,
@@ -357,7 +341,6 @@
 				370E33D810D82B590001D066 /* button.png */,
 				370E33D910D82B590001D066 /* header.png */,
 				370E33DB10D82B590001D066 /* settings.png */,
-				370E33DC10D82B590001D066 /* tab.png */,
 				370E33DE10D82B590001D066 /* tiny-weave.png */,
 				4AFBD412108BC64700C4FD32 /* About.png */,
 				4AFBD413108BC64700C4FD32 /* Box.png */,
@@ -426,7 +409,6 @@
 				370E33DF10D82B590001D066 /* button.png in Resources */,
 				370E33E010D82B590001D066 /* header.png in Resources */,
 				370E33E210D82B590001D066 /* settings.png in Resources */,
-				370E33E310D82B590001D066 /* tab.png in Resources */,
 				370E33E510D82B590001D066 /* tiny-weave.png in Resources */,
 				3715979310D82DD800F28263 /* BookmarkBrowserController.xib in Resources */,
 				3715979510D82DD800F28263 /* LoginController.xib in Resources */,
@@ -434,7 +416,6 @@
 				3715979810D82DD800F28263 /* SearchResultsController.xib in Resources */,
 				3715979A10D82DD800F28263 /* SettingsController.xib in Resources */,
 				3715979C10D82DD800F28263 /* TabBrowserController.xib in Resources */,
-				3715979D10D82DD800F28263 /* TabCell.xib in Resources */,
 				371597A010D82DD800F28263 /* WebPageController.xib in Resources */,
 				37A680EC10DB5B06008005DC /* blankfavicon.ico in Resources */,
 				37F1A67610E81EB6001F4C90 /* ff-logo-medium.png in Resources */,
@@ -443,7 +424,6 @@
 				37F1A67C10E81FCD001F4C90 /* tabhelp.png in Resources */,
 				37F1A72310E88FE5001F4C90 /* ff-logo-small.png in Resources */,
 				37F1A78910E9759C001F4C90 /* SplashScreenController.xib in Resources */,
-				37C9083910EDE11400BDBA56 /* pop.aif in Resources */,
 				3758E96410F15A3900C2C760 /* Firefox-title.png in Resources */,
 				3758E96510F15A3900C2C760 /* Flashback-title.png in Resources */,
 				3758E9A610F1C03B00C2C760 /* back-arrow.png in Resources */,

@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -36,7 +36,6 @@
 @synthesize tabHelp;
 @synthesize bmkHelp;
 @synthesize srchHelp;
-//@synthesize popPlayer;
 
 
 //scales a rect by a factor from 0 to 1.0 and preserving the center point
@@ -49,13 +48,7 @@ CGRect zoomRect(CGRect inRect, CGFloat scale)
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
-//  NSURL *popURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"pop" ofType:@"aif"]];
-//  
-//  NSError *error;
-//  popPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:popURL error:&error];
-//  [popPlayer prepareToPlay];
-  
+    
   //hide everything, and get ready to do the animation sequence
   animationHasBeenPlayed = NO;
   
@@ -215,12 +208,6 @@ CGRect zoomRect(CGRect inRect, CGFloat scale)
   tabHelp.center = tabHelpHidden;
   [self showLogoAndTitle];
 }
-
-
-
-//- (void)viewWillAppear:(BOOL)animated {
-//  [super viewWillAppear:animated];
-//}
 
 
 - (void)viewDidAppear:(BOOL)animated

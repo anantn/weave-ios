@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -55,8 +55,6 @@
 
 //- (void)viewDidAppear:(BOOL)animated
 //{
-//  UITableView* theTable = (UITableView*)self.view;
-//	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
 //}
 
 - (void) refresh
@@ -157,7 +155,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
+  TapActionController* tap = [[[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text] autorelease];
   [tap chooseAction];
   [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

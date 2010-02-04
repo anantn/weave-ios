@@ -19,7 +19,7 @@
  
  Contributor(s):
 	Anant Narayanan <anant@kix.in>
-	Dan Walkowski <dan.walkowski@gmail.com>
+	Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -63,7 +63,7 @@ static NSDictionary *_gNetworkPaths = nil;
     WeaveAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
     [delegate performSelectorOnMainThread:@selector(startSpinner) withObject:nil waitUntilDone:NO];
     
-		NSThread* keyThread = [[NSThread alloc] initWithTarget:_gStockboy selector:@selector(restockEverything) object:nil];
+		NSThread* keyThread = [[[NSThread alloc] initWithTarget:_gStockboy selector:@selector(restockEverything) object:nil] autorelease];
 		[keyThread start];
 	}
 }
@@ -157,20 +157,21 @@ static NSDictionary *_gNetworkPaths = nil;
 	// synchronous request.  we are running in a separate thread, so it's ok to block.
 	NSData *tabs = [[Fetcher getURLSynchronous:[Stockboy urlForWeaveObject:@"Tabs URL"] fromCluster:_cluster withUser:[[Store getStore] getUsername] andPassword:[[Store getStore] getPassword]] retain];
 	if (tabs == nil) return; //better error handling
+  else [tabs autorelease];
   
 	// this will hold all the resultant decrypted tabs
 	NSMutableDictionary *userTabSets = [NSMutableDictionary dictionary];
   
 	// This bit of primitive parsing relies on the data coming as a dictionary of dictionaries.
 	// beware of 'does not understand' exceptions
-	NSString *tabsString = [[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding];
+	NSString *tabsString = [[[NSString alloc] initWithData:tabs encoding:NSUTF8StringEncoding] autorelease];
 	NSDictionary *tabsDict = [tabsString JSONValue];
 	NSEnumerator *tabIterator = [tabsDict objectEnumerator];
   
 	NSDictionary *tabBundle;
 	while (tabBundle = [tabIterator nextObject]) {
 		// get the interesting bits out of the bundle    
-		NSDictionary *encryptedTab = [[[tabBundle objectForKey:@"payload"] JSONValue] retain];
+		NSDictionary *encryptedTab = [[tabBundle objectForKey:@"payload"] JSONValue];
 		NSString *keyURL = [encryptedTab objectForKey:@"encryption"];
 		NSString *tabSetID = [tabBundle objectForKey:@"id"];
 		NSLog(@"Got Tab Set ID:%@", tabSetID);
@@ -197,8 +198,9 @@ static NSDictionary *_gNetworkPaths = nil;
 -(void) updateBookmarks
 {
 	NSString *bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getBookmarksSyncTime]];
-	NSData *bmarks = [[Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster withUser:[[Store getStore] getUsername] andPassword:[[Store getStore] getPassword]] retain];
+	NSData *bmarks = [Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster withUser:[[Store getStore] getUsername] andPassword:[[Store getStore] getPassword]];
 	if (bmarks == nil) return; //better error handling
+  else [bmarks autorelease];
   
 	// This will hold all the resultant decrypted bookmarks that need to be added
 	NSMutableDictionary *userBmarks = [NSMutableDictionary dictionary];
@@ -207,7 +209,7 @@ static NSDictionary *_gNetworkPaths = nil;
 	NSMutableArray *userDeadBmarks = [NSMutableArray array];
 
 	// Unpack the bookmarks
-	NSString *bmarksString = [[[NSString alloc] initWithData:bmarks encoding:NSUTF8StringEncoding] retain];
+	NSString *bmarksString = [[[NSString alloc] initWithData:bmarks encoding:NSUTF8StringEncoding] autorelease];
 	NSDictionary *bmarksDict = [bmarksString JSONValue];
 	NSEnumerator *bmarkIterator = [bmarksDict objectEnumerator];
 
@@ -220,7 +222,7 @@ static NSDictionary *_gNetworkPaths = nil;
 		if (bmarkPayload == nil || [bmarkPayload length] == 0) {
 			[userDeadBmarks addObject:bmarkID];
 		} else {
-			NSDictionary *encryptedBmark = [[bmarkPayload JSONValue] retain];
+			NSDictionary *encryptedBmark = [bmarkPayload JSONValue];
 			NSString *keyURL = [encryptedBmark objectForKey:@"encryption"];
 		
 			NSDictionary *theKey;
@@ -231,13 +233,12 @@ static NSDictionary *_gNetworkPaths = nil;
 			}
 
 			// Do the decrypt
-			NSString* plaintextBmark = [CryptoUtils decryptObject:encryptedBmark withKey:theKey];
+			NSString* plaintextBmark = [[CryptoUtils decryptObject:encryptedBmark withKey:theKey] autorelease];
 			
 			// Hmm, sometimes plaintext appears to be nil. Why?
 			if (plaintextBmark != nil) {
 				[userBmarks setObject:plaintextBmark forKey:bmarkID];
 			}
-			[userBmarks setObject:plaintextBmark forKey: bmarkID];
 		}
 	}
   
@@ -265,6 +266,8 @@ static NSDictionary *_gNetworkPaths = nil;
 	NSString *historyURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"History Update URL"], [[Store getStore] getHistorySyncTime]];
 	NSData *history = [[Fetcher getURLSynchronous:historyURL fromCluster:_cluster withUser:[[Store getStore] getUsername] andPassword:[[Store getStore] getPassword]] retain];
 	if (history == nil) return; //better error handling
+  else [history autorelease];
+  
   
 	// this will hold all the resultant decrypted history entries that need to be added
 	NSMutableDictionary *userHistory = [NSMutableDictionary dictionary];
@@ -273,7 +276,7 @@ static NSDictionary *_gNetworkPaths = nil;
 	NSMutableArray *userDeadHistory = [NSMutableArray array];
 	
 	// unpack the history entries
-	NSString *historyString = [[[NSString alloc] initWithData:history encoding:NSUTF8StringEncoding] retain];
+	NSString *historyString = [[[NSString alloc] initWithData:history encoding:NSUTF8StringEncoding] autorelease];
 	NSDictionary *historyDict = [historyString JSONValue];
 	NSEnumerator *historyIterator = [historyDict objectEnumerator];
 	
@@ -287,7 +290,7 @@ static NSDictionary *_gNetworkPaths = nil;
 		if (historyPayload ==  nil || [historyPayload length] == 0) {
 			[userDeadHistory addObject:historyID];
 		} else {
-			NSDictionary *encryptedHistory = [[historyPayload JSONValue] retain];
+			NSDictionary *encryptedHistory = [historyPayload JSONValue];
 			NSString *keyURL = [encryptedHistory objectForKey:@"encryption"];
 		
 			NSDictionary *theKey;
@@ -339,18 +342,18 @@ static NSDictionary *_gNetworkPaths = nil;
 {
 	// A bulk key response looks like:
 	// {"id":"tabs","modified":1255799465.58,"payload":"{\"bulkIV\":\"<base64-encoded-IV>\",\"keyring\":{\"https:\/\/sj-weave01.services.mozilla.com\/0.5\/<user>\/storage\/keys\/pubkey\":\"<base64-encoded-key>\"}}"}
-	NSString* bulkKeyString = [[NSString alloc] initWithData:bulkKeyData encoding:NSUTF8StringEncoding];
+	NSString* bulkKeyString = [[[NSString alloc] initWithData:bulkKeyData encoding:NSUTF8StringEncoding] autorelease];
 	NSDictionary *bulkKeyResponse = [bulkKeyString JSONValue];
   
 	NSDictionary *payload = [[bulkKeyResponse objectForKey:@"payload"] JSONValue];
 	NSDictionary *keyring = [payload objectForKey:@"keyring"];
 	
 	NSArray* keyEntries = [keyring allValues];
-	NSData *symKey = [[NSData alloc] initWithBase64EncodedString:[keyEntries objectAtIndex:0]];
+	NSData *symKey = [[[NSData alloc] initWithBase64EncodedString:[keyEntries objectAtIndex:0]] autorelease];
 	NSData *usymKey = [CryptoUtils unwrapSymmetricKey:symKey withPrivateKey: _privateKey];
 	NSDictionary *bulkEntry = [[NSDictionary dictionaryWithObjectsAndKeys:
 								[[NSData alloc] initWithBase64EncodedString:[payload objectForKey:@"bulkIV"]], @"iv",
-								usymKey, @"key", nil] retain];
+								usymKey, @"key", nil] autorelease];
 	return bulkEntry;
 }
 

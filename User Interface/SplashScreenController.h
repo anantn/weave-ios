@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -49,8 +49,6 @@
   Animator* animationController;
   BOOL animationHasBeenPlayed;
   
-//  AVAudioPlayer *popPlayer;
-
 }
 
 - (void) playAnimation;
@@ -63,6 +61,5 @@
 @property (nonatomic, retain) IBOutlet UIImageView *tabHelp;
 @property (nonatomic, retain) IBOutlet UIImageView *bmkHelp;
 @property (nonatomic, retain) IBOutlet UIImageView *srchHelp;
-//@property (nonatomic, retain) AVAudioPlayer *popPlayer;
 
 @end

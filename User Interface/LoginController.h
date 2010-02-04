@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 

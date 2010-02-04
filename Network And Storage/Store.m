@@ -596,7 +596,7 @@ static Store* _gStore = nil;
     while (sqlite3_step(dbStatement) == SQLITE_ROW) 
     {
       NSString* imgStr = [NSString stringWithUTF8String:(char *)sqlite3_column_text(dbStatement, 1)];
-      NSData* imgData = [[NSData alloc] initWithBase64EncodedString:imgStr];  
+      NSData* imgData = [[[NSData alloc] initWithBase64EncodedString:imgStr] autorelease];  
       UIImage* img = [UIImage imageWithData:imgData];
       if (img)
       {

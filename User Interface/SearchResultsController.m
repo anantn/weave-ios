@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -165,7 +165,6 @@
     cell.textLabel.minimumFontSize = 13;
     cell.textLabel.text = [matchItem objectForKey:@"title"];
     cell.detailTextLabel.text = [matchItem objectForKey:@"uri"];
-//    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
 
     //set it to the default to start
     cell.imageView.image = [[[Store getStore] getFavicons] objectForKey:@"blankfavicon.ico"];
@@ -188,7 +187,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
+  TapActionController* tap = [[[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text] autorelease];
   [tap chooseAction];
   [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }

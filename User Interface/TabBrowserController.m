@@ -19,7 +19,7 @@
  
  Contributor(s):
  Anant Narayanan <anant@kix.in>
- Dan Walkowski <dan.walkowski@gmail.com>
+ Dan Walkowski <dan.walkowski@mozilla.com>
  
  ***** END LICENSE BLOCK *****/
 
@@ -55,11 +55,9 @@
 
 
 
-- (void)viewDidAppear:(BOOL)animated
-{
-//  UITableView* theTable = (UITableView*)self.view;
-//	[theTable deselectRowAtIndexPath:[theTable indexPathForSelectedRow] animated: YES];
-}
+//- (void)viewDidAppear:(BOOL)animated
+//{
+//}
 
 - (void) refresh
 { 
@@ -125,14 +123,6 @@
 //Note: this table cell code is nearly identical to the same method in searchresults and bookmarks,
 // but we want to be able to easily make them display differently, so it is replicated
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-      
-//NOT USING THIS FOR NOW, IB-specified cell.  we can use it later to make them pretty
-//  UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"tabCell"];
-//  if (cell == nil) {
-//    NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"TabCell" owner:self options:nil];
-//    cell = (UITableViewCell *)[nib objectAtIndex:0];
-//  }
-    
   static NSString *CellIdentifier = @"tabCell";
   
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -146,7 +136,6 @@
   cell.textLabel.minimumFontSize = 13;
   cell.textLabel.text = [tabItem objectForKey:@"title"];
   cell.detailTextLabel.text = [tabItem objectForKey:@"uri"];
-  //cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
 
   //set it to the default to start
   cell.imageView.image = [retainedFavicons objectForKey:@"blankfavicon.ico"];
@@ -170,50 +159,11 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
+  TapActionController* tap = [[[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text] autorelease];
   [tap chooseAction];
   [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-}
-*/
-
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 
 - (void)dealloc {
