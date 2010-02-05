@@ -51,7 +51,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">ff-logo-small.png</string>
+							<string key="NSResourceName">Logo.png</string>
 						</object>
 					</object>
 					<object class="IBUIImageView" id="887748856">
@@ -108,7 +108,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">Firefox-title.png</string>
+							<string key="NSResourceName">Weave.png</string>
 						</object>
 					</object>
 					<object class="IBUIImageView" id="696088723">
@@ -123,7 +123,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">Flashback-title.png</string>
+							<string key="NSResourceName">Sync-title.png</string>
 						</object>
 					</object>
 					<object class="IBUIImageView" id="614097002">
@@ -239,8 +239,8 @@
 							<reference ref="972591687"/>
 							<reference ref="887748856"/>
 							<reference ref="1059878001"/>
-							<reference ref="696088723"/>
 							<reference ref="614097002"/>
+							<reference ref="696088723"/>
 						</object>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -281,13 +281,13 @@
 						<reference key="parent" ref="191373211"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">14</int>
-						<reference key="object" ref="696088723"/>
+						<int key="objectID">16</int>
+						<reference key="object" ref="614097002"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">16</int>
-						<reference key="object" ref="614097002"/>
+						<int key="objectID">14</int>
+						<reference key="object" ref="696088723"/>
 						<reference key="parent" ref="191373211"/>
 					</object>
 				</object>
@@ -312,7 +312,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>SplashScreenController</string>
 					<string>UIResponder</string>
-					<string>{{442, 249}, {320, 480}}</string>
+					<string>{{736, 263}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -339,7 +339,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">17</int>
+			<int key="maxID">19</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

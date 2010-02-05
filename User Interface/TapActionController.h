@@ -34,5 +34,6 @@
 
 - (id) initWithDescription:(NSString*)desc andLocation:(NSString*)loc;
 - (void) chooseAction;
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 @end

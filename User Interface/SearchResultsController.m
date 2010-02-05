@@ -187,7 +187,8 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath 
 {
   UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-  TapActionController* tap = [[[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text] autorelease];
+//  TapActionController* tap = [[[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text] autorelease];
+  TapActionController* tap = [[TapActionController alloc] initWithDescription:cell.textLabel.text andLocation:cell.detailTextLabel.text];
   [tap chooseAction];
   [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
