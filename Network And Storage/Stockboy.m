@@ -192,6 +192,8 @@ static NSDictionary *_gNetworkPaths = nil;
 	
 	// Ok, now we have all the tabs, decrypted, so tell the Store
   [[Store getStore] installTabSetDictionary:userTabSets];
+  
+  [[Store getStore] loadTabsFromDB];
 }
 
 
@@ -200,7 +202,8 @@ static NSDictionary *_gNetworkPaths = nil;
 	NSString *bmarksURL = [NSString stringWithFormat:[Stockboy urlForWeaveObject:@"Bookmarks Update URL"], [[Store getStore] getBookmarksSyncTime]];
 	NSData *bmarks = [Fetcher getURLSynchronous:bmarksURL fromCluster:_cluster withUser:[[Store getStore] getUsername] andPassword:[[Store getStore] getPassword]];
 	if (bmarks == nil) return; //better error handling
-  else [bmarks autorelease];
+
+	//else [bmarks autorelease]; this may be causing problems
   
 	// This will hold all the resultant decrypted bookmarks that need to be added
 	NSMutableDictionary *userBmarks = [NSMutableDictionary dictionary];
@@ -233,7 +236,7 @@ static NSDictionary *_gNetworkPaths = nil;
 			}
 
 			// Do the decrypt
-			NSString* plaintextBmark = [[CryptoUtils decryptObject:encryptedBmark withKey:theKey] autorelease];
+			NSString* plaintextBmark = [CryptoUtils decryptObject:encryptedBmark withKey:theKey];
 			
 			// Hmm, sometimes plaintext appears to be nil. Why?
 			if (plaintextBmark != nil) {
@@ -255,9 +258,10 @@ static NSDictionary *_gNetworkPaths = nil;
 	for (NSString* anID in [userBmarks allKeys]) {
 		[[Store getStore] addBookmarkRecord:[userBmarks objectForKey:anID] withID:anID];
 	}
-  
+	
 	[[Store getStore] updateBookmarksSyncTime];
 	[[Store getStore] endTransaction];
+	[[Store getStore] loadBookmarksFromDB];
 }
 
 -(void) updateHistory
@@ -326,6 +330,7 @@ static NSDictionary *_gNetworkPaths = nil;
 
 	[[Store getStore] updateHistorySyncTime];
 	[[Store getStore] endTransaction];
+	[[Store getStore] loadHistoryFromDB];
 }
 
 
@@ -351,9 +356,13 @@ static NSDictionary *_gNetworkPaths = nil;
 	NSArray* keyEntries = [keyring allValues];
 	NSData *symKey = [[[NSData alloc] initWithBase64EncodedString:[keyEntries objectAtIndex:0]] autorelease];
 	NSData *usymKey = [CryptoUtils unwrapSymmetricKey:symKey withPrivateKey: _privateKey];
-	NSDictionary *bulkEntry = [[NSDictionary dictionaryWithObjectsAndKeys:
-								[[NSData alloc] initWithBase64EncodedString:[payload objectForKey:@"bulkIV"]], @"iv",
-								usymKey, @"key", nil] autorelease];
+
+	NSData *ivValue = [[[NSData alloc] initWithBase64EncodedString:[payload objectForKey:@"bulkIV"]] autorelease];
+
+	NSDictionary *bulkEntry = [NSDictionary dictionaryWithObjectsAndKeys:
+								ivValue, @"iv",
+								usymKey, @"key", 
+								nil];
 	return bulkEntry;
 }
 

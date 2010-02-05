@@ -36,6 +36,7 @@
   {
     description = [desc retain];
     location = [loc retain];
+		[self retain]; // I am responsible for cleaning up after myself
   }
   return self;
 }
@@ -104,6 +105,7 @@
       break;
     }
   }
+	[self release];
 }
 
 

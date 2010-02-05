@@ -748,6 +748,7 @@ static int compareBookmarks(id left,  id right, void* ctx)
   //this query should give us all favicon paths that are not already in the favicon table
 	const char *faviconQuery = "SELECT DISTINCT favicon FROM moz_places EXCEPT SELECT url FROM moz_favicons";
 		
+		
 	if (sqlite3_prepare_v2(sqlDatabase, faviconQuery, -1, &dbStatement, NULL) == SQLITE_OK) 
 	{
 		while (sqlite3_step(dbStatement) == SQLITE_ROW) 
@@ -794,6 +795,7 @@ static int compareBookmarks(id left,  id right, void* ctx)
 	/* Store favicons */
 	NSDictionary *resp = [JSONObject JSONValue];
 	iter = [resp keyEnumerator];
+	
 	while (key = [iter nextObject])
   {
 		value = [resp valueForKey:key];
@@ -825,9 +827,6 @@ static int compareBookmarks(id left,  id right, void* ctx)
 		NSLog(@"threw %@", theException);
 		return NO;
 	}
-	
-  [self loadBookmarksFromDB];
-
 	return YES;
 }
 
@@ -866,8 +865,6 @@ static int compareBookmarks(id left,  id right, void* ctx)
 		NSLog(@"threw %@", theException);
 		return NO;
 	}
-
-  [self loadHistoryFromDB];
 
 	return YES;
 }
@@ -918,8 +915,6 @@ static int compareBookmarks(id left,  id right, void* ctx)
     [self addTabSet:[tabSetDict objectForKey:anID] withClientID:anID];
   }
   [self endTransaction];
-  
-  [self loadTabsFromDB];
   return YES;
 }
 

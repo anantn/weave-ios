@@ -204,7 +204,6 @@
                          [passphrase cStringUsingEncoding:NSUTF8StringEncoding],
                          -1, (void*)tsalt, [salt length], 4096, 32, final
                          );
-	
 	[salt release];
 	
 	NSData *iv = [[[NSData alloc] initWithBase64EncodedString:[payload valueForKey:@"iv"]] autorelease];
@@ -246,7 +245,7 @@
 	/* Step 3. Sanity check */
 	if (off + len > [rsaKey length])
 		len = [rsaKey length] - off;
-	
+
 	/* Step 4. Now extract actual key */
 	NSData *privkey = [rsaKey subdataWithRange:NSMakeRange(off, len)];	
 	if (privkey) {
@@ -350,6 +349,7 @@
 	void *buffer = calloc(bufferSize, sizeof(uint8_t));
 	
 	size_t numBytesDecrypted = 0;
+
 	CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt, kCCAlgorithmAES128, kCCOptionPKCS7Padding /* MRH experiment */,
                                         [key bytes], kCCKeySizeAES256,
                                         [iv bytes],
