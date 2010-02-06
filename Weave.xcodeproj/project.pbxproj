@@ -56,6 +56,8 @@
 		37F1A78810E9759C001F4C90 /* SplashScreenController.m in Sources */ = {isa = PBXBuildFile; fileRef = 37F1A78610E9759C001F4C90 /* SplashScreenController.m */; };
 		37F1A78910E9759C001F4C90 /* SplashScreenController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 37F1A78710E9759C001F4C90 /* SplashScreenController.xib */; };
 		4A275D8E10925B740021DCB4 /* NetworkPaths.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4A275D8D10925B740021DCB4 /* NetworkPaths.plist */; };
+		4A6661B7111CA2230049C977 /* Weave.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A6661B6111CA2230049C977 /* Weave.png */; };
+		4ADC74AC1118FB8200FA18E8 /* Sync-title.png in Resources */ = {isa = PBXBuildFile; fileRef = 4ADC74AB1118FB8200FA18E8 /* Sync-title.png */; };
 		4AFBD419108BC64700C4FD32 /* About.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD412108BC64700C4FD32 /* About.png */; };
 		4AFBD41A108BC64700C4FD32 /* Box.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD413108BC64700C4FD32 /* Box.png */; };
 		4AFBD41B108BC64700C4FD32 /* Document.png in Resources */ = {isa = PBXBuildFile; fileRef = 4AFBD414108BC64700C4FD32 /* Document.png */; };
@@ -147,6 +149,8 @@
 		37F1A78610E9759C001F4C90 /* SplashScreenController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SplashScreenController.m; sourceTree = "<group>"; };
 		37F1A78710E9759C001F4C90 /* SplashScreenController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SplashScreenController.xib; sourceTree = "<group>"; };
 		4A275D8D10925B740021DCB4 /* NetworkPaths.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = NetworkPaths.plist; sourceTree = "<group>"; };
+		4A6661B6111CA2230049C977 /* Weave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Weave.png; sourceTree = "<group>"; };
+		4ADC74AB1118FB8200FA18E8 /* Sync-title.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Sync-title.png"; sourceTree = "<group>"; };
 		4AFBD412108BC64700C4FD32 /* About.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = About.png; sourceTree = "<group>"; };
 		4AFBD413108BC64700C4FD32 /* Box.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Box.png; sourceTree = "<group>"; };
 		4AFBD414108BC64700C4FD32 /* Document.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Document.png; sourceTree = "<group>"; };
@@ -329,8 +333,10 @@
 		4AFBD411108BC64700C4FD32 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				4A6661B6111CA2230049C977 /* Weave.png */,
 				3758E9A510F1C03B00C2C760 /* back-arrow.png */,
 				3758E96210F15A3900C2C760 /* Firefox-title.png */,
+				4ADC74AB1118FB8200FA18E8 /* Sync-title.png */,
 				3758E96310F15A3900C2C760 /* Flashback-title.png */,
 				37F1A72210E88FE5001F4C90 /* ff-logo-small.png */,
 				37F1A67510E81EB6001F4C90 /* ff-logo-medium.png */,
@@ -427,6 +433,8 @@
 				3758E96410F15A3900C2C760 /* Firefox-title.png in Resources */,
 				3758E96510F15A3900C2C760 /* Flashback-title.png in Resources */,
 				3758E9A610F1C03B00C2C760 /* back-arrow.png in Resources */,
+				4ADC74AC1118FB8200FA18E8 /* Sync-title.png in Resources */,
+				4A6661B7111CA2230049C977 /* Weave.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,7 +492,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Weave_Prefix.pch;
@@ -498,6 +506,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -505,6 +514,7 @@
 				GCC_PREFIX_HEADER = Weave_Prefix.pch;
 				INFOPLIST_FILE = "Weave-Info.plist";
 				PRODUCT_NAME = Weave;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 			};
 			name = Debug;
 		};
@@ -512,11 +522,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Weave_Prefix.pch;
 				INFOPLIST_FILE = "Weave-Info.plist";
 				PRODUCT_NAME = Weave;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 			};
 			name = Release;
 		};
